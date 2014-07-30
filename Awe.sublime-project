@@ -1,0 +1,23 @@
+{
+  "folders":
+  [
+    {
+      "path": ".",
+      "folder_exclude_patterns":
+      [
+        ".awe",
+        ".bundle",
+        "fixtures/*/dist",
+        "lib",
+        "man",
+        "node_modules",
+        "ruby_bundle"
+      ],
+      "file_exclude_patterns":
+      [
+         "*.sublime-workspace",
+         "Gemfile.lock"
+      ]
+    }
+  ]
+}

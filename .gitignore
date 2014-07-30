@@ -1,0 +1,16 @@
+# Compiled JavaScript (run `grunt build` or `grunt lib`)
+/lib/
+
+# Compiled man pages (run `grunt build` or `grunt man`)
+/man/
+
+# Output from test scripts (run `grunt test`)
+/fixtures/*/dist/
+
+# Ruby & Node packages
+/.bundle/
+/node_modules/
+/ruby_bundle/
+
+# Sublime Text workspace
+/*.sublime-workspace

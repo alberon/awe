@@ -1,0 +1,7 @@
+.main-red {
+  color: red;
+}
+
+.also-red {
+  @extend .main-red;
+}

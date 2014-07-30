@@ -1,0 +1,16 @@
+# Source files
+/lib-src/
+/man-src/
+
+# Test scripts & fixtures
+/fixtures/
+/test/
+
+# Ruby packages (Note: node_modules/ is ignored automatically)
+/.bundle/
+/ruby_bundle/
+
+# Editor files
+/.editorconfig
+/*.sublime-project
+/*.sublime-workspace
