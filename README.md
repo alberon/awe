@@ -35,9 +35,35 @@ Awe is designed for web/software development agencies and freelancers managing m
 - Growl notification of build errors
 - Interactive menu for less technical frontend developers
 
+## Documentation
+
+### Getting started
+
+- [Requirements](docs/start-requirements.md)
+- [Installation](docs/start-installation.md)
+- [Configuration - `awe.yaml`](docs/start-config.md)
+- [Command-line interface - `awe`](docs/start-cli.md)
+- [Cache files - `.awe/` directory](docs/start-cache.md)
+
+### Assets
+
+- [Introduction](docs/assets-introduction.md)
+- [Tutorial](docs/assets-tutorial.md)
+- [Quick reference](docs/assets-reference.md)
+
+### Maintenance
+
+- [Upgrading](docs/maintain-upgrade.md)
+- [Uninstalling](docs/maintain-uninstall.md)
+
+## Contributing to Awe
+
+- [Installing Awe from Git](docs/contrib-installing-from-git.md)
+- [Grunt tasks](docs/contrib-grunt.md)
+- [Writing documentation](docs/contrib-writing-documentation.md)
+- [Releasing new versions](docs/contrib-release.md)
+
 ## More information
 
-- [Installation](docs/installation.md)
-- [Documentation](docs/)
 - [Changelog](CHANGELOG.md)
 - [MIT License](LICENSE.txt)

@@ -26,4 +26,4 @@ $ awe build
 $ awe watch
 ```
 
-For details of these commands, please continue to rest of the [documentation](./).
+For details of these commands, please continue to rest of the [documentation](../README.md#documentation).

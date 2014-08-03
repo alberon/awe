@@ -51,4 +51,4 @@ Alternatively you can create a config file by hand, or copy one from another pro
 
 The file is designed to be split up into several sections, such as `assets`, `environments`, `config`, `mysql`, `crontab`, etc. to support additional functionality in the future while maintaining backwards compatibility. At this time, only `assets` is supported.
 
-For details of the options supported, please continue to rest of the [documentation](./).
+For details of the options supported, please continue to rest of the [documentation](../README.md#documentation).
