@@ -1,5 +1,7 @@
 # Awe
 
+***Warning: This project is not yet released, and not ready to be used yet!***
+
 Awe simplifies the building and maintenance of websites / web apps, by handling the compilation & minification of **assets**, and **deployment** to remote (live/staging) servers.
 
 Awe is designed for web/software development agencies and freelancers managing many different websites, so:
