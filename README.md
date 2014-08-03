@@ -33,20 +33,9 @@ Awe is designed for web/software development agencies and freelancers managing m
 - Growl notification of build errors
 - Interactive menu for less technical frontend developers
 
-## Documentation
-
-- [Installation](docs/installation.md)
-- [Command-line summary](docs/cli-summary.md)
-- [Configuration summary](docs/configuration.md)
-- [Assets](docs/assets.md)
-
-### For contributors to Awe
-
-- [Installing from Git](docs/installing-from-git.md)
-- Using Grunt - *TODO*
-- [Writing documentation](docs/writing-documentation.md)
-
 ## More information
 
+- [Installation](docs/installation.md)
+- [Documentation](docs/)
 - [Changelog](CHANGELOG.md)
 - [MIT License](LICENSE.txt)
