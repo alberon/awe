@@ -1,8 +1,3 @@
-#===============================================================================
-# This file is for development of this module.
-# See lib-src/grunt/Gruntfile.coffee for the implementation of some subcommands.
-#===============================================================================
-
 fs = require('fs')
 
 module.exports = (grunt) ->
