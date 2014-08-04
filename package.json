@@ -19,12 +19,21 @@
   "dependencies": {
     "abbrev": "^1.0.5",
     "async": "^0.9.0",
-    "chai": "^1.9.1",
-    "chai-fs": "0.0.3",
     "chalk": "^0.4.0",
     "coffee-script": "^1.7.1",
     "findup": "^0.1.5",
     "glob": "^4.0.0",
+    "js-yaml": "^3.0.2",
+    "lodash": "^2.4.1",
+    "mkdirp": "^0.5.0",
+    "rimraf": "^2.2.8",
+    "string": "^1.8.1",
+    "tmp": "0.0.23",
+    "watch": "^0.10.0"
+  },
+  "devDependencies": {
+    "chai": "^1.9.1",
+    "chai-fs": "0.0.3",
     "grunt": "^0.4.5",
     "grunt-clear": "^0.2.1",
     "grunt-cli": "^0.1.13",
@@ -36,18 +45,9 @@
     "grunt-contrib-watch": "^0.6.1",
     "grunt-css-url-rewrite": "^0.3.5",
     "grunt-newer": "^0.7.0",
-    "jit-grunt": "^0.7.0",
-    "js-yaml": "^3.0.2",
-    "lodash": "^2.4.1",
-    "mkdirp": "^0.5.0",
-    "string": "^1.8.1",
-    "tmp": "0.0.23",
-    "watch": "^0.10.0"
-  },
-  "devDependencies": {
     "grunt-markedman": "davejamesmiller/grunt-markedman#fix-done-calls",
     "grunt-mocha-test": "^0.10.2",
     "grunt-shell": "^0.7.0",
-    "rimraf": "^2.2.8"
+    "jit-grunt": "^0.7.0"
   }
 }

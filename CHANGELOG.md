@@ -2,7 +2,11 @@
 
 This project uses [Semantic Versioning](http://semver.org/).
 
-## 0.0.2 - In development
+## 0.0.3 - 4 Aug 2014
+
+- Bug fix - `rimraf` was in `devDependencies` not `dependencies`
+
+## 0.0.2 - 4 Aug 2014
 
 - `awe build` (new)
   - Compile `.scss` and `.coffee` files
