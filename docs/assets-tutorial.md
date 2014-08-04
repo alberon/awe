@@ -160,11 +160,11 @@ You may need to be aware of the following configuration options that Awe uses:
 
 Compass has the ability to take several small icons and combine them into a single image, then use that as a sprite in your CSS.
 
-To do this, first create a directory inside `src/img/` with the name of the sprite - e.g. `src/img/navbar/`. Inside that directory create a PNG image for each icon. You can also have variants ending with `_hover`, `_active` and `_target` which map to `:hover`, `:active` and `:target` in the CSS. So, for example, you may have a directory structure like this:
+To do this, first create a directory inside `src/_sprites/` with the name of the sprite - e.g. `src/_sprites/navbar/`. Inside that directory create a PNG image for each icon. You can also have variants ending with `_hover`, `_active` and `_target` which map to `:hover`, `:active` and `:target` in the CSS. So, for example, you may have a directory structure like this:
 
 ```
 src/
-├── img/
+├── _sprites/
 │   └── navbar/
 │       ├── edit.png
 │       ├── edit_hover.png
@@ -178,27 +178,18 @@ Then in the SCSS file enter the following:
 
 ```scss
 @import 'compass/utilities/sprites';
-@import 'navbar/*.png';              // This path is relative to the img/ directory
+@import 'navbar/*.png';              // This path is relative to the _sprites/ directory
 @include all-navbar-sprites;         // Replace 'navbar' with the directory name
 ```
 
 This will generate a directory structure similar to the following:
 
 ```
-src/
+build/
 ├── _generated/
 │   └── navbar-s71af1c7425.png
-├── img/
-│   └── navbar/
-│       ├── edit.png
-│       ├── edit_hover.png
-│       ├── ...
-│       ├── save.png
-│       └── save_hover.png
 └── sample.css
 ```
-
-**Note:** The `img/navbar/` directory is not really needed, but there is currently no easy way to prevent it being generated.
 
 And the following classes will appear in the output file, ready for you to use in your HTML:
 
@@ -214,7 +205,7 @@ And the following classes will appear in the output file, ready for you to use i
 .navbar-save:hover   { ... }
 ```
 
-For further details (and more complex scenarios), please see the Compass [spriting documentation](http://compass-style.org/help/tutorials/spriting/). However, be aware that the Compass documentation refers to `images/`, whereas Awe uses `img/`.
+For further details (and more complex scenarios), please see the Compass [spriting documentation](http://compass-style.org/help/tutorials/spriting/). However, be aware that the Compass documentation refers to `images/`, whereas Awe uses either `_sprites/` or `img/`.
 
 ## Combining files
 

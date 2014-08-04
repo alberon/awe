@@ -228,9 +228,10 @@ compileSass = (src, group, cb) ->
         output_style = :expanded
 
         # Input files
-        sass_path   = '#{group.src}'
-        images_path = '#{group.src}/img'
-        fonts_path  = '#{group.src}/fonts'
+        sass_path        = '#{group.src}'
+        images_path      = '#{group.src}/img'
+        fonts_path       = '#{group.src}/fonts'
+        sprite_load_path << '#{group.src}/_sprites'
 
         # Output to a temp directory so we can catch any generated files too
         css_path              = '#{results.tmpDir}'
