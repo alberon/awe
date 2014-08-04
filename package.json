@@ -2,6 +2,18 @@
   "name": "awe",
   "version": "0.0.3",
   "description": "Simplifies the building and maintenance of websites / web apps, by handling the compilation & minification of assets, and deployment to remote servers",
+  "license": "MIT",
+  "homepage": "https://github.com/davejamesmiller/awe",
+  "bugs": "https://github.com/davejamesmiller/awe/issues",
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/davejamesmiller/awe.git"
+  },
+  "author": {
+    "name" : "Dave James Miller",
+    "email" : "dave@davejamesmiller.com",
+    "url" : "http://davejamesmiller.com/"
+  },
   "preferGlobal": true,
   "directories": {
     "bin": "./bin",
