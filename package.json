@@ -1,7 +1,7 @@
 {
   "name": "awe",
   "version": "0.0.1",
-  "description": "Alberon's asset building & deployment tool",
+  "description": "Simplifies the building and maintenance of websites / web apps, by handling the compilation & minification of assets, and deployment to remote servers",
   "preferGlobal": true,
   "private": true,
   "directories": {
