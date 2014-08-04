@@ -3,7 +3,6 @@
   "version": "0.0.2",
   "description": "Simplifies the building and maintenance of websites / web apps, by handling the compilation & minification of assets, and deployment to remote servers",
   "preferGlobal": true,
-  "private": true,
   "directories": {
     "bin": "./bin",
     "lib": "./lib",
