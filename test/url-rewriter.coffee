@@ -103,5 +103,5 @@ describe 'UrlRewriter', ->
   it 'should support #anchors', ->
     expect(rewrite('sample.gif#anchor')).to.equal 'sample.gif#anchor'
 
-  it 'should support #anchors alone (for SVG fonts)', ->
+  it 'should support plain #anchors with no filename (for SVG fonts)', ->
     expect(rewrite('#anchor')).to.equal '#anchor'
