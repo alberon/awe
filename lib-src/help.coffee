@@ -23,4 +23,4 @@ exports.run = (command) ->
   console.log(chalk.bold.underline('See also'))
   console.log('')
   # TODO: Check if it was install from Git or npm - if Git, display the branch name or commit id?
-  console.log('  Documentation: ' + chalk.underline('https://github.com/davejamesmiller/awe/blob/' + pkg.version + '/README.md'))
+  console.log('  Documentation: ' + chalk.underline('https://github.com/davejamesmiller/awe/blob/v' + pkg.version + '/README.md'))
