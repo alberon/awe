@@ -7,7 +7,7 @@
       [
         ".awe",
         ".bundle",
-        "fixtures/*/dist",
+        "fixtures/*/build",
         "lib",
         "man",
         "node_modules",

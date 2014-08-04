@@ -20,10 +20,10 @@ Next, add the following to [`awe.yaml`](start-config.md), altering the paths as 
 assets:
     theme:
         src: www/wp-content/themes/mytheme/src/
-        dest: www/wp-content/themes/mytheme/dist/
+        dest: www/wp-content/themes/mytheme/build/
 ```
 
-**Note:** The `dist/` directory **should not** be an existing directory as anything inside will be deleted.
+**Note:** The `build/` directory **should not** be an existing directory as anything inside will be deleted.
 
 ### Create your source files
 
@@ -42,7 +42,7 @@ src/
 
 ### Run the `build` command
 
-Finally, run this command to generate the `dist/` directory:
+Finally, run this command to generate the `build/` directory:
 
 ```bash
 $ awe build
@@ -51,7 +51,7 @@ $ awe build
 Since there are no special files in the list above, you will get exactly the same structure:
 
 ```
-dist/
+build/
 ├── img/
 │   └── logo.png
 ├── sample1.css
@@ -77,7 +77,7 @@ src/
 Would result in this output:
 
 ```
-dist/
+build/
 ├── sample.js
 └── subdirectory/
     └── A.js
@@ -97,7 +97,7 @@ src/
 Would result in this output:
 
 ```
-dist/
+build/
 ├── sample.css
 └── subdirectory/
     └── A.css
@@ -118,7 +118,7 @@ src/
 Will result in this output:
 
 ```
-dist/
+build/
 └── styles.css
 ```
 
@@ -235,7 +235,7 @@ src/
 First the `.scss` files will be compiled to CSS, then all 4 files will be combined (in the order `1.css`, `2.scss`, `3/A.css`, `3/B.scss`) into a single `combined.css` file:
 
 ```
-dist/
+build/
 └── combined.css
 ```
 
@@ -268,7 +268,7 @@ To enable Bower support in Awe, add `bower: true` to the asset group in the conf
 assets:
     theme:
         src: www/wp-content/themes/mytheme/src/
-        dest: www/wp-content/themes/mytheme/dist/
+        dest: www/wp-content/themes/mytheme/build/
         bower: true
 ```
 
@@ -303,7 +303,7 @@ src/
 Will result in:
 
 ```
-dist/
+build/
 ├── _bower/     ->  ..../bower_components/
 ├── app.css
 └── app.js

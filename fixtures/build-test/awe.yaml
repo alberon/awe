@@ -2,10 +2,10 @@ assets:
 
   test1:
     src: src1/
-    dest: dist/1/
+    dest: build/1/
     bower: true
 
   test2:
     # Deliberately removed the trailing / here
     src: src2
-    dest: dist/2
+    dest: build/2

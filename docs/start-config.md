@@ -13,7 +13,7 @@ assets:
     theme:
         # This is a comment
         src: www/wp-content/themes/mytheme/src/
-        dest: www/wp-content/themes/mytheme/dist/
+        dest: www/wp-content/themes/mytheme/build/
         bower: true
 ```
 
@@ -25,7 +25,7 @@ Note how indentation is used to determine the structure, similar to Python and C
         "theme": {
             "//": "This is a hacky way to add a comment!! http://stackoverflow.com/a/244858/167815",
             "src": "www/wp-content/themes/mytheme/src/",
-            "dest": "www/wp-content/themes/mytheme/dist/",
+            "dest": "www/wp-content/themes/mytheme/build/",
             "bower": true
         }
     }

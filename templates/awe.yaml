@@ -11,7 +11,7 @@ assets:
 
         # Compiled files
         # (Warning: There must be no other files in this directory - they will be deleted)
-        dest: www/wp-content/themes/mytheme/dist/
+        dest: www/wp-content/themes/mytheme/build/
 
         # Enable Bower support?
         bower: false

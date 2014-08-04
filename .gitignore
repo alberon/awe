@@ -5,7 +5,7 @@
 /man/
 
 # Output from test scripts (run `grunt test`)
-/fixtures/*/dist/
+/fixtures/*/build/
 
 # Ruby & Node packages
 /.bundle/

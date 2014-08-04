@@ -7,7 +7,7 @@ assets:
 
     groupname:                  # required (a-z, 0-9 only)
         src: path/to/src/       # required
-        dest: path/to/dist/     # required
+        dest: path/to/build/    # required
         bower: true             # optional (default: false)
 
     anothergroup:               # optional
@@ -29,7 +29,7 @@ $ awe watch
 ```
 SOURCE                      DESTINATION                      NOTES
 ──────────────────────────  ───────────────────────────────  ───────────────────────────────────────
-src/                        dist/
+src/                        build/
 │                           │
 │                           ├── _bower/                    < Symlink to bower_components/ directory
 │                           │

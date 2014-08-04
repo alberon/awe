@@ -17,13 +17,13 @@ describe 'build', ->
   describe '(regular)', ->
     fixtures = path.resolve(__dirname, '../fixtures/build-test')
     awedir   = path.join(fixtures, '.awe')
-    dist     = path.join(fixtures, 'dist')
-    dist1    = path.join(dist, '1')
-    dist2    = path.join(dist, '2')
+    build    = path.join(fixtures, 'build')
+    build1   = path.join(build, '1')
+    build2   = path.join(build, '2')
 
     before ->
       rmdir(awedir)
-      rmdir(dist)
+      rmdir(build)
 
 
     it 'should build successfully', (done) ->
@@ -34,18 +34,18 @@ describe 'build', ->
 
 
     it 'should create a symlink to the source files for sourcemaps support', ->
-      expect("#{dist1}/_src").to.be.a.directory()
-      expect(fs.lstatSync("#{dist1}/_src").isSymbolicLink()).to.be.true
-      expect("#{dist1}/_src/coffeescript.coffee").to.be.a.file()
+      expect("#{build1}/_src").to.be.a.directory()
+      expect(fs.lstatSync("#{build1}/_src").isSymbolicLink()).to.be.true
+      expect("#{build1}/_src/coffeescript.coffee").to.be.a.file()
 
 
     it 'should create a symlink to bower_components/', ->
-      expect("#{dist1}/_bower").to.be.a.directory()
-      expect(fs.lstatSync("#{dist1}/_bower").isSymbolicLink()).to.be.true
+      expect("#{build1}/_bower").to.be.a.directory()
+      expect(fs.lstatSync("#{build1}/_bower").isSymbolicLink()).to.be.true
 
 
     it 'should compile CoffeeScript files', ->
-      expect("#{dist1}/coffeescript.js").to.have.content """
+      expect("#{build1}/coffeescript.js").to.have.content """
         (function() {
           console.log('JavaScript');
 
@@ -54,7 +54,7 @@ describe 'build', ->
 
 
     it 'should compile SASS files', ->
-      expect("#{dist1}/sass.css").to.have.content """
+      expect("#{build1}/sass.css").to.have.content """
         .main-red, .also-red {
           color: red;
         }\n
@@ -62,36 +62,36 @@ describe 'build', ->
 
 
     it 'should copy other files directly', ->
-      expect("#{dist1}/javascript.js").to.have.content """
+      expect("#{build1}/javascript.js").to.have.content """
         console.log('JavaScript');\n
       """
 
-      expect("#{dist1}/stylesheet.css").to.have.content """
+      expect("#{build1}/stylesheet.css").to.have.content """
         .red {
           color: red;
         }\n
       """
 
-      expect("#{dist1}/unknown.file").to.have.content """
+      expect("#{build1}/unknown.file").to.have.content """
         Unknown\n
       """
 
 
     it 'should compile the second assets group to a separate directory', ->
-      expect("#{dist2}/coffeescript2.js").to.be.a.file()
-      expect("#{dist2}/sass2.css").to.be.a.file()
-      expect("#{dist2}/unknown2.file").to.be.a.file()
+      expect("#{build2}/coffeescript2.js").to.be.a.file()
+      expect("#{build2}/sass2.css").to.be.a.file()
+      expect("#{build2}/unknown2.file").to.be.a.file()
 
 
     it 'should ignore files starting with an underscore', ->
-      expect("#{dist1}/_vars.scss").to.not.be.a.path()
-      expect("#{dist1}/_vars.css").to.not.be.a.path()
-      expect("#{dist1}/_ignored.coffee").to.not.be.a.path()
-      expect("#{dist1}/_ignored.js").to.not.be.a.path()
+      expect("#{build1}/_vars.scss").to.not.be.a.path()
+      expect("#{build1}/_vars.css").to.not.be.a.path()
+      expect("#{build1}/_ignored.coffee").to.not.be.a.path()
+      expect("#{build1}/_ignored.js").to.not.be.a.path()
 
 
     it 'should rewrite relative URLs in symlinked files', ->
-      expect("#{dist1}/sample.css").to.have.content """
+      expect("#{build1}/sample.css").to.have.content """
         body {
           background: url(_bower/sample.gif);
         }\n
@@ -99,7 +99,7 @@ describe 'build', ->
 
 
     it 'should combine the content of *.js/ directories', ->
-      expect("#{dist1}/combined.js").to.have.content """
+      expect("#{build1}/combined.js").to.have.content """
         f1();
 
         (function() {
@@ -110,7 +110,7 @@ describe 'build', ->
 
 
     it 'should combine the content of *.css/ directories and rewrite URLs', ->
-      expect("#{dist1}/combined.css").to.have.content """
+      expect("#{build1}/combined.css").to.have.content """
         .css {
           background: url(_bower/sample.gif);
           color: red;
@@ -125,7 +125,7 @@ describe 'build', ->
 
     it 'should warn about invalid filenames in CSS, but build anyway', ->
       # TODO: Not currently testing the warning message, just that it builds OK
-      expect("#{dist1}/has-invalid-url.css").to.have.content """
+      expect("#{build1}/has-invalid-url.css").to.have.content """
         .css {
           background: url(invalid.gif);
         }\n
@@ -133,7 +133,7 @@ describe 'build', ->
 
 
     it 'should use relative paths for Compass URL helpers', ->
-      expect("#{dist1}/compass/urls.css").to.have.content """
+      expect("#{build1}/compass/urls.css").to.have.content """
         .imageUrl {
           background: url('../img/blank.gif');
         }
@@ -146,7 +146,7 @@ describe 'build', ->
 
 
     it 'should support the Compass inline-image() helper', ->
-      expect("#{dist1}/compass/inline.css").to.have.content """
+      expect("#{build1}/compass/inline.css").to.have.content """
         .inlineImage {
           background: url('data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAQAIBRAA7');
         }\n
@@ -154,12 +154,12 @@ describe 'build', ->
 
 
     it 'should support Compass sprites', ->
-      content = fs.readFileSync("#{dist1}/compass/sprite.css", encoding: 'utf8')
+      content = fs.readFileSync("#{build1}/compass/sprite.css", encoding: 'utf8')
       expect(content).to.match /\.icons-sprite, \.icons-icon1, \.icons-icon2 {/
       expect(content).to.match /background-image: url\('\.\.\/_generated\/icons-[^']+\.png'\);/
 
       icon = content.match(/background-image: url\('\.\.\/_generated\/(icons-[^']+\.png)'\);/)[1]
-      expect("#{dist1}/_generated/#{icon}").to.be.a.file()
+      expect("#{build1}/_generated/#{icon}").to.be.a.file()
 
 
     it 'should put cache files in .awe/ and create a .gitignore file', ->
