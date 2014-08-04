@@ -1,6 +1,6 @@
 {
   "name": "awe",
-  "version": "0.0.2",
+  "version": "0.0.1",
   "description": "Alberon's asset building & deployment tool",
   "preferGlobal": true,
   "private": true,
