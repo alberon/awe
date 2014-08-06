@@ -10,9 +10,10 @@ It will not work on Windows because some features use symlinks. It may be possib
 
 [Node.js](http://nodejs.org/) and [npm](https://www.npmjs.org/) must be installed. Awe is tested on Node.js 0.10.26, and may not work on older versions.
 
-To check it's installed, run:
+To check they're installed, run:
 
 ```bash
+$ node --version
 $ npm --version
 ```
 
@@ -42,9 +43,10 @@ $ curl https://www.npmjs.org/install.sh | sudo sh
 
 You must also have [Ruby](https://www.ruby-lang.org/) and [Bundler](http://bundler.io/) installed, because [Compass](http://compass-style.org/) is used to compile Sass to CSS. Since Awe is designed to be installed system-wide, they also need to be installed system-wide - i.e. not using [RVM](https://rvm.io/) or [rbenv](https://github.com/sstephenson/rbenv).
 
-To check it's installed, run:
+To check they're installed, run:
 
 ```bash
+$ ruby --version
 $ bundle --version
 ```
 
