@@ -5,6 +5,7 @@ chalk        = require('chalk')
 coffee       = require('coffee-script')
 css          = require('./css')
 fs           = require('fs')
+log          = require('./log')
 mkdirp       = require('mkdirp')
 path         = require('path')
 rmdir        = require('rimraf')
@@ -19,48 +20,6 @@ aweDir   = '.awe'
 aweRoot  = path.resolve(__dirname, '../..')
 bowerSrc = null
 siteRoot = null
-
-logActions =
-  compiled:  chalk.bold.yellow('Compiled')
-  copied:    chalk.bold.green('Copied')
-  created:   chalk.bold.red('Created')
-  emptied:   chalk.bold.red('Emptied')
-  generated: chalk.bold.yellow('Generated')
-  error:     chalk.bold.white.bgRed('Error')
-  symlink:   chalk.bold.magenta('Symlink')
-  warning:   chalk.bold.yellow.inverse('Warning')
-
-log = (action, file, notes = '', before = '', after = '') ->
-  actionText = logActions[action]
-  actionLength = chalk.stripColor(actionText).length
-  maxLength = 9 # Set to the length of the longest action text
-  spaces = S(' ').repeat(maxLength - actionLength + 2).s
-
-  if action == 'error'
-    file = chalk.bold.red(file)
-  else if action == 'warning'
-    file = chalk.bold.yellow(file)
-  else
-    file = chalk.bold(file)
-
-  if notes
-    notes = ' ' + chalk.gray(notes)
-
-  message = actionText + spaces + file + notes
-
-  if action == 'error'
-    console.error(before + message + after)
-  else
-    console.log(before + message + after)
-
-warning = (file, message) ->
-  message = S(message).trim().s
-  log('warning', file, null, '', "\n\n#{message}\n")
-
-error = (file, message, code = 2) ->
-  message = S(message).trim().s
-  log('error', file, null, '', "\n\n#{message}\n")
-  process.exit(code)
 
 exports.prepare = (root, cb) ->
   siteRoot = root
@@ -97,9 +56,9 @@ exports.compileGroup = (group, cb) ->
 
     destCreated: ['createDest', (cb, results) ->
       if results.destExists
-        log('emptied', group.dest + '/')
+        log.emptied(group.dest + '/')
       else
-        log('created', group.dest + '/')
+        log.created(group.dest + '/')
       cb()
     ]
 
@@ -111,7 +70,7 @@ exports.compileGroup = (group, cb) ->
     ]
 
     srcSymlinkCreated: ['symlinkSrc', (cb) ->
-      log('symlink', group.srcLink + '/')
+      log.symlink(group.srcLink + '/')
       cb()
     ]
 
@@ -128,7 +87,7 @@ exports.compileGroup = (group, cb) ->
 
     bowerSymlinkCreated: ['symlinkBower', (cb) ->
       if group.bower
-        log('symlink', group.bowerPath + '/')
+        log.symlink(group.bowerPath + '/')
       cb()
     ]
 
