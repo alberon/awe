@@ -2,6 +2,7 @@
 
 ## Preparation
 
+- Test with `grunt test`
 - Check the documentation is up-to-date
 - Update [`CHANGELOG.md`](../CHANGELOG.md) with the list of changes
 
