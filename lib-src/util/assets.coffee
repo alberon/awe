@@ -38,10 +38,10 @@ class exports.AssetGroup
 
   constructor: (group) ->
     @autoprefixer = group.autoprefixer
-    @bower = group.bower
+    @bower        = group.bower
 
     # Normalise paths
-    @srcPath = group.src.replace(/\/*$/, '')
+    @srcPath  = group.src.replace(/\/*$/, '')
     @destPath = group.dest.replace(/\/*$/, '')
 
     # Generated paths
@@ -49,10 +49,10 @@ class exports.AssetGroup
 
     if @bower
       @bowerLink = path.join(@destPath, '_bower')
-      @bowerSrc = path.join(sitePath, 'bower_components')
+      @bowerSrc  = path.join(sitePath, 'bower_components')
     else
       @bowerLink = null
-      @bowerSrc = null
+      @bowerSrc  = null
 
   build: (cb) =>
     async.auto
