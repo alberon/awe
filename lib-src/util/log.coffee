@@ -4,9 +4,9 @@ S     = require('string')
 
 actions =
   # Information
-  watching:  chalk.bold.cyan('\nWATCHING...')
-  building:  chalk.bold.cyan('\nBUILDING...')
-  finished:  chalk.bold.cyan('FINISHED.\n')
+  watching:  chalk.bold.cyan('WATCHING...')
+  building:  chalk.bold.cyan('BUILDING...')
+  finished:  chalk.bold.cyan('FINISHED.')
 
   # Source files
   error:     chalk.bold.white.bgRed('Error')

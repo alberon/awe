@@ -20,29 +20,28 @@ exports.run = (command) ->
     # Initial build
     build: ['prepare', (cb, results) ->
       log.building()
-      iterator = (group, cb) ->
-        assets.buildGroup(group, cb)
-      async.each(_.values(results.config.data.assets), iterator, cb)
+      groups = (group for name, group of results.config.data.assets)
+      async.each(groups, assets.buildGroup, cb)
     ]
 
     # Watch for changes
     watch: ['build', (cb, results) ->
+      console.log('')
       log.watching()
-      iterator = (group, cb) ->
-        monitor(group)
-        cb()
-      async.each(_.values(results.config.data.assets), iterator, cb)
+      groups = (group for name, group of results.config.data.assets)
+      async.each(groups, monitor, cb)
     ]
 
     # Error handler
     (err) -> throw err if err
 
-monitor = (group) ->
+monitor = (group, cb) ->
   running = false
   runAgain = false
 
   build = ->
     running = true
+    console.log('')
     log.building()
     assets.buildGroup(group, buildFinished)
 
@@ -57,6 +56,7 @@ monitor = (group) ->
       buildDebounced()
     else
       log.finished()
+      console.log('')
 
   watch group.src, (file) ->
     log.modified(file)
@@ -64,3 +64,5 @@ monitor = (group) ->
       runAgain = true
     else
       buildDebounced()
+
+  cb()
