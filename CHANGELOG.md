@@ -2,6 +2,11 @@
 
 This project uses [Semantic Versioning](http://semver.org/).
 
+## 0.0.6 - Unreleased
+
+- `awe build`
+  - Add support for Autoprefixer
+
 ## 0.0.5 - 7 Sep 2014
 
 - `awe build`
