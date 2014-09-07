@@ -1,7 +1,7 @@
 async  = require('async')
 assets = require('./util/assets')
 config = require('./util/config')
-log    = require('./util/log')
+output = require('./util/output')
 
 exports.run = (command) ->
   async.auto
@@ -17,14 +17,14 @@ exports.run = (command) ->
 
     # Build assets
     build: ['prepare', (cb, results) ->
-      log.building()
+      output.building()
       groups = (group for name, group of results.config.data.assets)
       async.each(groups, assets.buildGroup, cb)
     ]
 
     # Finished
     finished: ['build', (cb, results) ->
-      log.finished()
+      output.finished()
     ]
 
     # Error handler

@@ -2,7 +2,7 @@ _      = require('lodash')
 async  = require('async')
 assets = require('./util/assets')
 config = require('./util/config')
-log    = require('./util/log')
+output = require('./util/output')
 watch  = require('node-watch')
 
 exports.run = (command) ->
@@ -19,15 +19,15 @@ exports.run = (command) ->
 
     # Initial build
     build: ['prepare', (cb, results) ->
-      log.building()
+      output.building()
       groups = (group for name, group of results.config.data.assets)
       async.each(groups, assets.buildGroup, cb)
     ]
 
     # Watch for changes
     watch: ['build', (cb, results) ->
-      console.log('')
-      log.watching()
+      output.line()
+      output.watching()
       groups = (group for name, group of results.config.data.assets)
       async.each(groups, monitor, cb)
     ]
@@ -41,8 +41,8 @@ monitor = (group, cb) ->
 
   build = ->
     running = true
-    console.log('')
-    log.building()
+    output.line()
+    output.building()
     assets.buildGroup(group, buildFinished)
 
   buildDebounced = _.debounce(build, 250, maxWait: 1000)
@@ -55,11 +55,11 @@ monitor = (group, cb) ->
       runAgain = false
       buildDebounced()
     else
-      log.finished()
-      console.log('')
+      output.finished()
+      output.line()
 
   watch group.src, (file) ->
-    log.modified(file)
+    output.modified(file)
     if running
       runAgain = true
     else

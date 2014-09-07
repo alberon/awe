@@ -25,7 +25,7 @@ actions =
 # calculate it every time)
 maxLength = 11
 
-log = (action, filename = '', notes = '', message = '') ->
+output = (action, filename = '', notes = '', message = '') ->
 
   # Action
   text = actions[action]
@@ -60,12 +60,16 @@ log = (action, filename = '', notes = '', message = '') ->
 
 # Create a shorthand method for each action
 _(actions).forOwn (i, action) ->
-  log[action] = (file, notes, message) ->
-    log(action, file, notes, message)
+  output[action] = (file, notes, message) ->
+    output(action, file, notes, message)
 
 # Exit after displaying an error message
-log.error = (file, notes, message, code = 2) ->
-  log('error', file, notes, message)
+output.error = (file, notes, message, code = 2) ->
+  output('error', file, notes, message)
   process.exit(code) unless code == false
 
-module.exports = log
+# Output a blank line
+output.line = ->
+  console.log('')
+
+module.exports = output

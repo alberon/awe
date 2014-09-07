@@ -5,8 +5,8 @@ chalk        = require('chalk')
 coffee       = require('coffee-script')
 css          = require('./css')
 fs           = require('fs')
-log          = require('./log')
 mkdirp       = require('mkdirp')
+output       = require('./output')
 path         = require('path')
 rmdir        = require('rimraf')
 S            = require('string')
@@ -40,7 +40,7 @@ exports.buildGroup = (group, cb) ->
 
   async.auto
 
-    # Need to know if the destination already exists for the log message
+    # Need to know if the destination already exists for the output message
     destExists: (cb) ->
       fs.exists(group.dest, (exists) -> cb(null, exists))
 
@@ -56,9 +56,9 @@ exports.buildGroup = (group, cb) ->
 
     destCreated: ['createDest', (cb, results) ->
       if results.destExists
-        log.emptied(group.dest + '/')
+        output.emptied(group.dest + '/')
       else
-        log.created(group.dest + '/')
+        output.created(group.dest + '/')
       cb()
     ]
 
@@ -70,7 +70,7 @@ exports.buildGroup = (group, cb) ->
     ]
 
     srcSymlinkCreated: ['symlinkSrc', (cb) ->
-      log.symlink(group.srcLink + '/')
+      output.symlink(group.srcLink + '/')
       cb()
     ]
 
@@ -87,7 +87,7 @@ exports.buildGroup = (group, cb) ->
 
     bowerSymlinkCreated: ['symlinkBower', (cb) ->
       if group.bower
-        log.symlink(group.bowerPath + '/')
+        output.symlink(group.bowerPath + '/')
       cb()
     ]
 
@@ -103,7 +103,7 @@ writeFile = (dest, {content, count}, action, cb) ->
   fs.writeFile dest, content, (err) ->
     return cb(err) if err
     if action
-      log(action, dest, "(#{count} files)" if count > 1)
+      output(action, dest, "(#{count} files)" if count > 1)
     cb()
 
 compileFileOrDirectory = (src, dest, group, cb) ->
@@ -233,7 +233,7 @@ compileSass = (src, group, cb) ->
         else
           output = output.replace(/\n?\s*Use --trace for backtrace./, '')
           message = chalk.bold.red("SASS/COMPASS ERROR") + chalk.bold.black(" (#{code})") + "\n#{output}"
-          log.error(src, 'Sass', message)
+          output.error(src, 'Sass', message)
           cb('Sass compile failed')
     ]
 
@@ -338,7 +338,7 @@ rewriteCss = (content, srcFile, destFile, group) ->
     try
       urlRewriter.rewrite(url)
     catch e
-      log.warning(srcFile, '(URL rewriter)', e.message)
+      output.warning(srcFile, '(URL rewriter)', e.message)
       return url
 
   # Autoprefixer
