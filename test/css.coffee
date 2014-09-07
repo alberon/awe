@@ -111,3 +111,20 @@ describe 'css', ->
       """
 
       expect(css.rewriteUrls(input, callback)).to.equal output
+
+
+    it 'should replace URLs in fonts', ->
+
+      input = """
+        @font-face {
+          src: url(myfont.woff), auto;
+        }
+      """
+
+      output = """
+        @font-face {
+          src: url(<myfont.woff>), auto;
+        }
+      """
+
+      expect(css.rewriteUrls(input, callback)).to.equal output

@@ -13,7 +13,7 @@ exports.rewriteUrls = (content, callback) ->
   visitNode = (node) ->
     if node.type == 'stylesheet'
       node.stylesheet.rules.forEach(visitNode)
-    else if node.type == 'rule'
+    else if node.type == 'rule' || node.type == 'font-face'
       node.declarations.forEach(visitNode)
     else if node.type == 'declaration'
       rewriteNode(node)
