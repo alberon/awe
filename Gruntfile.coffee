@@ -72,6 +72,7 @@ module.exports = (grunt) ->
         files: [
           'lib-src/**/*.coffee'
           '!lib-src/build.coffee'
+          '!lib-src/util/assets.coffee'
           '!lib-src/util/css.coffee'
           '!lib-src/util/params.coffee'
           '!lib-src/util/UrlRewriter.coffee'
@@ -79,7 +80,7 @@ module.exports = (grunt) ->
         tasks: ['clear', 'lib']
 
       libBuild:
-        files: 'lib-src/build.coffee'
+        files: ['lib-src/build.coffee', 'lib-src/util/assets.coffee']
         tasks: ['clear', 'lib', 'test:build']
 
       libCss:

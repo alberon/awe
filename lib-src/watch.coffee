@@ -17,19 +17,23 @@ exports.run = (command) ->
       assets.prepare(results.config.root, cb)
     ]
 
+    # Create objects
+    groups: ['config', (cb, results) ->
+      cb(null, new assets.AssetGroup(group) for name, group of results.config.data.assets)
+    ]
+
     # Initial build
-    build: ['prepare', (cb, results) ->
+    build: ['prepare', 'groups', (cb, results) ->
       output.building()
-      groups = (group for name, group of results.config.data.assets)
-      async.each(groups, assets.buildGroup, cb)
+      build = (group, cb) -> group.build(cb)
+      async.each(results.groups, build, cb)
     ]
 
     # Watch for changes
     watch: ['build', (cb, results) ->
       output.line()
       output.watching()
-      groups = (group for name, group of results.config.data.assets)
-      async.each(groups, monitor, cb)
+      async.each(results.groups, monitor, cb)
     ]
 
     # Error handler
@@ -43,7 +47,7 @@ monitor = (group, cb) ->
     running = true
     output.line()
     output.building()
-    assets.buildGroup(group, buildFinished)
+    group.build(buildFinished)
 
   buildDebounced = _.debounce(build, 250, maxWait: 1000)
 

@@ -15,11 +15,16 @@ exports.run = (command) ->
       assets.prepare(results.config.root, cb)
     ]
 
+    # Create objects
+    groups: ['config', (cb, results) ->
+      cb(null, new assets.AssetGroup(group) for name, group of results.config.data.assets)
+    ]
+
     # Build assets
-    build: ['prepare', (cb, results) ->
+    build: ['prepare', 'groups', (cb, results) ->
       output.building()
-      groups = (group for name, group of results.config.data.assets)
-      async.each(groups, assets.buildGroup, cb)
+      build = (group, cb) -> group.build(cb)
+      async.each(results.groups, build, cb)
     ]
 
     # Finished
