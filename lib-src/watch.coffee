@@ -2,6 +2,7 @@ _      = require('lodash')
 async  = require('async')
 assets = require('./util/assets')
 config = require('./util/config')
+log    = require('./util/log')
 watch  = require('node-watch')
 
 exports.run = (command) ->
@@ -16,10 +17,21 @@ exports.run = (command) ->
       assets.prepare(results.config.root, cb)
     ]
 
+    # Initial build
+    build: ['prepare', (cb, results) ->
+      log.building()
+      iterator = (group, cb) ->
+        assets.buildGroup(group, cb)
+      async.each(_.values(results.config.data.assets), iterator, cb)
+    ]
+
     # Watch for changes
-    watch: ['prepare', (cb, results) ->
-      for name, group of results.config.data.assets
+    watch: ['build', (cb, results) ->
+      log.watching()
+      iterator = (group, cb) ->
         monitor(group)
+        cb()
+      async.each(_.values(results.config.data.assets), iterator, cb)
     ]
 
     # Error handler
@@ -29,32 +41,26 @@ monitor = (group) ->
   running = false
   runAgain = false
 
-  compile = ->
+  build = ->
     running = true
-    console.log('Recompiling...')
-    console.log('')
-    assets.compileGroup(group, compileFinished)
+    log.building()
+    assets.buildGroup(group, buildFinished)
 
-  compileDebounced = _.debounce(compile, 250, maxWait: 1000)
+  buildDebounced = _.debounce(build, 250, maxWait: 1000)
 
-  compileFinished = (err) ->
+  buildFinished = (err) ->
     throw err if err
     running = false
 
     if runAgain
-      console.log('')
-      console.log('Further changes detected.')
       runAgain = false
-      compileDebounced()
+      buildDebounced()
     else
-      console.log('')
-      console.log('Finished. Watching for further changes...')
+      log.finished()
 
   watch group.src, (file) ->
-    console.log("Created: #{file}")
+    log.modified(file)
     if running
       runAgain = true
     else
-      compileDebounced()
-
-  console.log("Watching #{group.src}...")
+      buildDebounced()

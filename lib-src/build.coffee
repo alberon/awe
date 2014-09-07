@@ -17,7 +17,7 @@ exports.run = (command) ->
     # Build assets
     build: ['prepare', (cb, results) ->
       groups = (group for name, group of results.config.data.assets)
-      async.each(groups, assets.compileGroup, cb)
+      async.each(groups, assets.buildGroup, cb)
     ]
 
     # Error handler

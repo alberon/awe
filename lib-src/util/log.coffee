@@ -3,34 +3,45 @@ chalk = require('chalk')
 S     = require('string')
 
 actions =
+  # Information
+  watching:  chalk.bold.cyan('\nWATCHING...')
+  building:  chalk.bold.cyan('\nBUILDING...')
+  finished:  chalk.bold.cyan('FINISHED.\n')
+
+  # Source files
+  error:     chalk.bold.white.bgRed('Error')
+  modified:  chalk.bold.green.inverse('Modified')
+  warning:   chalk.yellow.inverse('Warning')
+
+  # Target files
   compiled:  chalk.bold.yellow('Compiled')
   copied:    chalk.bold.green('Copied')
   created:   chalk.bold.red('Created')
   emptied:   chalk.bold.red('Emptied')
   generated: chalk.bold.yellow('Generated')
-  error:     chalk.bold.white.bgRed('Error')
   symlink:   chalk.bold.magenta('Symlink')
-  warning:   chalk.bold.yellow.inverse('Warning')
 
 # Set this to the length of the longest action text (to avoid having to
 # calculate it every time)
-maxLength = 9
+maxLength = 11
 
-log = (action, file, notes = '', message = '') ->
+log = (action, filename = '', notes = '', message = '') ->
 
   # Action
   text = actions[action]
 
   # Spaces
-  text += S(' ').repeat(maxLength - chalk.stripColor(text).length + 2).s
+  if filename || notes
+    text += S(' ').repeat(maxLength - chalk.stripColor(text).length + 2).s
 
   # Filename
-  if action == 'error'
-    text += chalk.bold.red(file)
-  else if action == 'warning'
-    text += chalk.bold.yellow(file)
-  else
-    text += chalk.bold(file)
+  if filename
+    if action == 'error'
+      text += chalk.bold.red(filename)
+    else if action == 'warning'
+      text += chalk.yellow(filename)
+    else
+      text += chalk.bold(filename)
 
   # Notes
   if notes
