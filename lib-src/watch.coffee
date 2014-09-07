@@ -1,3 +1,4 @@
+_      = require('lodash')
 async  = require('async')
 assets = require('./util/assets')
 config = require('./util/config')
@@ -28,25 +29,29 @@ monitor = (group) ->
   running = false
   runAgain = false
 
-  compile = ->
+  triggerCompile = ->
     if running
       runAgain = true
     else
-      running = true
-      console.log('Recompiling...')
-      console.log('')
-      assets.compileGroup group, compiled
+      compileDebounced()
 
-  compiled = (err) ->
+  compile = ->
+    running = true
+    console.log('Recompiling...')
+    console.log('')
+    assets.compileGroup(group, compileFinished)
+
+  compileDebounced = _.debounce(compile, 250, maxWait: 1000)
+
+  compileFinished = (err) ->
     throw err if err
-    running = false
-
     if runAgain
       console.log('')
       console.log('Further changes detected.')
       runAgain = false
       compile()
     else
+      running = false
       console.log('')
       console.log('Finished. Watching for further changes...')
 
@@ -54,14 +59,14 @@ monitor = (group) ->
 
     monitor.on 'created', (file, stat) ->
       console.log("Created: #{file}")
-      compile()
+      triggerCompile()
 
     monitor.on 'changed', (file, stat) ->
       console.log("Changed: #{file}")
-      compile()
+      triggerCompile()
 
     monitor.on 'removed', (file, stat) ->
       console.log("Deleted: #{file}")
-      compile()
+      triggerCompile()
 
   console.log("Watching #{group.src}...")
