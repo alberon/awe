@@ -23,7 +23,7 @@ actions =
 
 # Set this to the length of the longest action text (to avoid having to
 # calculate it every time)
-maxLength = 11
+maxLength = 9
 
 output = (action, filename = '', notes = '', message = '') ->
 
