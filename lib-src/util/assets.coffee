@@ -193,7 +193,7 @@ class exports.AssetGroup
       # some of them, but that doesn't support all the options either.)
       configFile: (cb) =>
         tmp.file (err, filename, fd) =>
-          cb(err, {filename, fd})
+          cb(err, filename: filename, fd: fd)
 
       writeConfig: ['configFile', (cb, results) =>
         config = """
@@ -300,7 +300,7 @@ class exports.AssetGroup
           else
             fs.readFile srcFile, (err, content) =>
               return cb(err) if err
-              @_writeFile(destFile, {content}, 'generated', cb)
+              @_writeFile(destFile, content: content, 'generated', cb)
 
         async.each(files, copy, cb)
 
@@ -311,7 +311,7 @@ class exports.AssetGroup
       dest = dest[...-7] + '.js'
       @_compileCoffeeScript src, (err, content) =>
         return cb(err) if err
-        @_writeFile(dest, {content}, 'compiled', cb)
+        @_writeFile(dest, content: content, 'compiled', cb)
 
     # Compile Sass
     else if src[-5...].toLowerCase() == '.scss'
@@ -319,20 +319,20 @@ class exports.AssetGroup
       @_compileSass src, (err, content) =>
         return cb(err) if err
         content = @_rewriteCss(content, src, dest)
-        @_writeFile(dest, {content}, 'compiled', cb)
+        @_writeFile(dest, content: content, 'compiled', cb)
 
     # Copy CSS and replace URLs
     else if src[-4...].toLowerCase() == '.css'
       fs.readFile src, encoding: 'utf8', (err, content) =>
         return cb(err) if err
         content = @_rewriteCss(content, src, dest)
-        @_writeFile(dest, {content}, 'copied', cb)
+        @_writeFile(dest, content: content, 'copied', cb)
 
     # Copy other files
     else
       fs.readFile src, (err, content) =>
         return cb(err) if err
-        @_writeFile(dest, {content}, 'copied', cb)
+        @_writeFile(dest, content: content, 'copied', cb)
 
   _rewriteCss: (content, srcFile, destFile) =>
     urlRewriter = new UrlRewriter
@@ -401,7 +401,7 @@ class exports.AssetGroup
 
         content = _.filter(content).join('\n')
 
-        cb(null, {content, count})
+        cb(null, content: content, count: count)
 
       async.map(files, compile, combine)
 
@@ -439,6 +439,6 @@ class exports.AssetGroup
 
         content = _.filter(content).join('\n')
 
-        cb(null, {content, count})
+        cb(null, content: content, count: count)
 
       async.map(files, compile, combine)
