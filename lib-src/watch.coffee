@@ -62,7 +62,7 @@ monitor = (group, cb) ->
       output.finished()
       output.line()
 
-  watch group.src, (file) ->
+  watch group.srcPath, (file) ->
     output.modified(file)
     if running
       runAgain = true
