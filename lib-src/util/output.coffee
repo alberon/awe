@@ -45,7 +45,8 @@ output = (action, filename = '', notes = '', message = '') ->
 
   # Notes
   if notes
-    text += ' ' + chalk.gray(notes)
+    text += ' ' if filename
+    text += chalk.gray(notes)
 
   # Detailed message
   message = S(message).trim().s
