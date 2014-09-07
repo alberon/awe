@@ -35,4 +35,6 @@ exports.load = (cb) ->
     ]
 
     # Run callback
-    (err, results) -> cb(err, data: results.config, root: results.root)
+    (err, results) -> cb err,
+      data: results.config
+      root: results.root

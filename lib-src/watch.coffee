@@ -18,7 +18,7 @@ exports.run = (command) ->
     ]
 
     # Create objects
-    groups: ['config', (cb, results) ->
+    groups: ['prepare', (cb, results) ->
       cb(null, new assets.AssetGroup(group) for name, group of results.config.data.assets)
     ]
 
