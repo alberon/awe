@@ -107,7 +107,7 @@ class exports.AssetGroup
 
       # Compile the directory
       compile: ['srcSymlinkCreated', 'bowerSymlinkCreated', (cb) =>
-        @_compileDirectory(@srcPath, @destPath, cb)
+        @_compileRegularDirectory(@srcPath, @destPath, cb)
       ]
 
       # Run the callback
