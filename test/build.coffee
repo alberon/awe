@@ -162,6 +162,15 @@ describe 'build', ->
       expect("#{build1}/_generated/#{icon}").to.be.a.file()
 
 
+    it 'should add cross-browser prefixes', ->
+      expect("#{build1}/autoprefixer.css").to.have.content """
+        body {
+          -webkit-transition: -webkit-transform 1s;
+                  transition: transform 1s;
+        }
+      """
+
+
     it 'should put cache files in .awe/ and create a .gitignore file', ->
       expect("#{awedir}/sass-cache").to.be.a.directory()
       expect("#{awedir}/.gitignore").to.be.a.file()

@@ -4,6 +4,7 @@ assets:
     src: src1/
     dest: build/1/
     bower: true
+    autoprefixer: true
 
   test2:
     # Deliberately removed the trailing / here

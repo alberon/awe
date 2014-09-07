@@ -1,16 +1,17 @@
-_           = require('lodash')
-async       = require('async')
-chalk       = require('chalk')
-coffee      = require('coffee-script')
-css         = require('./css')
-fs          = require('fs')
-mkdirp      = require('mkdirp')
-path        = require('path')
-rmdir       = require('rimraf')
-S           = require('string')
-spawn       = require('child_process').spawn
-tmp         = require('tmp')
-UrlRewriter = require('./UrlRewriter')
+_            = require('lodash')
+async        = require('async')
+autoprefixer = require('autoprefixer-core')
+chalk        = require('chalk')
+coffee       = require('coffee-script')
+css          = require('./css')
+fs           = require('fs')
+mkdirp       = require('mkdirp')
+path         = require('path')
+rmdir        = require('rimraf')
+S            = require('string')
+spawn        = require('child_process').spawn
+tmp          = require('tmp')
+UrlRewriter  = require('./UrlRewriter')
 
 tmp.setGracefulCleanup()
 
@@ -361,7 +362,7 @@ compileFile = (src, dest, group, cb) ->
       writeFile(dest, {content}, 'copied', cb)
 
 rewriteCss = (content, srcFile, destFile, group) ->
-  rewriter = new UrlRewriter
+  urlRewriter = new UrlRewriter
     root:      siteRoot
     srcDir:    group.src
     srcFile:   srcFile
@@ -370,15 +371,22 @@ rewriteCss = (content, srcFile, destFile, group) ->
     bowerSrc:  bowerSrc
     bowerDest: group.bowerPath
 
-  css.rewriteUrls content, (url) ->
+  # URL rewriting
+  content = css.rewriteUrls content, (url) ->
     if S(url).startsWith('/AWEDESTROOTPATH/')
       return path.join(path.relative(path.dirname(srcFile), group.src), url[17...])
 
     try
-      rewriter.rewrite(url)
+      urlRewriter.rewrite(url)
     catch e
       warning(srcFile, e.message)
       return url
+
+  # Autoprefixer
+  if group.autoprefixer
+    content = autoprefixer.process(content).css
+
+  return content
 
 compileCssDirectory = (src, dest, group, cb) ->
   fs.readdir src, (err, files) ->
