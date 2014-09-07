@@ -88,3 +88,26 @@ describe 'css', ->
       """
 
       expect(css.rewriteUrls(input, callback)).to.equal output
+
+
+    it 'should ignore commented sections', ->
+
+      input = """
+        body {
+          /*background: url(sample1.gif), url(sample2.gif);*/
+          /*
+          cursor: url('cursor.gif'), auto;
+          */
+        }
+      """
+
+      output = """
+        body {
+          /*background: url(sample1.gif), url(sample2.gif);*/
+          /*
+          cursor: url('cursor.gif'), auto;
+          */
+        }
+      """
+
+      expect(css.rewriteUrls(input, callback)).to.equal output
