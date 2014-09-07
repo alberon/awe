@@ -2,7 +2,7 @@ _      = require('lodash')
 async  = require('async')
 assets = require('./util/assets')
 config = require('./util/config')
-watch  = require('watch')
+watch  = require('node-watch')
 
 exports.run = (command) ->
   async.auto
@@ -29,12 +29,6 @@ monitor = (group) ->
   running = false
   runAgain = false
 
-  triggerCompile = ->
-    if running
-      runAgain = true
-    else
-      compileDebounced()
-
   compile = ->
     running = true
     console.log('Recompiling...')
@@ -45,28 +39,22 @@ monitor = (group) ->
 
   compileFinished = (err) ->
     throw err if err
+    running = false
+
     if runAgain
       console.log('')
       console.log('Further changes detected.')
       runAgain = false
-      compile()
+      compileDebounced()
     else
-      running = false
       console.log('')
       console.log('Finished. Watching for further changes...')
 
-  watch.createMonitor group.src, (monitor) ->
-
-    monitor.on 'created', (file, stat) ->
-      console.log("Created: #{file}")
-      triggerCompile()
-
-    monitor.on 'changed', (file, stat) ->
-      console.log("Changed: #{file}")
-      triggerCompile()
-
-    monitor.on 'removed', (file, stat) ->
-      console.log("Deleted: #{file}")
-      triggerCompile()
+  watch group.src, (file) ->
+    console.log("Created: #{file}")
+    if running
+      runAgain = true
+    else
+      compileDebounced()
 
   console.log("Watching #{group.src}...")
