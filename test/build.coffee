@@ -55,9 +55,10 @@ describe 'build', ->
 
     it 'should compile SASS files', ->
       expect("#{build1}/sass.css").to.have.content """
-        .main-red, .also-red {
+        .main-red,
+        .also-red {
           color: red;
-        }\n
+        }
       """
 
 
@@ -69,7 +70,7 @@ describe 'build', ->
       expect("#{build1}/stylesheet.css").to.have.content """
         .red {
           color: red;
-        }\n
+        }
       """
 
       expect("#{build1}/unknown.file").to.have.content """
@@ -94,7 +95,7 @@ describe 'build', ->
       expect("#{build1}/sample.css").to.have.content """
         body {
           background: url(_bower/sample.gif);
-        }\n
+        }
       """
 
 
@@ -115,11 +116,10 @@ describe 'build', ->
           background: url(_bower/sample.gif);
           color: red;
         }
-
         .scss {
           background: url(_bower/sample.gif);
           color: green;
-        }\n
+        }
       """
 
 
@@ -128,7 +128,7 @@ describe 'build', ->
       expect("#{build1}/has-invalid-url.css").to.have.content """
         .css {
           background: url(invalid.gif);
-        }\n
+        }
       """
 
 
@@ -141,7 +141,7 @@ describe 'build', ->
         @font-face {
           font-family: myfont;
           src: url('../fonts/myfont.woff');
-        }\n
+        }
       """
 
 
@@ -149,13 +149,13 @@ describe 'build', ->
       expect("#{build1}/compass/inline.css").to.have.content """
         .inlineImage {
           background: url('data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAQAIBRAA7');
-        }\n
+        }
       """
 
 
     it 'should support Compass sprites', ->
       content = fs.readFileSync("#{build1}/compass/sprite.css", encoding: 'utf8')
-      expect(content).to.match /\.icons-sprite, \.icons-icon1, \.icons-icon2 {/
+      expect(content).to.match /\.icons-sprite,\n\.icons-icon1,\n\.icons-icon2 {/
       expect(content).to.match /background-image: url\('\.\.\/_generated\/icons-[^']+\.png'\);/
 
       icon = content.match(/background-image: url\('\.\.\/_generated\/(icons-[^']+\.png)'\);/)[1]
