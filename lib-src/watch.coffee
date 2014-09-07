@@ -25,26 +25,43 @@ exports.run = (command) ->
     (err) -> throw err if err
 
 monitor = (group) ->
+  running = false
+  runAgain = false
+
+  compile = ->
+    if running
+      runAgain = true
+    else
+      running = true
+      console.log('Recompiling...')
+      console.log('')
+      assets.compileGroup group, compiled
+
+  compiled = (err) ->
+    throw err if err
+    running = false
+
+    if runAgain
+      console.log('')
+      console.log('Further changes detected.')
+      runAgain = false
+      compile()
+    else
+      console.log('')
+      console.log('Finished. Watching for further changes...')
+
   watch.createMonitor group.src, (monitor) ->
 
     monitor.on 'created', (file, stat) ->
       console.log("Created: #{file}")
-      compile(group)
+      compile()
 
     monitor.on 'changed', (file, stat) ->
       console.log("Changed: #{file}")
-      compile(group)
+      compile()
 
     monitor.on 'removed', (file, stat) ->
       console.log("Deleted: #{file}")
-      compile(group)
+      compile()
 
   console.log("Watching #{group.src}...")
-
-compile = (group) ->
-  console.log('Recompiling...')
-  console.log('')
-  assets.compileGroup group, (err) ->
-    throw err if err
-    console.log('')
-    console.log('Finished. Watching for further changes...')
