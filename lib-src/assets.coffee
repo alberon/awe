@@ -22,7 +22,6 @@ cachePath = null
 
 exports.prepare = (root, cb) ->
   sitePath = root
-  process.chdir(sitePath) # TODO Shouldn't need to do this...
 
   # Create .awe/ directory
   cachePath = path.join(sitePath, '.awe')
