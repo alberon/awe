@@ -1,130 +1,128 @@
-css    = require('../lib/util/css')
+css    = require('../lib/css')
 expect = require('chai').use(require('chai-fs')).expect
 
-describe 'css', ->
+describe 'css.rewriteUrls()', ->
 
-  describe '.rewriteUrls()', ->
-
-    # Helper - mark which part of the file would be replaced
-    callback = (url) -> "<#{url}>"
+  # Helper - mark which part of the file would be replaced
+  callback = (url) -> "<#{url}>"
 
 
-    it 'should return CSS without URLs unchanged', ->
+  it 'should return CSS without URLs unchanged', ->
 
-      input = """
-        body {
-          background: red;
-        }
-      """
+    input = """
+      body {
+        background: red;
+      }
+    """
 
-      expect(css.rewriteUrls(input, callback)).to.equal input
-
-
-    it 'should replace url(FILENAME)', ->
-
-      input = """
-        body {
-          background: url(sample.gif);
-        }
-      """
-
-      output = """
-        body {
-          background: url(<sample.gif>);
-        }
-      """
-
-      expect(css.rewriteUrls(input, callback)).to.equal output
+    expect(css.rewriteUrls(input, callback)).to.equal input
 
 
-    it 'should replace url(\'FILENAME\'), preserving the quotes', ->
+  it 'should replace url(FILENAME)', ->
 
-      input = """
-        body {
-          background: url('sample.gif');
-        }
-      """
+    input = """
+      body {
+        background: url(sample.gif);
+      }
+    """
 
-      output = """
-        body {
-          background: url('<sample.gif>');
-        }
-      """
+    output = """
+      body {
+        background: url(<sample.gif>);
+      }
+    """
 
-      expect(css.rewriteUrls(input, callback)).to.equal output
-
-
-    it 'should replace url("FILENAME"), preserving the quotes', ->
-
-      input = """
-        body {
-          background: url("sample.gif");
-        }
-      """
-
-      output = """
-        body {
-          background: url("<sample.gif>");
-        }
-      """
-
-      expect(css.rewriteUrls(input, callback)).to.equal output
+    expect(css.rewriteUrls(input, callback)).to.equal output
 
 
-    it 'should replace multiple URLs', ->
+  it 'should replace url(\'FILENAME\'), preserving the quotes', ->
 
-      input = """
-        body {
-          background: url(sample1.gif), url(sample2.gif);
-          cursor: url('cursor.gif'), auto;
-        }
-      """
+    input = """
+      body {
+        background: url('sample.gif');
+      }
+    """
 
-      output = """
-        body {
-          background: url(<sample1.gif>), url(<sample2.gif>);
-          cursor: url('<cursor.gif>'), auto;
-        }
-      """
+    output = """
+      body {
+        background: url('<sample.gif>');
+      }
+    """
 
-      expect(css.rewriteUrls(input, callback)).to.equal output
+    expect(css.rewriteUrls(input, callback)).to.equal output
 
 
-    it 'should ignore commented sections', ->
+  it 'should replace url("FILENAME"), preserving the quotes', ->
 
-      input = """
-        body {
-          /*background: url(sample1.gif), url(sample2.gif);*/
-          /*
-          cursor: url('cursor.gif'), auto;
-          */
-        }
-      """
+    input = """
+      body {
+        background: url("sample.gif");
+      }
+    """
 
-      output = """
-        body {
-          /*background: url(sample1.gif), url(sample2.gif);*/
-          /*
-          cursor: url('cursor.gif'), auto;
-          */
-        }
-      """
+    output = """
+      body {
+        background: url("<sample.gif>");
+      }
+    """
 
-      expect(css.rewriteUrls(input, callback)).to.equal output
+    expect(css.rewriteUrls(input, callback)).to.equal output
 
 
-    it 'should replace URLs in fonts', ->
+  it 'should replace multiple URLs', ->
 
-      input = """
-        @font-face {
-          src: url(myfont.woff), auto;
-        }
-      """
+    input = """
+      body {
+        background: url(sample1.gif), url(sample2.gif);
+        cursor: url('cursor.gif'), auto;
+      }
+    """
 
-      output = """
-        @font-face {
-          src: url(<myfont.woff>), auto;
-        }
-      """
+    output = """
+      body {
+        background: url(<sample1.gif>), url(<sample2.gif>);
+        cursor: url('<cursor.gif>'), auto;
+      }
+    """
 
-      expect(css.rewriteUrls(input, callback)).to.equal output
+    expect(css.rewriteUrls(input, callback)).to.equal output
+
+
+  it 'should ignore commented sections', ->
+
+    input = """
+      body {
+        /*background: url(sample1.gif), url(sample2.gif);*/
+        /*
+        cursor: url('cursor.gif'), auto;
+        */
+      }
+    """
+
+    output = """
+      body {
+        /*background: url(sample1.gif), url(sample2.gif);*/
+        /*
+        cursor: url('cursor.gif'), auto;
+        */
+      }
+    """
+
+    expect(css.rewriteUrls(input, callback)).to.equal output
+
+
+  it 'should replace URLs in fonts', ->
+
+    input = """
+      @font-face {
+        src: url(myfont.woff), auto;
+      }
+    """
+
+    output = """
+      @font-face {
+        src: url(<myfont.woff>), auto;
+      }
+    """
+
+    expect(css.rewriteUrls(input, callback)).to.equal output

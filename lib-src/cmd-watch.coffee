@@ -1,8 +1,8 @@
 _      = require('lodash')
 async  = require('async')
-assets = require('./util/assets')
-config = require('./util/config')
-output = require('./util/output')
+assets = require('./assets')
+config = require('./config')
+output = require('./output')
 watch  = require('node-watch')
 
 exports.run = (command) ->

@@ -1,7 +1,7 @@
 async  = require('async')
-assets = require('./util/assets')
-config = require('./util/config')
-output = require('./util/output')
+assets = require('./assets')
+config = require('./config')
+output = require('./output')
 
 exports.run = (command) ->
   async.auto

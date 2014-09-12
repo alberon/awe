@@ -2,7 +2,7 @@ _           = require('lodash')
 expect      = require('chai').use(require('chai-fs')).expect
 fs          = require('fs')
 path        = require('path')
-UrlRewriter = require('../lib/util/UrlRewriter')
+UrlRewriter = require('../lib/UrlRewriter')
 
 describe 'UrlRewriter', ->
 

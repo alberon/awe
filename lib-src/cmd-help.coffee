@@ -1,7 +1,7 @@
 chalk  = require('chalk')
 glob   = require('glob')
 path   = require('path')
-params = require('./util/params')
+params = require('./params')
 pkg    = require('../package.json')
 spawn  = require('child_process').spawn
 

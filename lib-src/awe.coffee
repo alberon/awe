@@ -1,5 +1,5 @@
 chalk  = require('chalk')
-params = require('./util/params')
+params = require('./params')
 
 try
   command = params.parse(process.argv[2...])

@@ -3,11 +3,11 @@ abbrev = require('abbrev')
 
 # These are the primary commands, mapping to the modules that implement them
 exports.commands = commands =
-  build:   'build'
-  help:    'help'
-  init:    'init'
-  watch:   'watch'
-  version: 'version'
+  build:   'cmd-build'
+  help:    'cmd-help'
+  init:    'cmd-init'
+  watch:   'cmd-watch'
+  version: 'cmd-version'
 
 # These are the official synonyms for the primary commands. The abbrev()
 # function will add some additional shorthands for any unique prefixes.

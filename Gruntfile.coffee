@@ -58,6 +58,16 @@ module.exports = (grunt) ->
         ext: ''
         extDot: 'last'
 
+    # Test modified source files
+    testMap:
+      lib:
+        expand: true
+        src: 'lib-src/**/*.coffee'
+
+      options:
+        additional:
+          'lib-src/cmd-build.coffee': 'test/assets.coffee'
+
     # Watch for changes
     watch:
       # Build everything
@@ -69,31 +79,8 @@ module.exports = (grunt) ->
 
       # Build lib/
       lib:
-        files: [
-          'lib-src/**/*.coffee'
-          '!lib-src/build.coffee'
-          '!lib-src/util/assets.coffee'
-          '!lib-src/util/css.coffee'
-          '!lib-src/util/params.coffee'
-          '!lib-src/util/UrlRewriter.coffee'
-        ]
-        tasks: ['clear', 'lib']
-
-      libBuild:
-        files: ['lib-src/build.coffee', 'lib-src/util/assets.coffee']
-        tasks: ['clear', 'lib', 'test:build']
-
-      libCss:
-        files: 'lib-src/util/css.coffee'
-        tasks: ['clear', 'lib', 'test:css']
-
-      libParams:
-        files: 'lib-src/util/params.coffee'
-        tasks: ['clear', 'lib', 'test:params']
-
-      libUrlRewriter:
-        files: 'lib-src/util/UrlRewriter.coffee'
-        tasks: ['clear', 'lib', 'test:url-rewriter']
+        files: 'lib-src/**/*.coffee'
+        tasks: ['clear', 'lib', 'newer:testMap:lib']
 
       # Build man/
       man:
@@ -118,6 +105,23 @@ module.exports = (grunt) ->
       grunt.task.run('mochaTest:suite')
     else
       grunt.task.run('mochaTest:all')
+
+  grunt.registerMultiTask 'testMap', ->
+    additional = this.options().additional
+    files = []
+
+    this.files.forEach (file) =>
+      file.src.forEach (src) =>
+        if matches = src.match /lib-src\/(.+)$/
+          files.push("test/#{matches[1]}")
+        if src of additional
+          if additional[src] instanceof Array
+            files = files.concat(additional[src])
+          else
+            files.push(additional[src])
+
+    grunt.config('mochaTest.modified.src', files)
+    grunt.task.run('mochaTest:modified')
 
   # Lazy-load plugins & custom tasks
   require('jit-grunt')(grunt)(

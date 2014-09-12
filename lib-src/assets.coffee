@@ -16,7 +16,7 @@ UrlRewriter  = require('./UrlRewriter')
 
 tmp.setGracefulCleanup()
 
-awePath   = path.resolve(__dirname, '../..')
+awePath   = path.resolve(__dirname, '..')
 sitePath  = null
 cachePath = null
 
