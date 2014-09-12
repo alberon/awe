@@ -12,12 +12,12 @@ exports.run = (command) ->
 
     # Prepare the required directories
     prepare: ['config', (cb, results) ->
-      assets.prepare(results.config.root, cb)
+      assets.prepare(config.rootDir, cb)
     ]
 
     # Create objects
     groups: ['prepare', (cb, results) ->
-      cb(null, new assets.AssetGroup(group) for name, group of results.config.data.assets)
+      cb(null, new assets.AssetGroup(group) for name, group of config.data.assets)
     ]
 
     # Build assets

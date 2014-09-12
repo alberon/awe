@@ -4,37 +4,41 @@ fs     = require('fs')
 path   = require('path')
 yaml   = require('js-yaml')
 
-exports.filename = filename = 'awe.yaml'
+config = module.exports
 
-exports.load = (cb) ->
+config.cwd      = process.cwd() # For unit tests
+config.data     = null
+config.filename = 'awe.yaml'
+config.loaded   = false
+config.rootDir  = null
+
+config.load = (cb) ->
+  return cb() if config.loaded
+
   async.auto
 
-    # Locate config file
-    root: (cb) ->
-      cwd = process.cwd()
-
-      findup cwd, filename, (err, dir) ->
+    locateConfigFile: (cb) ->
+      findup config.cwd, config.filename, (err, dir) ->
         if err
-          console.error("#{filename} not found in #{cwd}")
+          console.error("#{config.filename} not found in #{config.cwd}")
           process.exit(1)
 
-        cb(null, dir)
+        config.rootDir = dir
 
-    # Read config file
-    content: ['root', (cb, results) ->
-      fs.readFile(path.join(results.root, filename), 'utf-8', cb)
+        cb()
+
+    readConfig: ['locateConfigFile', (cb) ->
+      fs.readFile(path.join(config.rootDir, config.filename), 'utf-8', cb)
     ]
 
-    # Parse config
-    config: ['content', (cb, results) ->
+    parseConfig: ['readConfig', (cb, results) ->
       try
-        config = yaml.safeLoad(results.content)
+        config.data = yaml.safeLoad(results.readConfig)
       catch err
         return cb(err)
-      cb(null, config)
+      config.loaded = true
+      cb()
     ]
 
     # Run callback
-    (err, results) -> cb err,
-      data: results.config
-      root: results.root
+    cb

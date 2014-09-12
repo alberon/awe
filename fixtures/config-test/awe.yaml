@@ -1,0 +1,21 @@
+#===============================================================================
+# Assets
+#===============================================================================
+assets:
+
+    # Group name (a-z, 0-9 only)
+    theme:
+
+        # Source files
+        src: www/wp-content/themes/mytheme/src/
+
+        # Compiled files
+        # (Warning: There must be no other files in this directory - they will be deleted)
+        dest: www/wp-content/themes/mytheme/build/
+
+        # Enable Bower support?
+        bower: false
+
+    # You can add other groups here if needed...
+    # group2:
+        # ...
