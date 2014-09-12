@@ -11,10 +11,6 @@ S    = require('string')
 # multiple files, since the root, srcDir and destDir don't vary.
 class UrlRewriter
 
-  # Private
-  stripRoot: (path) =>
-    S(path).chompLeft(@root + '/').s
-
   constructor: (params) ->
 
     # Resolve any symlinks in the source files
@@ -81,7 +77,7 @@ class UrlRewriter
       file = fs.realpathSync(file)
     catch e
       if e.code == 'ENOENT'
-        throw new Error("Invalid file path: '#{url}' in '#{@stripRoot(@srcFile)}' (resolves to '#{@stripRoot(file)}' which was not found)")
+        throw new Error("Invalid file path: '#{url}' in '#{@_stripRoot(@srcFile)}' (resolves to '#{@_stripRoot(file)}' which was not found)")
       else
         throw e
 
@@ -91,13 +87,16 @@ class UrlRewriter
     else if @bowerSrc and S(file).startsWith(@bowerSrc)
       file = @bowerDest + file.substr(@bowerSrc.length)
     else if @bowerSrc
-      throw new Error("Invalid file path: '#{url}' in '#{@stripRoot(@srcFile)}' (resolves to '#{@stripRoot(file)}' which is outside the source directory '#{@stripRoot(@srcDir)}' and Bower directory '#{@stripRoot(@bowerSrc)}')")
+      throw new Error("Invalid file path: '#{url}' in '#{@_stripRoot(@srcFile)}' (resolves to '#{@_stripRoot(file)}' which is outside the source directory '#{@_stripRoot(@srcDir)}' and Bower directory '#{@_stripRoot(@bowerSrc)}')")
     else
-      throw new Error("Invalid file path: '#{url}' in '#{@stripRoot(@srcFile)}' (resolves to '#{@stripRoot(file)}' which is outside the source directory '#{@stripRoot(@srcDir)}')")
+      throw new Error("Invalid file path: '#{url}' in '#{@_stripRoot(@srcFile)}' (resolves to '#{@_stripRoot(file)}' which is outside the source directory '#{@_stripRoot(@srcDir)}')")
 
     # Convert to a relative path
     url = path.relative(path.dirname(@destFile), file)
 
     return url + suffix
+
+  _stripRoot: (path) =>
+    S(path).chompLeft(@root + '/').s
 
 module.exports = UrlRewriter
