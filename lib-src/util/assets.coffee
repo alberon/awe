@@ -273,36 +273,51 @@ class exports.AssetGroup
       (err, results) =>
         cb(err, results.sassReplaced)
 
-  _copyGeneratedDirectory: (src, dest, cb) =>
-    fs.readdir src, (err, files) =>
-      if err && err.code == 'ENOENT'
-        # src directory doesn't exist
-        return cb()
+  _copyGeneratedFileOrDirectory: (src, dest, file, cb) =>
+    if file[0...1] == '_'
+      return cb()
 
+    srcFile = path.join(src, file)
+    destFile = path.join(dest, file)
+
+    fs.lstat srcFile, (err, stat) =>
       return cb(err) if err
 
-      mkdirp dest, (err) =>
-        return cb(err) if err
+      if stat.isDirectory()
+        @_copyGeneratedDirectory(srcFile, destFile, cb)
+      else
+        @_copyGeneratedFile(srcFile, destFile, cb)
 
-        copy = (file, cb) =>
-          if file[0...1] == '_'
-            return cb()
+  _copyGeneratedFile: (src, dest, cb) =>
+    fs.readFile src, (err, content) =>
+      return cb(err) if err
+      @_writeFile(dest, content: content, 'generated', cb)
 
-          srcFile = path.join(src, file)
-          srcStat = fs.lstatSync(srcFile)
-          destFile = path.join(dest, file)
+  _copyGeneratedDirectory: (src, dest, cb) =>
+    async.auto
 
-          # Recurse into directory
-          if srcStat.isDirectory()
-            @_copyGeneratedDirectory(srcFile, destFile, cb)
+      # Get a list of files
+      fileList: (cb) =>
+        fs.readdir(src, cb)
 
-          # Copy file
-          else
-            fs.readFile srcFile, (err, content) =>
-              return cb(err) if err
-              @_writeFile(destFile, content: content, 'generated', cb)
+      # Create destination directory
+      # Depends on 'fileList' to ensure the source directory exists first
+      mkdir: ['fileList', (cb) =>
+        mkdirp(dest, cb)
+      ]
 
-        async.each(files, copy, cb)
+      # Copy the files
+      copyFiles: ['fileList', 'mkdir', (cb, results) =>
+        async.each(results.fileList, _.partial(@_copyGeneratedFileOrDirectory, src, dest), cb)
+      ]
+
+      # Run the callback
+      (err, results) =>
+        # Ignore directory not found error
+        if err && err.code == 'ENOENT'
+          err = null
+        cb(err)
+
 
   _compileFile: (src, dest, cb) =>
 
