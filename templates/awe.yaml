@@ -13,8 +13,8 @@ assets:
         # (Warning: There must be no other files in this directory - they will be deleted)
         dest: www/wp-content/themes/mytheme/build/
 
-        # Enable Bower support?
-        bower: false
+        # Use Autoprefixer for CSS files
+        autoprefixer: true
 
     # You can add other groups here if needed...
     # group2:

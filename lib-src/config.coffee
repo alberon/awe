@@ -1,8 +1,9 @@
-async  = require('async')
-findup = require('findup')
-fs     = require('fs')
-path   = require('path')
-yaml   = require('js-yaml')
+async     = require('async')
+findup    = require('findup')
+fs        = require('fs')
+normalise = require('./normaliseConfig')
+path      = require('path')
+yaml      = require('js-yaml')
 
 config = module.exports
 
@@ -36,6 +37,8 @@ config.load = (cb) ->
         config.data = yaml.safeLoad(results.readConfig)
       catch err
         return cb(err)
+
+      normalise(config.data)
       config.loaded = true
       cb()
     ]
