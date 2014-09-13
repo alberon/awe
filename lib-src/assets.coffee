@@ -176,7 +176,6 @@ class exports.AssetGroup
 
   _compileSass: (src, cb) =>
     pathFromRoot = path.relative(@srcPath, path.dirname(src)) || '.'
-    pathToRoot = path.relative(path.dirname(src), @srcPath) || '.'
 
     async.auto
 
