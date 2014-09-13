@@ -10,6 +10,7 @@ fs           = require('fs')
 mkdirp       = require('mkdirp')
 output       = require('./output')
 path         = require('path')
+readdir      = require('readdir')
 rmdir        = require('rimraf')
 S            = require('string')
 spawn        = require('child_process').spawn
@@ -111,16 +112,6 @@ class AssetGroup
       cb()
 
 
-  _compileFileOrDirectory: (src, dest, cb) =>
-    fs.lstat src, (err, stat) =>
-      return cb(err) if err
-
-      if stat.isDirectory()
-        @_compileDirectory(src, dest, cb)
-      else
-        @_compileFile(src, dest, cb)
-
-
   _compileDirectory: (src, dest, cb) =>
     if src[-4...].toLowerCase() == '.css'
       @_compileCssDirectory src, dest, (err, data) =>
@@ -145,7 +136,7 @@ class AssetGroup
 
       # Get a list of files in the source directory
       files: (cb) =>
-        fs.readdir(src, cb)
+        readdir.read(src, null, readdir.CASELESS_SORT + readdir.INCLUDE_DIRECTORIES + readdir.NON_RECURSIVE, cb)
 
       # Iterate through the files
       compile: ['mkdir', 'files', (cb, results) =>
@@ -156,7 +147,10 @@ class AssetGroup
           srcFile = path.join(src, file)
           destFile = path.join(dest, file)
 
-          @_compileFileOrDirectory(srcFile, destFile, cb)
+          if file[-1..] == '/'
+            @_compileDirectory(srcFile[...-1], destFile[...-1], cb)
+          else
+            @_compileFile(srcFile, destFile, cb)
         , cb)
       ]
 
@@ -376,7 +370,7 @@ class AssetGroup
 
 
   _compileCssDirectory: (src, dest, cb) =>
-    fs.readdir src, (err, files) =>
+    readdir.read src, null, readdir.CASELESS_SORT, (err, files) =>
       return cb(err) if err
 
       count = 0
@@ -386,16 +380,9 @@ class AssetGroup
           return cb()
 
         srcFile = path.join(src, file)
-        srcStat = fs.lstatSync(srcFile)
-
-        # Recurse into directory
-        if srcStat.isDirectory()
-          @_compileCssDirectory srcFile, dest, (err, data) =>
-            count += data.count
-            cb(null, data.content)
 
         # Compile Sass
-        else if srcFile[-5...].toLowerCase() == '.scss'
+        if srcFile[-5...].toLowerCase() == '.scss'
           count++
           @_compileSass srcFile, (err, content) =>
             return cb(err) if err
@@ -421,7 +408,7 @@ class AssetGroup
 
 
   _compileJsDirectory: (src, dest, cb) =>
-    fs.readdir src, (err, files) =>
+    readdir.read src, null, readdir.CASELESS_SORT, (err, files) =>
       return cb(err) if err
 
       count = 0
@@ -431,16 +418,9 @@ class AssetGroup
           return cb()
 
         srcFile = path.join(src, file)
-        srcStat = fs.lstatSync(srcFile)
-
-        # Recurse into directory
-        if srcStat.isDirectory()
-          @_compileJsDirectory srcFile, dest, (err, data) =>
-            count += data.count
-            cb(null, data.content)
 
         # Compile CoffeeScript
-        else if srcFile[-7...].toLowerCase() == '.coffee'
+        if srcFile[-7...].toLowerCase() == '.coffee'
           count++
           @_compileCoffeeScript(srcFile, cb)
 
