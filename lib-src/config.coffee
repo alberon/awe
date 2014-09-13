@@ -5,13 +5,15 @@ normalise = require('./normaliseConfig')
 path      = require('path')
 yaml      = require('js-yaml')
 
-config = module.exports
-
+config          = module.exports
 config.filename = 'awe.yaml'
-config.cwd      = process.cwd() # For unit tests
 config.loaded   = false
 config.data     = null
 config.rootPath = null
+
+# For unit tests
+config.cwd       = process.cwd()
+config.normalise = normalise
 
 config.load = (cb) ->
   return cb() if config.loaded
@@ -38,7 +40,7 @@ config.load = (cb) ->
       catch err
         return cb(err)
 
-      normalise(config.data)
+      config.normalise(config.data)
       config.loaded = true
       cb()
     ]

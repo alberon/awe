@@ -3,6 +3,11 @@ expect = require('chai').expect
 path   = require('path')
 
 
+# Stub method
+config.normalise = (data) ->
+  data.normalised = true
+
+
 describe 'config.load()', ->
 
   it 'config.loaded should be false', ->
@@ -24,5 +29,5 @@ describe 'config.data', ->
         theme:
           src: 'assets/src/'
           dest: 'assets/build/'
-          bower: 'bower_components/'
-          autoprefixer: false
+
+      normalised: true
