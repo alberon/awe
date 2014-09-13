@@ -6,11 +6,11 @@ yaml   = require('js-yaml')
 
 config = module.exports
 
-config.cwd      = process.cwd() # For unit tests
-config.data     = null
 config.filename = 'awe.yaml'
+config.cwd      = process.cwd() # For unit tests
 config.loaded   = false
-config.rootDir  = null
+config.data     = null
+config.rootPath = null
 
 config.load = (cb) ->
   return cb() if config.loaded
@@ -23,12 +23,12 @@ config.load = (cb) ->
           console.error("#{config.filename} not found in #{config.cwd}")
           process.exit(1)
 
-        config.rootDir = dir
+        config.rootPath = dir
 
         cb()
 
     readConfig: ['locateConfigFile', (cb) ->
-      fs.readFile(path.join(config.rootDir, config.filename), 'utf-8', cb)
+      fs.readFile(path.join(config.rootPath, config.filename), 'utf-8', cb)
     ]
 
     parseConfig: ['readConfig', (cb, results) ->

@@ -3,6 +3,7 @@ async        = require('async')
 autoprefixer = require('autoprefixer-core')
 chalk        = require('chalk')
 coffee       = require('coffee-script')
+config       = require('./config')
 css          = require('./css')
 fs           = require('fs')
 mkdirp       = require('mkdirp')
@@ -17,14 +18,11 @@ UrlRewriter  = require('./UrlRewriter')
 tmp.setGracefulCleanup()
 
 awePath   = path.resolve(__dirname, '..')
-sitePath  = null
 cachePath = null
 
-exports.prepare = (root, cb) ->
-  sitePath = root
-
+exports.prepare = (cb) ->
   # Create .awe/ directory
-  cachePath = path.join(sitePath, '.awe')
+  cachePath = path.join(config.rootPath, '.awe')
 
   fs.mkdir path.join(cachePath), (err) =>
     return cb(err) if err and err.code != 'EEXIST'
@@ -48,7 +46,7 @@ class exports.AssetGroup
 
     if @bower
       @bowerLink = path.join(@destPath, '_bower')
-      @bowerSrc  = path.join(sitePath, 'bower_components')
+      @bowerSrc  = path.join(config.rootPath, 'bower_components')
     else
       @bowerLink = null
       @bowerSrc  = null
@@ -195,8 +193,8 @@ class exports.AssetGroup
           cb(err, filename: filename, fd: fd)
 
       writeConfig: ['configFile', (cb, results) =>
-        config = """
-          project_path = '#{sitePath}'
+        compassConfig = """
+          project_path = '#{config.rootPath}'
           cache_path   = '#{path.join(cachePath, 'sass-cache')}'
           output_style = :expanded
 
@@ -224,7 +222,7 @@ class exports.AssetGroup
           asset_cache_buster :none
         """
 
-        fs.write(results.configFile.fd, new Buffer(config), 0, config.length, null, cb)
+        fs.write(results.configFile.fd, new Buffer(compassConfig), 0, compassConfig.length, null, cb)
       ]
 
       closeConfig: ['writeConfig', (cb, results) =>
@@ -350,7 +348,7 @@ class exports.AssetGroup
 
   _rewriteCss: (content, srcFile, destFile) =>
     urlRewriter = new UrlRewriter
-      root:      sitePath
+      root:      config.rootPath
       srcDir:    @srcPath
       srcFile:   srcFile
       destDir:   @destPath

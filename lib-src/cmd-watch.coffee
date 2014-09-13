@@ -14,7 +14,7 @@ exports.run = (command) ->
 
     # Prepare the required directories
     prepare: ['config', (cb, results) ->
-      assets.prepare(config.rootDir, cb)
+      assets.prepare(cb)
     ]
 
     # Create objects
