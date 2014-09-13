@@ -8,22 +8,16 @@ watch  = require('node-watch')
 exports.run = (command) ->
   async.auto
 
-    # Locate config file
-    config: (cb) ->
-      config.load(cb)
+    # Load config file
+    config: config.load
 
-    # Prepare the required directories
-    prepare: ['config', (cb, results) ->
-      assets.prepare(cb)
-    ]
-
-    # Create objects
-    groups: ['prepare', (cb, results) ->
-      cb(null, new assets.AssetGroup(group) for name, group of config.data.assets)
+    # Create AssetGroup objects
+    groups: ['config', (cb) ->
+      cb(null, assets.groups())
     ]
 
     # Initial build
-    build: ['prepare', 'groups', (cb, results) ->
+    build: ['groups', (cb, results) ->
       output.building()
       build = (group, cb) -> group.build(cb)
       async.each(results.groups, build, cb)

@@ -66,7 +66,8 @@ module.exports = (grunt) ->
 
       options:
         additional:
-          'lib-src/cmd-build.coffee': 'test/assets.coffee'
+          'lib-src/AssetGroup.coffee': 'test/assets.coffee'
+          'lib-src/cmd-build.coffee':  'test/assets.coffee'
 
     # Watch for changes
     watch:
