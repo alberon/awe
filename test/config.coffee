@@ -24,5 +24,5 @@ describe 'config.data', ->
         theme:
           src: 'assets/src/'
           dest: 'assets/build/'
-          bower: true
+          bower: 'bower_components/'
           autoprefixer: false

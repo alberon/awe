@@ -88,7 +88,7 @@ describe 'normaliseConfig()', ->
           src:  'assets/src/'
           dest: 'assets/build/'
 
-    expect(config.assets.theme.bower).to.be.true
+    expect(config.assets.theme.bower).to.equal 'bower_components/'
 
     normaliseConfig config =
       assets:

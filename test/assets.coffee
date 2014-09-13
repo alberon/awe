@@ -20,6 +20,7 @@ describe 'assets - build (regular)', ->
   build    = path.join(fixtures, 'build')
   build1   = path.join(build, '1')
   build2   = path.join(build, '2')
+  build3   = path.join(build, '3')
 
   before ->
     rmdir(awedir)
@@ -42,6 +43,17 @@ describe 'assets - build (regular)', ->
   it 'should create a symlink to bower_components/', ->
     expect("#{build1}/_bower").to.be.a.directory()
     expect(fs.lstatSync("#{build1}/_bower").isSymbolicLink()).to.be.true
+
+
+  it 'should not create a symlink to bower_components/ if set to false', ->
+    expect("#{build2}/_bower").to.not.be.a.path()
+
+
+  it 'should support custom bower directories/', ->
+    expect("#{build3}/bower-custom.css").to.be.a.file()
+    expect("#{build3}/_bower").to.be.a.directory()
+    expect(fs.lstatSync("#{build3}/_bower").isSymbolicLink()).to.be.true
+    expect("#{build3}/_bower/bower-custom.css").to.be.a.file()
 
 
   it 'should compile CoffeeScript files', ->

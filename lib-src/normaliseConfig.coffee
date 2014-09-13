@@ -55,7 +55,7 @@ parseAssetGroup = (setting, config) ->
   requireStringSetting(setting, config, 'dest')
 
   optionalSetting(setting, config, 'autoprefixer', false)
-  optionalSetting(setting, config, 'bower', true)
+  optionalSetting(setting, config, 'bower', 'bower_components/')
 
   allowedSettings(setting, config, ['src', 'dest', 'bower', 'autoprefixer'])
 
