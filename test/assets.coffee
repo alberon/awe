@@ -177,7 +177,7 @@ describe 'assets - build (regular)', ->
 
 
 describe 'assets - build (config missing)', ->
-  fixtures = path.resolve(__dirname, '../fixtures/build-config-missing')
+  fixtures = path.resolve(__dirname, '../fixtures/config-missing')
 
 
   it 'should exit with code 1', (done) ->
