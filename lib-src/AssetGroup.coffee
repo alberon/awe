@@ -167,8 +167,6 @@ class AssetGroup
 
 
   _compileSass: (src, cb) =>
-    pathFromRoot = path.relative(@srcPath, path.dirname(src)) || '.'
-
     async.auto
 
       # Create a temp directory for the output
@@ -246,6 +244,7 @@ class AssetGroup
 
       # Get the content from the CSS file
       sass: ['compile', (cb, results) =>
+        pathFromRoot = path.relative(@srcPath, path.dirname(src)) || '.'
         outputFile = path.join(results.tmpDir, pathFromRoot, path.basename(src).replace(/\.scss$/, '.css'))
         fs.readFile(outputFile, encoding: 'utf8', cb)
       ]
