@@ -2,17 +2,15 @@ config = require('../lib/config')
 expect = require('chai').use(require('chai-fs')).expect
 path   = require('path')
 
-describe 'config.loaded', ->
-  it 'should be false', ->
+describe 'config.load()', ->
+  it 'config.loaded should be false', ->
     expect(config.loaded).to.be.false
 
-describe 'config.load()', ->
-  it 'should succeed', (cb) ->
+  it 'load should succeed', (cb) ->
     config.cwd = path.resolve(__dirname, '../fixtures/config-test')
     config.load(cb)
 
-describe 'config.loaded', ->
-  it 'should be true', ->
+  it 'config.loaded be true', ->
     expect(config.loaded).to.be.true
 
 describe 'config.data', ->
