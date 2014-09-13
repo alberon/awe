@@ -16,6 +16,7 @@ S            = require('string')
 spawn        = require('child_process').spawn
 tmp          = require('tmp')
 UrlRewriter  = require('./UrlRewriter')
+yamlMap      = require('./yamlMap')
 
 tmp.setGracefulCleanup()
 
@@ -159,7 +160,7 @@ class AssetGroup
 
 
   _compileCoffeeScript: (src, cb) =>
-    fs.readFile src, encoding: 'utf8', (err, coffeescript) =>
+    fs.readFile src, 'utf8', (err, coffeescript) =>
       return cb(err) if err
       # TODO: sourceMap
       javascript = coffee.compile(coffeescript)
@@ -246,7 +247,7 @@ class AssetGroup
       sass: ['compile', (cb, results) =>
         pathFromRoot = path.relative(@srcPath, path.dirname(src)) || '.'
         outputFile = path.join(results.tmpDir, pathFromRoot, path.basename(src).replace(/\.scss$/, '.css'))
-        fs.readFile(outputFile, encoding: 'utf8', cb)
+        fs.readFile(outputFile, 'utf8', cb)
       ]
 
       sassReplaced: ['sass', (cb, results) =>
@@ -326,9 +327,22 @@ class AssetGroup
         content = @_rewriteCss(content, src, dest)
         @_writeFile(dest, content: content, 'compiled', cb)
 
+    # Import files listed in a YAML file
+    else if src[-9...].toLowerCase() == '.css.yaml'
+      dest = dest[...-5]
+      @_compileYamlCss src, dest, (err, data) =>
+        return cb(err) if err
+        @_writeFile(dest, data, 'compiled', cb)
+
+    else if src[-8...].toLowerCase() == '.js.yaml'
+      dest = dest[...-5]
+      @_compileYamlJs src, dest, (err, data) =>
+        return cb(err) if err
+        @_writeFile(dest, data, 'compiled', cb)
+
     # Copy CSS and replace URLs
     else if src[-4...].toLowerCase() == '.css'
-      fs.readFile src, encoding: 'utf8', (err, content) =>
+      fs.readFile src, 'utf8', (err, content) =>
         return cb(err) if err
         content = @_rewriteCss(content, src, dest)
         @_writeFile(dest, content: content, 'copied', cb)
@@ -391,9 +405,45 @@ class AssetGroup
         # Other CSS file
         else
           count++
-          fs.readFile srcFile, encoding: 'utf8', (err, content) =>
+          fs.readFile srcFile, 'utf8', (err, content) =>
             return cb(err) if err
             content = @_rewriteCss(content, srcFile, dest)
+            cb(null, content)
+
+      combine = (err, content) =>
+        return cb(err) if err
+
+        content = _.filter(content).join('\n')
+
+        cb(null, content: content, count: count)
+
+      async.map(files, compile, combine)
+
+
+  _compileYamlCss: (yamlFile, dest, cb) =>
+    yamlMap yamlFile, @bowerSrc, (err, files) =>
+      return cb(err) if err
+
+      count = 0
+
+      compile = (file, cb) =>
+        if file[0...1] == '_'
+          return cb()
+
+        # Compile Sass
+        if file[-5...].toLowerCase() == '.scss'
+          count++
+          @_compileSass file, (err, content) =>
+            return cb(err) if err
+            content = @_rewriteCss(content, file, dest)
+            cb(null, content)
+
+        # Other CSS file
+        else
+          count++
+          fs.readFile file, 'utf8', (err, content) =>
+            return cb(err) if err
+            content = @_rewriteCss(content, file, dest)
             cb(null, content)
 
       combine = (err, content) =>
@@ -426,7 +476,37 @@ class AssetGroup
         # Other file
         else
           count++
-          fs.readFile(srcFile, encoding: 'utf8', cb)
+          fs.readFile(srcFile, 'utf8', cb)
+
+      combine = (err, content) =>
+        return cb(err) if err
+
+        content = _.filter(content).join('\n')
+
+        cb(null, content: content, count: count)
+
+      async.map(files, compile, combine)
+
+
+  _compileYamlJs: (yamlFile, dest, cb) =>
+    yamlMap yamlFile, @bowerSrc, (err, files) =>
+      return cb(err) if err
+
+      count = 0
+
+      compile = (file, cb) =>
+        if file[0...1] == '_'
+          return cb()
+
+        # Compile CoffeeScript
+        if file[-7...].toLowerCase() == '.coffee'
+          count++
+          @_compileCoffeeScript(file, cb)
+
+        # Other file
+        else
+          count++
+          fs.readFile(file, 'utf8', cb)
 
       combine = (err, content) =>
         return cb(err) if err

@@ -104,10 +104,33 @@ describe 'assets - build (regular)', ->
 
 
   it 'should rewrite relative URLs in symlinked files', ->
-    expect("#{build1}/sample.css").to.have.content """
+    expect("#{build1}/bower-symlink.css").to.have.content """
       body {
         background: url(_bower/sample.gif);
       }
+    """
+
+
+  it 'should import CSS files listed in a YAML file and rewrite relative URLs', ->
+    expect("#{build1}/import.css").to.have.content """
+      body {
+        background: url(_bower/sample.gif);
+      }
+      .main-red,
+      .also-red {
+        color: red;
+      }
+    """
+
+
+  it 'should import JavaScript files listed in a YAML file and rewrite relative URLs', ->
+    expect("#{build1}/import.js").to.have.content """
+      console.log('Sample');
+
+      (function() {
+        console.log('JavaScript');
+
+      }).call(this);\n
     """
 
 
