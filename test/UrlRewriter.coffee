@@ -1,5 +1,5 @@
 _           = require('lodash')
-expect      = require('chai').use(require('chai-fs')).expect
+expect      = require('chai').expect
 fs          = require('fs')
 path        = require('path')
 UrlRewriter = require('../lib/UrlRewriter')

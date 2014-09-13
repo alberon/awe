@@ -1,5 +1,5 @@
 config = require('../lib/config')
-expect = require('chai').use(require('chai-fs')).expect
+expect = require('chai').expect
 path   = require('path')
 
 describe 'config.load()', ->
