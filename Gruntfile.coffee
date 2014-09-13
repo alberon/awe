@@ -99,7 +99,7 @@ module.exports = (grunt) ->
   grunt.registerTask('lib', 'Rebuild lib/ from lib-src/', ['clean:lib', 'coffee:lib'])
   grunt.registerTask('man', 'Rebuild man/ from man-src/', ['clean:man', 'markedman:man'])
 
-  grunt.registerTask 'test', 'Run unit tests (all tests or test suite)', (suite) ->
+  grunt.registerTask 'test', 'Run unit tests (all tests or specified test suite)', (suite) ->
     if suite
       grunt.config('mochaTest.suite.src', "test/#{suite}.coffee")
       grunt.task.run('mochaTest:suite')
