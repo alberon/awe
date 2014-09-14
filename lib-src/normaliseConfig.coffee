@@ -1,4 +1,5 @@
-_ = require('lodash')
+_           = require('lodash')
+ConfigError = require('./errors').ConfigError
 
 
 # Helpers
@@ -95,10 +96,3 @@ parseAssetGroup = (setting, config) ->
   optionalSetting(setting, config, 'bower', 'bower_components/', ['string', false])
 
   allowedSettings(setting, config, ['src', 'dest', 'bower', 'autoprefixer'])
-
-
-# Custom error class so we can catch them and display an error message
-class ConfigError extends Error
-  constructor: (@message) -> super
-
-module.exports.ConfigError = ConfigError

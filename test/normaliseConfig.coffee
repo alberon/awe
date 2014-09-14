@@ -1,16 +1,14 @@
 expect          = require('chai').expect
+config          = require('../lib/config')
+ConfigError     = require('../lib/errors').ConfigError
 normaliseConfig = require('../lib/normaliseConfig')
 
 
 expectConfigError = (error, config) ->
-  expect(-> normaliseConfig(config)).to.throw(normaliseConfig.ConfigError, error)
+  expect(-> normaliseConfig(config)).to.throw(ConfigError, error)
 
 
 describe 'normaliseConfig()', ->
-
-  it 'should have an error class', ->
-    expect(normaliseConfig.ConfigError).to.be.a 'function'
-
 
   it 'should succeed when run normally', ->
     normaliseConfig
