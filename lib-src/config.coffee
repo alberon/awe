@@ -1,4 +1,5 @@
 async     = require('async')
+chalk     = require('chalk')
 findup    = require('findup')
 fs        = require('fs')
 normalise = require('./normaliseConfig')
@@ -23,7 +24,7 @@ config.load = (cb) ->
     locateConfigFile: (cb) ->
       findup config.cwd, config.filename, (err, dir) ->
         if err
-          console.error("#{config.filename} not found in #{config.cwd}")
+          console.error(chalk.red("#{config.filename} not found in #{config.cwd} or parent directories"))
           process.exit(1)
 
         config.rootPath = dir
@@ -38,9 +39,16 @@ config.load = (cb) ->
       try
         config.data = yaml.safeLoad(results.readConfig)
       catch err
-        return cb(err)
+        message = err.message.replace(/^JS-YAML: /, '')
+        console.error(chalk.red("Error parsing #{config.filename}: #{message}"))
+        process.exit(1)
 
-      config.normalise(config.data)
+      try
+        config.normalise(config.data)
+      catch err
+        console.error(chalk.red("Error in #{config.filename}: #{err.message}"))
+        process.exit(1)
+
       config.loaded = true
       cb()
     ]

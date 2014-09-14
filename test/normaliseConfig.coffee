@@ -21,24 +21,24 @@ describe 'normaliseConfig()', ->
 
 
   it 'should error when the top-level is not an object', ->
-    expectConfigError 'Config root must be an object (type is string)', 'Not an object'
+    expectConfigError 'Root must be an object (actual type is string)', 'Not an object'
 
 
   it 'should error when the top-level is an empty object', ->
-    expectConfigError 'Config file is empty', {}
+    expectConfigError 'File is empty', {}
 
 
   it 'should error when the top-level is an empty string', ->
-    expectConfigError 'Config file is empty', ''
+    expectConfigError 'File is empty', ''
 
 
   it 'should error when an unknown top-level setting is given', ->
-    expectConfigError "Unknown setting 'unknown' in (root)",
+    expectConfigError "Unknown setting 'unknown' in root",
       unknown: true
 
 
   it 'should be case-sensitive', ->
-    expectConfigError "Unknown setting 'Assets' in (root)",
+    expectConfigError "Unknown setting 'Assets' in root",
       Assets:
         theme:
           src:  'assets/src/'
@@ -108,7 +108,7 @@ describe 'normaliseConfig()', ->
 
 
   it 'should require string value for src in asset group', ->
-    expectConfigError "Setting 'src' must be a string in assets.theme (type is boolean)",
+    expectConfigError "Setting 'src' must be a string in assets.theme (actual type is boolean)",
       assets:
         theme:
           src: false
@@ -123,7 +123,7 @@ describe 'normaliseConfig()', ->
 
 
   it 'should require string value for dest in asset group', ->
-    expectConfigError "Setting 'dest' must be a string in assets.theme (type is boolean)",
+    expectConfigError "Setting 'dest' must be a string in assets.theme (actual type is boolean)",
       assets:
         theme:
           src:  'assets/src/'

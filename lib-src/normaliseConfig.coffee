@@ -12,7 +12,7 @@ optionalSetting = (settings, config, key, defaultValue = null) ->
 
 stringSetting = (setting, config, key) ->
   if key of config && (type = typeof config[key]) != 'string'
-    throw new ConfigError("Setting '#{key}' must be a string in #{setting} (type is #{type})")
+    throw new ConfigError("Setting '#{key}' must be a string in #{setting} (actual type is #{type})")
 
 requireStringSetting = (setting, config, key) ->
   requireSetting(setting, config, key)
@@ -29,15 +29,15 @@ module.exports = (config) ->
   type = typeof config
 
   if type in ['object', 'string'] && _.isEmpty(config)
-    throw new ConfigError("Config file is empty")
+    throw new ConfigError("File is empty")
 
   if type != 'object'
-    throw new ConfigError("Config root must be an object (type is #{type})")
+    throw new ConfigError("Root must be an object (actual type is #{type})")
 
   if 'assets' of config
     parseAssets('assets', config.assets)
 
-  allowedSettings('(root)', config, ['assets'])
+  allowedSettings('root', config, ['assets'])
 
 
 parseAssets = (setting, config) ->
@@ -65,5 +65,3 @@ class ConfigError extends Error
   constructor: (@message) -> super
 
 module.exports.ConfigError = ConfigError
-
-
