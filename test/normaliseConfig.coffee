@@ -33,12 +33,12 @@ describe 'normaliseConfig()', ->
 
 
   it 'should error when an unknown top-level setting is given', ->
-    expectConfigError "Unknown setting 'unknown' in root",
+    expectConfigError "Unknown setting 'unknown'",
       unknown: true
 
 
   it 'should be case-sensitive', ->
-    expectConfigError "Unknown setting 'Assets' in root",
+    expectConfigError "Unknown setting 'Assets'",
       Assets:
         theme:
           src:  'assets/src/'
@@ -108,7 +108,7 @@ describe 'normaliseConfig()', ->
 
 
   it 'should require string value for src in asset group', ->
-    expectConfigError "Setting 'src' must be a string in assets.theme (actual type is boolean)",
+    expectConfigError "Setting 'assets.theme.src' must be a string (actual type is boolean)",
       assets:
         theme:
           src: false
@@ -123,7 +123,7 @@ describe 'normaliseConfig()', ->
 
 
   it 'should require string value for dest in asset group', ->
-    expectConfigError "Setting 'dest' must be a string in assets.theme (actual type is boolean)",
+    expectConfigError "Setting 'assets.theme.dest' must be a string (actual type is boolean)",
       assets:
         theme:
           src:  'assets/src/'

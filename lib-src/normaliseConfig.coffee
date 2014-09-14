@@ -2,21 +2,58 @@ _ = require('lodash')
 
 
 # Helpers
-requireSetting = (setting, config, key) ->
-  if key not of config
+requireSetting = (setting, config, key, allowedTypes) ->
+  if key of config
+    checkSettingType(setting, config, key, allowedTypes)
+  else
     throw new ConfigError("Missing required setting '#{key}' in #{setting}")
 
-optionalSetting = (settings, config, key, defaultValue = null) ->
-  if key not of config
+optionalSetting = (setting, config, key, defaultValue, allowedTypes) ->
+  if key of config
+    checkSettingType(setting, config, key, allowedTypes)
+  else
     config[key] = defaultValue
 
-stringSetting = (setting, config, key) ->
-  if key of config && (type = typeof config[key]) != 'string'
-    throw new ConfigError("Setting '#{key}' must be a string in #{setting} (actual type is #{type})")
+typesToString = (types) ->
+  if types.length > 1
+    last       = types.pop()
+    secondLast = types.pop()
+    types.push("#{secondLast} or #{last}")
+  types = types.join(', ')
 
-requireStringSetting = (setting, config, key) ->
-  requireSetting(setting, config, key)
-  stringSetting(setting, config, key)
+checkSettingType = (setting, config, key, allowedTypes) ->
+  # Skip if no valid types specified
+  return if allowedTypes == null
+
+  # Single types can be passed directly
+  if typeof allowedTypes in ['string', 'boolean']
+    allowedTypes = [allowedTypes]
+
+  value = config[key]
+  type = typeof value
+  typesForError = []
+
+  # Check each type
+  for allowedType in allowedTypes
+    switch allowedType
+
+      # Types
+      when 'string', 'boolean'
+        return if type is allowedType
+        typesForError.push('a ' + allowedType)
+
+      # Specific values
+      when true, false
+        return if value is allowedType
+        typesForError.push(allowedType)
+
+      # This shouldn't happen!
+      else
+        throw new Error("BUG: Unknown type '#{allowedType} in checkSettingType()")
+
+  # No valid types found
+  typesForError = typesToString(typesForError)
+  throw new ConfigError("Setting '#{setting}.#{key}' must be #{typesForError} (actual type is #{type})")
 
 allowedSettings = (setting, config, keys) ->
   for own key, value of config
@@ -51,11 +88,11 @@ parseAssets = (setting, config) ->
 
 
 parseAssetGroup = (setting, config) ->
-  requireStringSetting(setting, config, 'src')
-  requireStringSetting(setting, config, 'dest')
+  requireSetting(setting, config, 'src', 'string')
+  requireSetting(setting, config, 'dest', 'string')
 
-  optionalSetting(setting, config, 'autoprefixer', false)
-  optionalSetting(setting, config, 'bower', 'bower_components/')
+  optionalSetting(setting, config, 'autoprefixer', false, 'boolean')
+  optionalSetting(setting, config, 'bower', 'bower_components/', ['string', false])
 
   allowedSettings(setting, config, ['src', 'dest', 'bower', 'autoprefixer'])
 
