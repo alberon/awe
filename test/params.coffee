@@ -39,12 +39,6 @@ describe 'params.parse()', ->
       module: 'cmd-build'
       args:   ['a', 'b']
 
-  it 'should support abbreviated commands (if unique)', ->
-    expect(parse('watc', 'a', 'b')).to.deep.equal
-      name:   'watch'
-      module: 'cmd-watch'
-      args:   ['a', 'b']
-
   it 'should support -v global option', ->
     expect(parse('-v')).to.deep.equal
       name:   'version'
