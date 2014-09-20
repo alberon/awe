@@ -1,8 +1,7 @@
 errors = require('../lib/errors')
 expect = require('chai').expect
 
-
-# There are so simple there should be no need for them, but it turns out it's
+# These are so simple there should be no need for them, but it turns out it's
 # quite hard to sub-class Error and have it work correctly
 describe 'errors.ConfigError', ->
 
@@ -19,3 +18,26 @@ describe 'errors.ConfigError', ->
 
   it 'should contain a message', ->
     expect(new ConfigError('ABC').message).to.equal 'ABC'
+
+  it 'should contain a stack trace', ->
+    expect(new ConfigError('ABC').stack).to.be.a 'string'
+
+
+describe 'errors.YamlImportError', ->
+
+  YamlImportError = errors.YamlImportError
+
+  it 'should exist', ->
+    expect(YamlImportError).to.be.a 'function'
+
+  it 'should be instanceof YamlImportError', ->
+    expect(new YamlImportError).to.be.instanceof YamlImportError
+
+  it 'should be instanceof Error', ->
+    expect(new YamlImportError).to.be.instanceof Error
+
+  it 'should contain a message', ->
+    expect(new YamlImportError('ABC').message).to.equal 'ABC'
+
+  it 'should contain a stack trace', ->
+    expect(new YamlImportError('ABC').stack).to.be.a 'string'

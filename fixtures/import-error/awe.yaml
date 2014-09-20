@@ -1,0 +1,4 @@
+assets:
+    theme:
+        src: src/
+        dest: build/

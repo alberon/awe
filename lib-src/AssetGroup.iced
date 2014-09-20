@@ -1,23 +1,24 @@
-_            = require('lodash')
-async        = require('async')
-autoprefixer = require('autoprefixer-core')
-cacheDir     = require('./cacheDir')
-chalk        = require('chalk')
-coffee       = require('coffee-script')
-config       = require('./config')
-css          = require('./css')
-errTo        = require('errto')
-fs           = require('fs')
-mkdirp       = require('mkdirp')
-output       = require('./output')
-path         = require('path')
-readdir      = require('readdir')
-rmdir        = require('rimraf')
-S            = require('string')
-spawn        = require('child_process').spawn
-tmp          = require('tmp')
-UrlRewriter  = require('./UrlRewriter')
-yamlMap      = require('./yamlMap')
+_               = require('lodash')
+async           = require('async')
+autoprefixer    = require('autoprefixer-core')
+cacheDir        = require('./cacheDir')
+chalk           = require('chalk')
+coffee          = require('coffee-script')
+config          = require('./config')
+css             = require('./css')
+errTo           = require('errto')
+fs              = require('fs')
+mkdirp          = require('mkdirp')
+output          = require('./output')
+path            = require('path')
+readdir         = require('readdir')
+rmdir           = require('rimraf')
+S               = require('string')
+spawn           = require('child_process').spawn
+tmp             = require('tmp')
+UrlRewriter     = require('./UrlRewriter')
+YamlImportError = require('./errors').YamlImportError
+yamlMap         = require('./yamlMap')
 
 tmp.setGracefulCleanup()
 
@@ -79,6 +80,8 @@ class AssetGroup
 
 
   _writeFile: (dest, {content, count}, action, cb) =>
+    return cb() if content == null
+
     await fs.writeFile(dest, content, errTo(cb, defer()))
 
     if action
@@ -243,12 +246,11 @@ class AssetGroup
     # Get a list of files
     await fs.readdir(src, defer(err, files))
 
-    if err
-      if err.code == 'ENOENT'
-        # Source directory doesn't exist, so there's nothing to do
-        return cb()
-      else
-        return cb(err)
+    if err && err.code == 'ENOENT'
+      # Source directory doesn't exist, so there's nothing to do
+      return cb()
+    else if err
+      return cb(err)
 
     # Create destination directory
     await mkdirp(dest, errTo(cb, defer()))
@@ -349,7 +351,13 @@ class AssetGroup
 
 
   _compileYamlCss: (yamlFile, dest, cb) =>
-    await yamlMap(yamlFile, @bowerSrc, errTo(cb, defer files))
+    await yamlMap(yamlFile, @bowerSrc, defer(err, files))
+
+    if err instanceof YamlImportError
+      output.warning(yamlFile, '(YAML import map)', err.message)
+      return cb(null, content: null, count: 0)
+    else if err
+      return cb(err)
 
     compile = (file, cb) =>
       return cb() if file[0...1] == '_'
@@ -393,7 +401,13 @@ class AssetGroup
 
 
   _compileYamlJs: (yamlFile, dest, cb) =>
-    await yamlMap(yamlFile, @bowerSrc, errTo(cb, defer files))
+    await yamlMap(yamlFile, @bowerSrc, defer(err, files))
+
+    if err instanceof YamlImportError
+      output.warning(yamlFile, '(YAML import map)', err.message)
+      return cb(null, content: null, count: 0)
+    else if err
+      return cb(err)
 
     compile = (file, cb) =>
       if file[0...1] == '_'
