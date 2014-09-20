@@ -5,7 +5,7 @@ params = require('./params')
 pkg    = require('../package.json')
 spawn  = require('child_process').spawn
 
-exports.run = (command) ->
+exports.run = (command, cb) ->
 
   console.log(chalk.bold('Usage:') + ' awe ' + chalk.underline('command') + ' [args]')
   console.log('')

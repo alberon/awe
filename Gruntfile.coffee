@@ -21,12 +21,13 @@ module.exports = (grunt) ->
       options:
         bare: true
         header: true
+        runtime: 'node'
 
       lib:
         expand: true
         nonull: true
         cwd: 'lib-src/'
-        src: '**/*.coffee'
+        src: '**/*.iced'
         dest: 'lib/'
         ext: '.js'
 
@@ -62,12 +63,13 @@ module.exports = (grunt) ->
     testMap:
       lib:
         expand: true
-        src: 'lib-src/**/*.coffee'
+        src: 'lib-src/**/*.iced'
 
       options:
         additional:
-          'lib-src/AssetGroup.coffee': 'test/assets.coffee'
-          'lib-src/cmd-build.coffee':  'test/assets.coffee'
+          'lib-src/AssetGroup.iced': 'test/assets.coffee'
+          'lib-src/cacheDir.iced':   'test/assets.coffee'
+          'lib-src/cmd-build.iced':  'test/assets.coffee'
 
     # Watch for changes
     watch:
@@ -80,7 +82,7 @@ module.exports = (grunt) ->
 
       # Build lib/
       lib:
-        files: 'lib-src/**/*.coffee'
+        files: 'lib-src/**/*.iced'
         tasks: ['clear', 'lib', 'newer:testMap:lib']
 
       # Build man/
@@ -113,8 +115,8 @@ module.exports = (grunt) ->
 
     this.files.forEach (file) =>
       file.src.forEach (src) =>
-        if matches = src.match /lib-src\/(.+)$/
-          files.push("test/#{matches[1]}")
+        if matches = src.match /lib-src\/(.+)\.(coffee|iced)$/
+          files.push("test/#{matches[1]}.coffee")
         if src of additional
           if additional[src] instanceof Array
             files = files.concat(additional[src])
@@ -125,6 +127,8 @@ module.exports = (grunt) ->
     grunt.task.run('mochaTest:modified')
 
   # Lazy-load plugins & custom tasks
-  require('jit-grunt')(grunt)(
+  require('jit-grunt')(grunt,
+    coffee: 'grunt-iced-coffee'
+  )(
     customTasksDir: 'tasks/'
   )

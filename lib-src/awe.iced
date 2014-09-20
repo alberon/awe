@@ -7,4 +7,5 @@ catch e
   console.error(chalk.red(e.message))
   process.exit(1)
 
-require('./' + command.module).run(command)
+require('./' + command.module).run command, (err) ->
+  throw err if err
