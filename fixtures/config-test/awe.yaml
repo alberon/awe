@@ -1,14 +1,4 @@
-#===============================================================================
-# Assets
-#===============================================================================
 assets:
-
-    # Group name (a-z, 0-9 only)
     theme:
-
-        # Source files
         src: assets/src/
-
-        # Compiled files
-        # (Warning: There must be no other files in this directory - they will be deleted)
         dest: assets/build/

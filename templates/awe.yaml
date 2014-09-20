@@ -1,21 +1,11 @@
+# Awe config - see http://djm.me/awe-docs for documentation
+
 #===============================================================================
 # Assets
 #===============================================================================
 assets:
 
-    # Group name (a-z, 0-9 only)
     theme:
-
-        # Source files
         src: www/wp-content/themes/mytheme/src/
-
-        # Compiled files
-        # (Warning: There must be no other files in this directory - they will be deleted)
         dest: www/wp-content/themes/mytheme/build/
-
-        # Use Autoprefixer for CSS files
         autoprefixer: true
-
-    # You can add other groups here if needed...
-    # group2:
-        # ...
