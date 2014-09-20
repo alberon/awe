@@ -50,7 +50,11 @@ describe 'assets - build (regular)', ->
 
 
   it 'should support custom bower directories/', ->
-    expect("#{build3}/bower-custom.css").to.be.a.file()
+    expect("#{build3}/bower-custom.css").to.have.content """
+      body {
+        background: url(_bower/sample.gif);
+      }
+    """
     expect("#{build3}/_bower").to.be.a.directory()
     expect(fs.lstatSync("#{build3}/_bower").isSymbolicLink()).to.be.true
     expect("#{build3}/_bower/bower-custom.css").to.be.a.file()
