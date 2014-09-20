@@ -16,6 +16,7 @@ bin = path.resolve(__dirname, '../bin/awe')
 describe 'assets - build (regular)', ->
 
   fixtures = path.resolve(__dirname, '../fixtures/build-test')
+  cwd      = path.join(fixtures, 'src1') # To test findup
   awedir   = path.join(fixtures, '.awe')
   build    = path.join(fixtures, 'build')
   build1   = path.join(build, '1')
@@ -29,7 +30,7 @@ describe 'assets - build (regular)', ->
 
   it 'should build successfully', (done) ->
     @timeout 10000
-    spawn(bin, ['build'], cwd: fixtures, stdio: ['ignore', 'ignore', 2]).on 'exit', (exitcode) ->
+    spawn(bin, ['build'], cwd: cwd, stdio: ['ignore', 'ignore', 2]).on 'exit', (exitcode) ->
       expect(exitcode).to.equal 0
       done()
 

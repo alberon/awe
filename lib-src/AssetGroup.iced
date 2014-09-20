@@ -30,8 +30,8 @@ class AssetGroup
     @bower        = groupConfig.bower
 
     # Normalise paths
-    @srcPath  = groupConfig.src.replace(/\/*$/, '')
-    @destPath = groupConfig.dest.replace(/\/*$/, '')
+    @srcPath  = path.join(config.rootPath, groupConfig.src.replace(/\/*$/, ''))
+    @destPath = path.join(config.rootPath, groupConfig.dest.replace(/\/*$/, ''))
 
     # Generated paths
     @srcLink = path.join(@destPath, '_src')
