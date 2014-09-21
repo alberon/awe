@@ -21,23 +21,3 @@ describe 'errors.ConfigError', ->
 
   it 'should contain a stack trace', ->
     expect(new ConfigError('ABC').stack).to.be.a 'string'
-
-
-describe 'errors.YamlImportError', ->
-
-  YamlImportError = errors.YamlImportError
-
-  it 'should exist', ->
-    expect(YamlImportError).to.be.a 'function'
-
-  it 'should be instanceof YamlImportError', ->
-    expect(new YamlImportError).to.be.instanceof YamlImportError
-
-  it 'should be instanceof Error', ->
-    expect(new YamlImportError).to.be.instanceof Error
-
-  it 'should contain a message', ->
-    expect(new YamlImportError('ABC').message).to.equal 'ABC'
-
-  it 'should contain a stack trace', ->
-    expect(new YamlImportError('ABC').stack).to.be.a 'string'

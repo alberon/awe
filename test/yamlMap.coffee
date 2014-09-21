@@ -1,14 +1,13 @@
-expect          = require('chai').expect
-path            = require('path')
-YamlImportError = require('./errors').YamlImportError
-yamlMap         = require('../lib/yamlMap')
+expect  = require('chai').expect
+path    = require('path')
+yamlMap = require('../lib/yamlMap')
 
 
 normalise = (config) ->
-  yamlMap.normalise(config, '/FILEPATH', '/BOWERPATH')
+  yamlMap.normalise(config, '/FILEPATH', '/FILEPATH', '/BOWERPATH', (message) -> throw new Error(message))
 
 expectNormaliseError = (error, config) ->
-  expect(-> normalise(config)).to.throw(YamlImportError, error)
+  expect(-> normalise(config)).to.throw(error)
 
 
 describe 'yamlMap.normalise()', ->
@@ -35,20 +34,20 @@ describe 'yamlMap.normalise()', ->
 
 
   it "should error when the root is null", ->
-    expectNormaliseError 'Invalid entry - should be a string or object:\nnull', null
+    expectNormaliseError 'Invalid import path: should be a string or object:\nnull', null
 
 
   it "should error when there is an entry that is null", ->
-    expectNormaliseError 'Invalid entry - should be a string or object:\nnull', [null]
+    expectNormaliseError 'Invalid import path: should be a string or object:\nnull', [null]
 
 
   it "should error when the root is an object with no 'bower' key", ->
-    expectNormaliseError 'Invalid entry - object doesn\'t have a \'bower\' key:\n{"invalid":"file"}',
+    expectNormaliseError 'Invalid import path: object doesn\'t have a \'bower\' key:\n{"invalid":"file"}',
       invalid: 'file'
 
 
   it "should error when there is an entry with no 'bower' key", ->
-    expectNormaliseError 'Invalid entry - object doesn\'t have a \'bower\' key:\n{"invalid":"file"}',
+    expectNormaliseError 'Invalid import path: object doesn\'t have a \'bower\' key:\n{"invalid":"file"}',
       [invalid: 'file']
 
 
@@ -57,21 +56,21 @@ describe 'yamlMap()', ->
   fixtures = path.resolve(__dirname, '../fixtures/yaml-map')
 
   it 'should support relative paths', (done) ->
-    yamlMap "#{fixtures}/relative.yaml", null, (err, files) ->
+    yamlMap "#{fixtures}/relative.yaml", fixtures, null, (err, files) ->
       expect(err).to.not.be.ok
       expect(files).to.deep.equal ["#{fixtures}/sample.css"]
       done()
 
 
   it 'should support bower paths', (done) ->
-    yamlMap "#{fixtures}/bower.yaml", '/bower/', (err, files) ->
+    yamlMap "#{fixtures}/bower.yaml", fixtures, '/bower/', (err, files) ->
       expect(err).to.not.be.ok
       expect(files).to.deep.equal ["/bower/sample.css"]
       done()
 
 
   it 'should support multiple files', (done) ->
-    yamlMap "#{fixtures}/multiple.yaml", '/bower/', (err, files) ->
+    yamlMap "#{fixtures}/multiple.yaml", fixtures, '/bower/', (err, files) ->
       expect(err).to.not.be.ok
       expect(files).to.deep.equal ["#{fixtures}/sample.css", "/bower/sample.css"]
       done()

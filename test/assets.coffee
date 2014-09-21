@@ -139,6 +139,29 @@ describe 'assets - build (regular)', ->
     """
 
 
+  it 'should skip CSS imports outside the source directory in YAML files', ->
+    expect("#{build1}/import-error.css").to.have.content """
+      body {
+        background: url(_bower/sample.gif);
+      }
+      .main-red,
+      .also-red {
+        color: red;
+      }
+    """
+
+
+  it 'should skip JavaScript imports outside the source directory in YAML files', ->
+    expect("#{build1}/import-error.js").to.have.content """
+      console.log('Sample');
+
+      (function() {
+        console.log('JavaScript');
+
+      }).call(this);\n
+    """
+
+
   it 'should combine the content of *.js/ directories', ->
     expect("#{build1}/combined.js").to.have.content """
       f1();
