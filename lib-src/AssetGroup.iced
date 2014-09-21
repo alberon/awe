@@ -78,13 +78,13 @@ class AssetGroup
     @_compileRegularDirectory(@srcPath, @destPath, cb)
 
 
-  _writeFile: (dest, {content, count}, action, cb) =>
-    return cb() if content == null
+  _write: (dest, data, action, cb) =>
+    return cb() if data.content == null
 
-    await fs.writeFile(dest, content, errTo(cb, defer()))
+    await fs.writeFile(dest, data.content, errTo(cb, defer()))
 
     if action
-      output(action, dest, "(#{count} files)" if count > 1)
+      output(action, dest, "(#{data.count} files)" if data.count > 1)
 
     cb()
 
@@ -92,11 +92,11 @@ class AssetGroup
   _compileDirectory: (src, dest, cb) =>
     if src[-4...].toLowerCase() == '.css'
       await @_compileCssDirectory(src, dest, errTo(cb, defer data))
-      @_writeFile(dest, data, 'compiled', cb)
+      @_write(dest, data, 'compiled', cb)
 
     else if src[-3...].toLowerCase() == '.js'
       await @_compileJsDirectory(src, dest, errTo(cb, defer data))
-      @_writeFile(dest, data, 'compiled', cb)
+      @_write(dest, data, 'compiled', cb)
 
     else
       @_compileRegularDirectory(src, dest, cb)
@@ -133,14 +133,28 @@ class AssetGroup
     cb()
 
 
-  _compileCoffeeScript: (src, cb) =>
-    await fs.readFile(src, 'utf8', errTo(cb, defer coffeescript))
-    # TODO: sourceMap
-    javascript = coffee.compile(coffeescript)
-    cb(null, javascript)
+  _getFile: (src, dest, cb) =>
+    await fs.readFile(src, 'utf8', errTo(cb, defer content))
+    cb(null, content: content)
 
 
-  _compileSass: (src, cb) =>
+  _getJs: (src, dest, cb) =>
+    @_getFile(src, dest, cb)
+
+
+  _compileCoffeeScript: (src, dest, cb) =>
+    await @_getFile(src, dest, errTo(cb, defer data))
+    data.content = coffee.compile(data.content)
+    cb(null, data)
+
+
+  _getCss: (src, dest, cb) =>
+    await @_getFile(src, dest, errTo(cb, defer data))
+    data.content = @_rewriteCss(data.content, src, dest)
+    cb(null, data)
+
+
+  _compileSass: (src, dest, cb) =>
 
     # Create a temp directory for the output
     await tmp.dir(unsafeCleanup: true, errTo(cb, defer tmpDir))
@@ -211,14 +225,18 @@ class AssetGroup
       # Get the content from the CSS file
       pathFromRoot = path.relative(@srcPath, path.dirname(src)) || '.'
       outputFile = path.join(tmpDir, pathFromRoot, path.basename(src).replace(/\.scss$/, '.css'))
-      fs.readFile(outputFile, 'utf8', errTo(cb, defer content))
+      # Note: Can't use getCss here because the original src is different to the file we're reading
+      @_getFile(outputFile, dest, errTo(cb, defer data))
 
     # Remove the comments showing the source lines until I can fix them
     # TODO: Rewrite the paths instead of removing them
-    content = content.replace(/\/\* line .*? \*\/\n/g, '')
+    data.content = data.content.replace(/\/\* line .*? \*\/\n/g, '')
+
+    # Rewrite the URLs in the CSS
+    data.content = @_rewriteCss(data.content, src, dest)
 
     # Run the callback
-    cb(null, content)
+    cb(null, data)
 
 
   _copyGeneratedFileOrDirectory: (src, dest, file, cb) =>
@@ -236,8 +254,8 @@ class AssetGroup
 
 
   _copyGeneratedFile: (src, dest, cb) =>
-    await fs.readFile(src, errTo(cb, defer content))
-    @_writeFile(dest, content: content, 'generated', cb)
+    await @_getFile(src, dest, errTo(cb, defer data))
+    @_write(dest, data, 'generated', cb)
 
 
   _copyGeneratedDirectory: (src, dest, cb) =>
@@ -263,37 +281,35 @@ class AssetGroup
     # Compile CoffeeScript
     if src[-7...].toLowerCase() == '.coffee'
       dest = dest[...-7] + '.js'
-      await @_compileCoffeeScript(src, errTo(cb, defer content))
-      @_writeFile(dest, content: content, 'compiled', cb)
+      await @_compileCoffeeScript(src, dest, errTo(cb, defer data))
+      @_write(dest, data, 'compiled', cb)
 
     # Compile Sass
     else if src[-5...].toLowerCase() == '.scss'
       dest = dest[...-5] + '.css'
-      await @_compileSass(src, errTo(cb, defer content))
-      content = @_rewriteCss(content, src, dest)
-      @_writeFile(dest, content: content, 'compiled', cb)
+      await @_compileSass(src, dest, errTo(cb, defer data))
+      @_write(dest, data, 'compiled', cb)
 
     # Import files listed in a YAML file
     else if src[-9...].toLowerCase() == '.css.yaml'
       dest = dest[...-5]
       await @_compileYamlCss(src, dest, errTo(cb, defer data))
-      @_writeFile(dest, data, 'compiled', cb)
+      @_write(dest, data, 'compiled', cb)
 
     else if src[-8...].toLowerCase() == '.js.yaml'
       dest = dest[...-5]
       await @_compileYamlJs(src, dest, errTo(cb, defer data))
-      @_writeFile(dest, data, 'compiled', cb)
+      @_write(dest, data, 'compiled', cb)
 
     # Copy CSS and replace URLs
     else if src[-4...].toLowerCase() == '.css'
-      await fs.readFile(src, 'utf8', errTo(cb, defer content))
-      content = @_rewriteCss(content, src, dest)
-      @_writeFile(dest, content: content, 'copied', cb)
+      await @_getCss(src, dest, errTo(cb, defer data))
+      @_write(dest, data, 'copied', cb)
 
     # Copy other files
     else
-      await fs.readFile(src, errTo(cb, defer content))
-      @_writeFile(dest, content: content, 'copied', cb)
+      await @_getFile(src, dest, errTo(cb, defer data))
+      @_write(dest, data, 'copied', cb)
 
 
   _rewriteCss: (content, srcFile, destFile) =>
@@ -334,15 +350,13 @@ class AssetGroup
 
       # Compile Sass
       if srcFile[-5...].toLowerCase() == '.scss'
-        await @_compileSass(srcFile, errTo(cb, defer content))
-        content = @_rewriteCss(content, srcFile, dest)
-        cb(null, content)
+        await @_compileSass(srcFile, dest, errTo(cb, defer data))
+        cb(null, data.content)
 
       # Other CSS file
       else
-        await fs.readFile(srcFile, 'utf8', errTo(cb, defer content))
-        content = @_rewriteCss(content, srcFile, dest)
-        cb(null, content)
+        await @_getCss(srcFile, dest, errTo(cb, defer data))
+        cb(null, data.content)
 
     await async.map(files, compile, errTo(cb, defer content))
     content = _.filter(content)
@@ -357,15 +371,13 @@ class AssetGroup
 
       # Compile Sass
       if file[-5...].toLowerCase() == '.scss'
-        await @_compileSass(file, errTo(cb, defer content))
-        content = @_rewriteCss(content, file, dest)
-        cb(null, content)
+        await @_compileSass(file, dest, errTo(cb, defer data))
+        cb(null, data.content)
 
       # Other CSS file
       else
-        await fs.readFile(file, 'utf8', errTo(cb, defer content))
-        content = @_rewriteCss(content, file, dest)
-        cb(null, content)
+        await @_getCss(file, dest, errTo(cb, defer data))
+        cb(null, data.content)
 
     await async.map(files, compile, errTo(cb, defer content))
     content = _.filter(content)
@@ -382,11 +394,13 @@ class AssetGroup
 
       # Compile CoffeeScript
       if srcFile[-7...].toLowerCase() == '.coffee'
-        @_compileCoffeeScript(srcFile, cb)
+        await @_compileCoffeeScript(srcFile, dest, errTo(cb, defer data))
+        cb(null, data.content)
 
       # Other file
       else
-        fs.readFile(srcFile, 'utf8', cb)
+        await @_getJs(srcFile, dest, errTo(cb, defer data))
+        cb(null, data.content)
 
     await async.map(files, compile, errTo(cb, defer content))
     content = _.filter(content)
@@ -397,16 +411,17 @@ class AssetGroup
     await yamlMap(yamlFile, @srcPath, @bowerSrc, errTo(cb, defer files))
 
     compile = (file, cb) =>
-      if file[0...1] == '_'
-        return cb()
+      return cb() if file[0...1] == '_'
 
       # Compile CoffeeScript
       if file[-7...].toLowerCase() == '.coffee'
-        @_compileCoffeeScript(file, cb)
+        await @_compileCoffeeScript(file, dest, errTo(cb, defer data))
+        cb(null, data.content)
 
       # Other file
       else
-        fs.readFile(file, 'utf8', cb)
+        await @_getJs(file, dest, errTo(cb, defer data))
+        cb(null, data.content)
 
     await async.map(files, compile, errTo(cb, defer content))
     content = _.filter(content)
