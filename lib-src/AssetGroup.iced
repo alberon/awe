@@ -60,22 +60,23 @@ class AssetGroup
 
     await
       # Create a symlink to the source directory
-      target = path.relative(path.dirname(@srcLink), @srcPath)
-      fs.symlink(target, @srcLink, errTo(cb, defer()))
-
-      output.symlink(@srcLink + '/')
+      @_createSymlink(@srcPath, @srcLink, errTo(cb, defer()))
 
       # Create a symlink to the bower_components directory
-      if @bower
-        target = path.relative(path.dirname(@bowerLink), @bowerSrc)
-        fs.symlink(target, @bowerLink, errTo(cb, defer()))
-        output.symlink(@bowerLink + '/')
+      @_createSymlink(@bowerSrc, @bowerLink, errTo(cb, defer())) if @bower
 
       # Create cache directory
       cacheDir.prepare(errTo(cb, defer()))
 
     # Compile the directory
     @_compileRegularDirectory(@srcPath, @destPath, cb)
+
+
+  _createSymlink: (target, link, cb) =>
+    target = path.relative(path.dirname(link), target)
+    await fs.symlink(target, link, errTo(cb, defer()))
+    output.symlink(link + '/', ' -> ' + target)
+    cb()
 
 
   _write: (dest, data, action, cb) =>
