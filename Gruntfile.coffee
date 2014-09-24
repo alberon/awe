@@ -38,12 +38,12 @@ module.exports = (grunt) ->
         reporter: 'spec'
 
       all:
-        src: 'test/**/*.coffee'
+        src: ['test/**/*.coffee', '!test/**/_*.coffee']
 
       # quick:
       #   options:
       #     reporter: 'dot'
-      #   src: 'test/**/*.coffee'
+      #   src: ['test/**/*.coffee', '!test/**/_*.coffee']
 
     # Generate man pages
     markedman:
@@ -65,11 +65,11 @@ module.exports = (grunt) ->
         expand: true
         src: 'lib-src/**/*.iced'
 
-      options:
-        additional:
-          'lib-src/AssetGroup.iced': 'test/assets.coffee'
-          'lib-src/cacheDir.iced':   'test/assets.coffee'
-          'lib-src/cmd-build.iced':  'test/assets.coffee'
+      # options:
+      #   additional:
+      #     'lib-src/AssetGroup.iced': 'test/assets.coffee'
+      #     'lib-src/cacheDir.iced':   'test/assets.coffee'
+      #     'lib-src/cmd-build.iced':  'test/assets.coffee'
 
     # Watch for changes
     watch:
@@ -92,7 +92,7 @@ module.exports = (grunt) ->
 
       # Run modified test suite
       test:
-        files: 'test/**/*.coffee'
+        files: ['test/**/*.coffee', '!test/**/_*.coffee']
         tasks: ['clear', 'newer:mochaTest:all']
 
   # Register tasks
@@ -117,7 +117,7 @@ module.exports = (grunt) ->
       file.src.forEach (src) =>
         if matches = src.match /lib-src\/(.+)\.(coffee|iced)$/
           files.push("test/#{matches[1]}.coffee")
-        if src of additional
+        if additional && src of additional
           if additional[src] instanceof Array
             files = files.concat(additional[src])
           else

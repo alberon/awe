@@ -89,13 +89,12 @@ describe 'UrlRewriter', ->
 
 
   it 'should support projects with no bower_components/ directory', ->
-
     params =
       bowerSrc: null
       bowerDest: null
 
-    expect(rewrite('sample.gif')).to.equal 'sample.gif'
-    expect(-> rewrite('invalid.gif')).to.throw /Invalid file path/
+    expect(rewrite('sample.gif', params)).to.equal 'sample.gif'
+    expect(-> rewrite('invalid.gif', params)).to.throw /Invalid file path/
 
   it 'should support ?query strings', ->
     expect(rewrite('sample.gif?query')).to.equal 'sample.gif?query'

@@ -1,0 +1,7 @@
+.scss {
+  color: green;
+}
+
+.also-scss {
+  @extend .scss;
+}

@@ -1,0 +1,7 @@
+.scss {
+  transition: transform 1s;
+}
+
+.also-scss {
+  @extend .scss;
+}

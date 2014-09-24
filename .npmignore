@@ -2,8 +2,9 @@
 /lib-src/
 /man-src/
 
-# Test scripts & fixtures
+# Test scripts, fixtures and sample files
 /fixtures/
+/sample/
 /test/
 
 # Ruby packages (Note: node_modules/ is ignored automatically)

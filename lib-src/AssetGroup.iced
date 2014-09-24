@@ -4,7 +4,6 @@ autoprefixer = require('autoprefixer-core')
 cacheDir     = require('./cacheDir')
 chalk        = require('chalk')
 coffee       = require('coffee-script')
-config       = require('./config')
 css          = require('./css')
 errTo        = require('errto')
 fs           = require('fs')
@@ -24,28 +23,36 @@ tmp.setGracefulCleanup()
 
 class AssetGroup
 
-  constructor: (groupConfig) ->
-    @autoprefixer = groupConfig.autoprefixer
-    @bower        = groupConfig.bower
+  constructor: (@rootPath, config) ->
+    @autoprefixer = config.autoprefixer
+    @bower        = config.bower
 
     # Normalise paths
-    @srcPath  = path.join(config.rootPath, groupConfig.src.replace(/\/*$/, ''))
-    @destPath = path.join(config.rootPath, groupConfig.dest.replace(/\/*$/, ''))
+    @srcPath  = path.join(@rootPath, config.src.replace(/\/*$/, ''))
+    @destPath = path.join(@rootPath, config.dest.replace(/\/*$/, ''))
 
     # Generated paths
     @srcLink = path.join(@destPath, '_src')
 
     if @bower
       @bowerLink = path.join(@destPath, '_bower')
-      @bowerSrc  = path.join(config.rootPath, @bower)
-    else
-      @bowerLink = null
-      @bowerSrc  = null
+      @bowerSrc  = path.join(@rootPath, @bower)
 
 
   build: (cb) =>
-    # Need to know if the destination already exists for the output message
-    await fs.exists(@destPath, defer(destExists))
+    await
+      # Need to know if the destination already exists for the output message
+      fs.exists(@destPath, defer(destExists))
+
+      # Also need to check if the Bower directory exists
+      bowerExists = false
+      if @bower
+        fs.exists(@bowerSrc, defer(bowerExists))
+
+    if !bowerExists
+      @bower     = false
+      @bowerLink = null
+      @bowerSrc  = null
 
     # Delete the destination
     await rmdir(@destPath, errTo(cb, defer()))
@@ -63,10 +70,11 @@ class AssetGroup
       @_createSymlink(@srcPath, @srcLink, errTo(cb, defer()))
 
       # Create a symlink to the bower_components directory
-      @_createSymlink(@bowerSrc, @bowerLink, errTo(cb, defer())) if @bower
+      if @bower
+        @_createSymlink(@bowerSrc, @bowerLink, errTo(cb, defer()))
 
       # Create cache directory
-      cacheDir.prepare(errTo(cb, defer()))
+      cacheDir.prepare(@rootPath, errTo(cb, defer @cachePath))
 
     # Compile the directory
     @_buildRegularDirectory(@srcPath, @destPath, cb)
@@ -75,7 +83,7 @@ class AssetGroup
   _createSymlink: (target, link, cb) =>
     target = path.relative(path.dirname(link), target)
     await fs.symlink(target, link, errTo(cb, defer()))
-    output.symlink(link + '/', ' -> ' + target)
+    output.symlink(link + '/', '-> ' + target)
     cb()
 
 
@@ -101,17 +109,21 @@ class AssetGroup
 
   _buildRegularDirectory: (src, dest, cb) =>
 
-    await
-      # Create the destination directory
-      mkdirp(dest, defer())
+    # Get a list of files in the source directory
+    await readdir.read(
+      src,
+      readdir.CASELESS_SORT | readdir.INCLUDE_DIRECTORIES | readdir.NON_RECURSIVE,
+      defer err, files
+    )
 
-      # Get a list of files in the source directory
-      readdir.read(
-        src,
-        null,
-        readdir.CASELESS_SORT + readdir.INCLUDE_DIRECTORIES + readdir.NON_RECURSIVE,
-        errTo(cb, defer files)
-      )
+    if err && err.code == 'ENOENT'
+      output.warning(src, '', 'Directory does not exist')
+      return cb()
+    else if err
+      return cb(err)
+
+    # Create the destination directory
+    await mkdirp(dest, errTo(cb, defer()))
 
     # Build each of the files/directories in parallel
     build = (file, cb) =>
@@ -159,8 +171,8 @@ class AssetGroup
     await tmp.file(errTo(cb, defer configFilename, configFd))
 
     compassConfig = """
-      project_path = '#{config.rootPath}'
-      cache_path   = '#{path.join(cacheDir.path, 'sass-cache')}'
+      project_path = '#{@rootPath}'
+      cache_path   = '#{path.join(@cachePath, 'sass-cache')}'
       output_style = :expanded
 
       # Input files
@@ -297,7 +309,7 @@ class AssetGroup
 
   _rewriteCss: (content, srcFile, destFile) =>
     urlRewriter = new UrlRewriter
-      root:      config.rootPath
+      root:      @rootPath
       srcDir:    @srcPath
       srcFile:   srcFile
       destDir:   @destPath
@@ -324,17 +336,20 @@ class AssetGroup
 
 
   _compileMultipleFiles: (files, dest, cb) =>
+    count = 0
+
     compile = (file, cb) =>
       await @_compileFile(file, dest, errTo(cb, defer data))
+      count += data.count
       cb(null, data.content)
 
     await async.map(files, compile, errTo(cb, defer content))
     content = _.filter(content)
-    cb(null, content: content.join('\n'), count: content.length, action: 'compiled', dest: dest)
+    cb(null, content: content.join('\n'), count: count, action: 'compiled', dest: dest)
 
 
   _compileDirectory: (src, dest, cb) =>
-    await readdir.read(src, null, readdir.CASELESS_SORT, errTo(cb, defer files))
+    await readdir.read(src, readdir.CASELESS_SORT, errTo(cb, defer files))
 
     # Remove files starting with _
     files = files.filter (file) -> file[0...1] != '_'
