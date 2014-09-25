@@ -76,8 +76,11 @@ class AssetGroup
       # Create cache directory
       cacheDir.prepare(@rootPath, errTo(cb, defer @cachePath))
 
+      # Determine the real path of the root - needed to detect loops
+      fs.realpath(@srcPath, errTo(cb, defer srcRealPath))
+
     # Compile the directory
-    @_buildRegularDirectory(@srcPath, @destPath, cb)
+    @_buildRegularDirectory(@srcPath, @destPath, [srcRealPath], cb)
 
 
   _createSymlink: (target, link, cb) =>
@@ -98,16 +101,22 @@ class AssetGroup
     cb()
 
 
-  _buildDirectory: (src, dest, cb) =>
+  _buildDirectory: (src, dest, stack, cb) =>
+    await fs.realpath(src, errTo(cb, defer srcRealPath))
+    if srcRealPath in stack
+      output.error(src, '(Symlink)', "Infinite loop detected: '#{src}' points to '#{srcRealPath}'")
+      return cb()
+    stack = stack.concat([srcRealPath])
+
     if src[-4...].toLowerCase() == '.css' || src[-3...].toLowerCase() == '.js'
       await @_compileDirectory(src, dest, errTo(cb, defer data))
       @_write(data, cb)
 
     else
-      @_buildRegularDirectory(src, dest, cb)
+      @_buildRegularDirectory(src, dest, stack, cb)
 
 
-  _buildRegularDirectory: (src, dest, cb) =>
+  _buildRegularDirectory: (src, dest, stack, cb) =>
 
     # Get a list of files in the source directory
     await readdir.read(
@@ -133,7 +142,7 @@ class AssetGroup
       destFile = path.join(dest, file)
 
       if file[-1..] == '/'
-        @_buildDirectory(srcFile[...-1], destFile[...-1], cb)
+        @_buildDirectory(srcFile[...-1], destFile[...-1], stack, cb)
       else
         await @_compileFile(srcFile, destFile, errTo(cb, defer data))
         @_write(data, cb)

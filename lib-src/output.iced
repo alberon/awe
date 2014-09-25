@@ -54,7 +54,7 @@ output = (action, filename = '', notes = '', message = '') ->
     text += "\n\n#{message}\n"
 
   # Output
-  if action == 'error'
+  if action in ['error', 'warning']
     console.error(text)
   else
     console.log(text)
@@ -63,11 +63,6 @@ output = (action, filename = '', notes = '', message = '') ->
 _(actions).forOwn (i, action) ->
   output[action] = (file, notes, message) ->
     output(action, file, notes, message)
-
-# Exit after displaying an error message
-output.error = (file, notes, message, code = 2) ->
-  output('error', file, notes, message)
-  process.exit(code) unless code == false
 
 # Output a blank line
 output.line = ->

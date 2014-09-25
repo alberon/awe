@@ -215,13 +215,14 @@ describe 'AssetGroup.build()', ->
       expect("#{fixtures}/build-symlink-dirs/build/symlink/file.txt").to.be.a.file()
 
 
-  it 'should detect infinite symlink loops and skip them with a warning' #, build
-  # TODO
-  #  root: "#{fixtures}/build-symlink-loop"
-  #  tests: ->
-  #    expect("#{fixtures}/build-symlink-loop/build/subdir").to.be.a.directory()
-  #    expect("#{fixtures}/build-symlink-loop/build/subdir/file.txt").to.be.a.file()
-  #    expect("#{fixtures}/build-symlink-loop/build/subdir/symlink").not.to.be.a.path()
+  it 'should detect infinite symlink loops and skip them with an error message', build
+   root: "#{fixtures}/build-symlink-loop"
+   tests: ->
+     expect("#{fixtures}/build-symlink-loop/build/symlink").not.to.be.a.path()
+     expect("#{fixtures}/build-symlink-loop/build/subdir").to.be.a.directory()
+     expect("#{fixtures}/build-symlink-loop/build/subdir/file.txt").to.be.a.file()
+     expect("#{fixtures}/build-symlink-loop/build/subdir/symlink").not.to.be.a.path()
+
 
   #----------------------------------------
   # YAML imports
