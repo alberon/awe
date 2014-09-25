@@ -13,7 +13,7 @@ module.exports = (file, srcPath, bowerPath, cb) ->
   await fs.readFile(file, 'utf8', errTo(cb, defer content))
 
   errorHandler = (message) ->
-    output.warning(file, '(YAML import map)', message)
+    output.error(file, '(YAML import map)', message)
 
   # Parse YAML to JS
   try
@@ -34,7 +34,7 @@ module.exports = (file, srcPath, bowerPath, cb) ->
 
 
 # This is exported for unit testing only
-normalise = module.exports.normalise = (files, filePath, srcPath, bowerPath, warning) ->
+normalise = module.exports.normalise = (files, filePath, srcPath, bowerPath, error) ->
   if files not instanceof Array
     files = [files]
 
@@ -49,17 +49,17 @@ normalise = module.exports.normalise = (files, filePath, srcPath, bowerPath, war
       if S(file).startsWith(srcPath)
         normalisedFiles.push(file)
       else
-        warning("Invalid import path: '#{value}' resolves to '#{file}' which is outside the src directory '#{srcPath}' (skipped)")
+        error("Invalid import path: '#{value}' resolves to '#{file}' which is outside the src directory '#{srcPath}' (skipped)")
 
     # The only other type allowed is an object (bower: file.js)
     else if typeof value isnt 'object' || value == null
-      warning("Invalid import path: should be a string or object:\n#{JSON.stringify(value)}")
+      error("Invalid import path: should be a string or object:\n#{JSON.stringify(value)}")
 
     else if 'bower' not of value
-      warning("Invalid import path: object doesn't have a 'bower' key:\n#{JSON.stringify(value)}")
+      error("Invalid import path: object doesn't have a 'bower' key:\n#{JSON.stringify(value)}")
 
     else if !bowerPath
-      warning("Invalid import path: 'bower: #{value.bower}': Bower is disabled")
+      error("Invalid import path: 'bower: #{value.bower}': Bower is disabled")
 
     else
       file = path.resolve(bowerPath, value.bower)
@@ -67,6 +67,6 @@ normalise = module.exports.normalise = (files, filePath, srcPath, bowerPath, war
       if S(file).startsWith(bowerPath)
         normalisedFiles.push(file)
       else
-        warning("Invalid import path: 'bower: #{value.bower}' resolves to '#{file}' which is outside the Bower directory '#{bowerPath}' (skipped)")
+        error("Invalid import path: 'bower: #{value.bower}' resolves to '#{file}' which is outside the Bower directory '#{bowerPath}' (skipped)")
 
   return normalisedFiles
