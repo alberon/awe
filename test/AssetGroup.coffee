@@ -154,6 +154,39 @@ describe 'AssetGroup.build()', ->
 
 
   #----------------------------------------
+  # Symlinks
+  #----------------------------------------
+
+  it 'should convert symlinks to files to regular files', build
+    root: "#{fixtures}/build-symlink-files"
+    tests: ->
+      expect("#{fixtures}/build-symlink-files/build/file.txt").to.be.a.file()
+      expect("#{fixtures}/build-symlink-files/build/file.txt").not.to.be.a.symlink()
+      expect("#{fixtures}/build-symlink-files/build/symlink.txt").to.be.a.file()
+      expect("#{fixtures}/build-symlink-files/build/symlink.txt").not.to.be.a.symlink()
+
+
+  it 'should convert symlinks to directories to regular directories', build
+    root: "#{fixtures}/build-symlink-dirs"
+    tests: ->
+      expect("#{fixtures}/build-symlink-dirs/build/orig").to.be.a.directory()
+      expect("#{fixtures}/build-symlink-dirs/build/orig").not.to.be.a.symlink()
+      expect("#{fixtures}/build-symlink-dirs/build/orig/file.txt").to.be.a.file()
+      expect("#{fixtures}/build-symlink-dirs/build/symlink").to.be.a.directory()
+      expect("#{fixtures}/build-symlink-dirs/build/symlink").not.to.be.a.symlink()
+      expect("#{fixtures}/build-symlink-dirs/build/symlink/file.txt").to.be.a.file()
+
+
+  it 'should detect infinite symlink loops and skip them with an error message', build
+   root: "#{fixtures}/build-symlink-loop"
+   tests: ->
+     expect("#{fixtures}/build-symlink-loop/build/symlink").not.to.be.a.path()
+     expect("#{fixtures}/build-symlink-loop/build/subdir").to.be.a.directory()
+     expect("#{fixtures}/build-symlink-loop/build/subdir/file.txt").to.be.a.file()
+     expect("#{fixtures}/build-symlink-loop/build/subdir/symlink").not.to.be.a.path()
+
+
+  #----------------------------------------
   # Combine directories
   #----------------------------------------
 
@@ -191,37 +224,10 @@ describe 'AssetGroup.build()', ->
       expect("#{fixtures}/build-combine-other/build/combine.other/sample.txt").to.be.a.file()
 
 
-  #----------------------------------------
-  # Symlinks
-  #----------------------------------------
-
-  it 'should convert symlinks to files to regular files', build
-    root: "#{fixtures}/build-symlink-files"
-    tests: ->
-      expect("#{fixtures}/build-symlink-files/build/file.txt").to.be.a.file()
-      expect("#{fixtures}/build-symlink-files/build/file.txt").not.to.be.a.symlink()
-      expect("#{fixtures}/build-symlink-files/build/symlink.txt").to.be.a.file()
-      expect("#{fixtures}/build-symlink-files/build/symlink.txt").not.to.be.a.symlink()
-
-
-  it 'should convert symlinks to directories to regular directories', build
-    root: "#{fixtures}/build-symlink-dirs"
-    tests: ->
-      expect("#{fixtures}/build-symlink-dirs/build/orig").to.be.a.directory()
-      expect("#{fixtures}/build-symlink-dirs/build/orig").not.to.be.a.symlink()
-      expect("#{fixtures}/build-symlink-dirs/build/orig/file.txt").to.be.a.file()
-      expect("#{fixtures}/build-symlink-dirs/build/symlink").to.be.a.directory()
-      expect("#{fixtures}/build-symlink-dirs/build/symlink").not.to.be.a.symlink()
-      expect("#{fixtures}/build-symlink-dirs/build/symlink/file.txt").to.be.a.file()
-
-
-  it 'should detect infinite symlink loops and skip them with an error message', build
-   root: "#{fixtures}/build-symlink-loop"
+  it 'should detect infinite symlink loops in combined directories and skip them with an error message', build
+   root: "#{fixtures}/build-combine-loop"
    tests: ->
-     expect("#{fixtures}/build-symlink-loop/build/symlink").not.to.be.a.path()
-     expect("#{fixtures}/build-symlink-loop/build/subdir").to.be.a.directory()
-     expect("#{fixtures}/build-symlink-loop/build/subdir/file.txt").to.be.a.file()
-     expect("#{fixtures}/build-symlink-loop/build/subdir/symlink").not.to.be.a.path()
+     expect("#{fixtures}/build-combine-loop/build/combine.css").to.be.a.file() # TODO Check content...
 
 
   #----------------------------------------
