@@ -227,7 +227,11 @@ describe 'AssetGroup.build()', ->
   it 'should detect infinite symlink loops in combined directories and skip them with an error message', build
    root: "#{fixtures}/build-combine-loop"
    tests: ->
-     expect("#{fixtures}/build-combine-loop/build/combine.css").to.be.a.file() # TODO Check content...
+     expect("#{fixtures}/build-combine-loop/build/combine.css").to.have.content """
+       body {
+         color: red;
+       }
+     """
 
 
   #----------------------------------------
