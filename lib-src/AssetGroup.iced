@@ -136,14 +136,8 @@ class AssetGroup
     await readdir.read(
       src,
       readdir.CASELESS_SORT | readdir.INCLUDE_DIRECTORIES | readdir.NON_RECURSIVE,
-      defer err, files
+      errTo(cb, defer files)
     )
-
-    if err && err.code == 'ENOENT'
-      output.warning(src, '', 'Directory does not exist')
-      return cb()
-    else if err
-      return cb(err)
 
     # Create the destination directory
     await mkdirp(dest, errTo(cb, defer()))
