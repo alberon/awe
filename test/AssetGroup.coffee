@@ -436,3 +436,9 @@ describe 'AssetGroup.build()', ->
     tests: ->
       expect("#{fixtures}/build-cache/.awe/sass-cache").to.be.a.directory()
       expect("#{fixtures}/build-cache/.awe/.gitignore").to.be.a.file()
+
+
+  it "should display an error and not create the build directory if the source directory doesn't exist", build
+    root: "#{fixtures}/build-src-missing"
+    tests: ->
+      expect("#{fixtures}/build-src-missing/build").not.to.be.a.path()
