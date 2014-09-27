@@ -47,7 +47,6 @@ build = ({root, config, tests}) ->
 # Tests
 #================================================================================
 
-
 describe 'AssetGroup.build()', ->
 
   #----------------------------------------
@@ -238,7 +237,7 @@ describe 'AssetGroup.build()', ->
   # YAML imports
   #----------------------------------------
 
-  it 'should import JavaScript files listed in a YAML file', build
+  it 'should import JavaScript/CoffeeScript files listed in a .js.yaml file', build
     root: "#{fixtures}/build-yaml-js"
     tests: ->
       expect("#{fixtures}/build-yaml-js/build/import.js").to.have.content """
@@ -251,7 +250,7 @@ describe 'AssetGroup.build()', ->
       """
 
 
-  it 'should import CSS files listed in a YAML file', build
+  it 'should import CSS/Sass files listed in a .css.yaml file', build
     root: "#{fixtures}/build-yaml-css"
     tests: ->
       expect("#{fixtures}/build-yaml-css/build/import.css").to.have.content """
@@ -265,11 +264,13 @@ describe 'AssetGroup.build()', ->
       """
 
 
-  it 'should not attempt to import files from other YAML files', build
+  it 'should not attempt to import files from other .yaml files', build
     root: "#{fixtures}/build-yaml-other"
     tests: ->
       expect("#{fixtures}/build-yaml-other/build/import.txt").not.to.be.a.path()
-      expect("#{fixtures}/build-yaml-other/build/import.txt.yaml").to.be.a.file()
+      expect("#{fixtures}/build-yaml-other/build/import.txt.yaml").to.be.have.content """
+        - SHOULD NOT BE IMPORTED\n
+      """
 
 
   it 'should skip imports outside the source directory in YAML files', build
@@ -285,6 +286,17 @@ describe 'AssetGroup.build()', ->
     root: "#{fixtures}/build-yaml-combine"
     tests: ->
       expect("#{fixtures}/build-yaml-combine/build/combine.js").to.have.content """
+        f1();\n
+        f2();\n
+        f3();\n
+        f4();\n
+      """
+
+
+  it 'should combine files in a directory listed in a YAML file', build
+    root: "#{fixtures}/build-combine-yaml"
+    tests: ->
+      expect("#{fixtures}/build-combine-yaml/build/import.js").to.have.content """
         f1();\n
         f2();\n
         f3();\n

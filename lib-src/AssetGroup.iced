@@ -87,7 +87,7 @@ class AssetGroup
       fs.realpath(@srcPath, errTo(cb, defer srcRealPath))
 
     # Compile the directory
-    @_buildRegularDirectory(@srcPath, @destPath, [srcRealPath], cb)
+    @_buildRegularDirectory(@srcPath, @destPath, [], cb)
 
 
   _createSymlink: (target, link, cb) =>
@@ -115,29 +115,28 @@ class AssetGroup
       output.error(src, '(Symlink)', "Infinite loop detected: '#{src}' points to '#{srcRealPath}'")
       return cancel()
 
-    newStack = stack.concat([srcRealPath])
-    build(newStack)
+    stack = stack.concat([srcRealPath])
+    build(stack)
 
 
   _buildDirectory: (src, dest, stack, cb) =>
-    await @_preventLoops(src, stack, cb, defer newStack)
-
     if src[-4..].toLowerCase() == '.css' || src[-3..].toLowerCase() == '.js'
-      await @_compileDirectory(src, dest, newStack, errTo(cb, defer data))
+      await @_compileDirectory(src, dest, stack, errTo(cb, defer data))
       @_write(data, cb)
 
     else
-      @_buildRegularDirectory(src, dest, newStack, cb)
+      @_buildRegularDirectory(src, dest, stack, cb)
+
+
+  _readDirectory: (dir, cb) =>
+    readdir.read(dir, readdir.CASELESS_SORT | readdir.INCLUDE_DIRECTORIES | readdir.NON_RECURSIVE, cb)
 
 
   _buildRegularDirectory: (src, dest, stack, cb) =>
+    await @_preventLoops(src, stack, cb, defer stack)
 
     # Get a list of files in the source directory
-    await readdir.read(
-      src,
-      readdir.CASELESS_SORT | readdir.INCLUDE_DIRECTORIES | readdir.NON_RECURSIVE,
-      errTo(cb, defer files)
-    )
+    await @_readDirectory(src, errTo(cb, defer files))
 
     # Create the destination directory
     await mkdirp(dest, errTo(cb, defer()))
@@ -146,7 +145,7 @@ class AssetGroup
     build = (file, cb) =>
       return cb() if file[0...1] == '_'
 
-      srcFile = path.join(src, file)
+      srcFile  = path.join(src, file)
       destFile = path.join(dest, file)
 
       if file[-1..] == '/'
@@ -302,23 +301,17 @@ class AssetGroup
 
 
   _compileFile: (src, dest, stack, cb) =>
-    await @_preventLoops(src, stack, cb, defer newStack)
-
-    # Compile directory (used for recursion)
-    if src[-1..] == '/'
-      @_compileDirectory(src[...-1], dest[...-1], newStack, cb)
-
     # Compile CoffeeScript
-    else if src[-7..].toLowerCase() == '.coffee'
-      @_compileCoffeeScript(src, dest[...-7] + '.js', cb)
+    if src[-7..].toLowerCase() == '.coffee'
+      @_compileCoffeeScript(src, dest.replace(/\.coffee$/i, '.js'), cb)
 
     # Compile Sass
     else if src[-5..].toLowerCase() == '.scss'
-      @_compileSass(src, dest[...-5] + '.css', cb)
+      @_compileSass(src, dest.replace(/\.scss$/i, '.css'), cb)
 
     # Import files listed in a YAML file
     else if src[-9..].toLowerCase() == '.css.yaml' || src[-8..].toLowerCase() == '.js.yaml'
-      @_compileYamlImports(src, dest[...-5], newStack, cb)
+      @_compileYamlImports(src, dest.replace(/\.yaml$/i, ''), stack, cb)
 
     # Copy CSS and replace URLs
     else if src[-4..].toLowerCase() == '.css'
@@ -361,7 +354,7 @@ class AssetGroup
     count = 0
 
     compile = (file, cb) =>
-      await @_compileFile(file, dest, stack, errTo(cb, defer data))
+      await @_compileFileOrDirectory(file, dest, stack, errTo(cb, defer data))
       return cb() unless data
       count += data.count
       cb(null, data.content)
@@ -371,12 +364,23 @@ class AssetGroup
     cb(null, content: content.join('\n'), count: count, action: 'compiled', dest: dest)
 
 
+  _compileFileOrDirectory: (src, dest, stack, cb) =>
+    # readdir.read() returns 'dirname/' for directories
+    if src[-1..] == '/'
+      return @_compileDirectory(src[...-1], dest.replace(/\/$/, ''), stack, cb)
+
+    await fs.stat(src, errTo(cb, defer stat))
+
+    if stat.isDirectory()
+      @_compileDirectory(src, dest, stack, cb)
+    else
+      @_compileFile(src, dest, stack, cb)
+
+
   _compileDirectory: (src, dest, stack, cb) =>
-    await readdir.read(
-      src,
-      readdir.CASELESS_SORT | readdir.INCLUDE_DIRECTORIES | readdir.NON_RECURSIVE,
-      errTo(cb, defer files)
-    )
+    await @_preventLoops(src, stack, cb, defer stack)
+
+    await @_readDirectory(src, errTo(cb, defer files))
 
     # Remove files starting with _
     files = files.filter (file) -> file[0...1] != '_'
