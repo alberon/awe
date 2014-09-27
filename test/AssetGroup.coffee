@@ -283,9 +283,9 @@ describe 'AssetGroup.build()', ->
 
 
   it 'should import files listed in a YAML file inside a combined directory', build
-    root: "#{fixtures}/build-yaml-combine"
+    root: "#{fixtures}/build-combine-yaml"
     tests: ->
-      expect("#{fixtures}/build-yaml-combine/build/combine.js").to.have.content """
+      expect("#{fixtures}/build-combine-yaml/build/combine.js").to.have.content """
         f1();\n
         f2();\n
         f3();\n
@@ -294,9 +294,9 @@ describe 'AssetGroup.build()', ->
 
 
   it 'should combine files in a directory listed in a YAML file', build
-    root: "#{fixtures}/build-combine-yaml"
+    root: "#{fixtures}/build-yaml-combine"
     tests: ->
-      expect("#{fixtures}/build-combine-yaml/build/import.js").to.have.content """
+      expect("#{fixtures}/build-yaml-combine/build/import.js").to.have.content """
         f1();\n
         f2();\n
         f3();\n
