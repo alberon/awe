@@ -2,10 +2,20 @@ _          = require('lodash')
 AssetGroup = require('../lib/AssetGroup')
 expect     = require('chai').use(require('chai-fs')).use(require('./_helpers')).expect
 fs         = require('fs')
+output     = require('../lib/output')
 path       = require('path')
 rmdir      = require('rimraf').sync
 
 fixtures = path.resolve(__dirname, '../fixtures')
+
+#================================================================================
+# Settings
+#================================================================================
+
+# Set this to true to display only the results (this should be the default)
+# Set it to false if you want to see the full build output
+quiet = true
+
 
 #================================================================================
 # Helper
@@ -31,13 +41,21 @@ build = ({root, files, config, tests}) ->
     rmdir("#{root}/.awe")
     rmdir("#{root}/#{config.dest}")
 
+    # Disable output?
+    output.disable() if quiet
+
     # Insert a blank line to separate build output from the previous test
-    console.log()
+    output.line()
+    output.building()
 
     # Build it
     (new AssetGroup(root, config)).build (err) ->
       # Insert another blank line to separate build output from the test results
-      console.log()
+      output.finished()
+      output.line()
+
+      # Re-enable output
+      output.enable() if quiet
 
       # Get us outside any try..catch blocks that interfere with assertions
       process.nextTick ->

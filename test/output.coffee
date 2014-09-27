@@ -42,3 +42,9 @@ describe 'output', ->
 
   it 'should have a .watching() method', ->
     expect(output.watching).to.be.a('function')
+
+  it 'should have a .disable() method', ->
+    expect(output.disable).to.be.a('function')
+
+  it 'should have an .enable() method', ->
+    expect(output.enable).to.be.a('function')

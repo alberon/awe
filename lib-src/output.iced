@@ -2,6 +2,7 @@ _     = require('lodash')
 chalk = require('chalk')
 S     = require('string')
 
+
 actions =
   # Information
   watching:  chalk.bold.cyan('WATCHING...')
@@ -25,7 +26,12 @@ actions =
 # calculate it every time)
 maxLength = 9
 
+# Disable output?
+quiet = false
+
+
 output = (action, filename = '', notes = '', message = '') ->
+  return if quiet
 
   # Action
   text = actions[action]
@@ -64,8 +70,19 @@ _(actions).forOwn (i, action) ->
   output[action] = (file, notes, message) ->
     output(action, file, notes, message)
 
+
 # Output a blank line
 output.line = ->
-  console.log('')
+  return if quiet
+  console.log()
+
+
+# Enable/disable output during unit tests
+output.disable = ->
+  quiet = true
+
+output.enable  = ->
+  quiet = false
+
 
 module.exports = output
