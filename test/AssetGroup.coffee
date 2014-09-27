@@ -1,6 +1,6 @@
 _          = require('lodash')
 AssetGroup = require('../lib/AssetGroup')
-expect     = require('chai').use(require('chai-fs')).use(require('./_helpers')).expect
+expect     = require('chai').use(require('chai-fs')).expect
 fs         = require('fs')
 output     = require('../lib/output')
 path       = require('path')
