@@ -390,6 +390,19 @@ describe 'AssetGroup.build()', ->
       """
 
 
+  it 'should import YAML files nested inside other YAML files', build
+    root: "#{fixtures}/build-yaml-nested"
+    files: [
+      'src/_script.js'
+      'src/_nested.js.yaml'
+      'src/import.js.yaml'
+    ]
+    tests: ->
+      expect("#{fixtures}/build-yaml-nested/build/import.js").to.have.content """
+        console.log('JavaScript');\n
+      """
+
+
   it 'should import files listed in a YAML file inside a combined directory', build
     root: "#{fixtures}/build-combine-yaml"
     files: [
