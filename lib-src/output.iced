@@ -10,9 +10,9 @@ actions =
   finished:  chalk.bold.cyan('FINISHED.')
 
   # Source files
-  error:     chalk.bold.white.bgRed('Error')
   modified:  chalk.bold.green.inverse('Modified')
   warning:   chalk.yellow.inverse('Warning')
+  error:     chalk.bold.white.bgRed('Error')
 
   # Target files
   compiled:  chalk.bold.yellow('Compiled')
@@ -31,6 +31,15 @@ quiet = false
 
 
 output = (action, filename = '', notes = '', message = '') ->
+  # Reset counters when building starts
+  if action == 'building'
+    output.resetCounters()
+
+  # Count for unit tests
+  output.counters[action] ||= 0
+  output.counters[action]++
+
+  # Hide output during unit tests
   return if quiet
 
   # Action
@@ -54,6 +63,15 @@ output = (action, filename = '', notes = '', message = '') ->
     text += ' ' if filename
     text += chalk.gray(notes)
 
+  # Display error/warning count when finished building
+  if action == 'finished'
+    if output.counters.error
+      s = if output.counters.error == 1 then '' else 'S'
+      text += ' ' + chalk.bold.white.bgRed(" ** #{output.counters.error} ERROR#{s} ** ")
+    if output.counters.warning
+      s = if output.counters.warning == 1 then '' else 'S'
+      text += ' ' + chalk.yellow.inverse(" ** #{output.counters.warning} WARNING#{s} ** ")
+
   # Detailed message
   message = S(message).trim().s
   if message
@@ -64,6 +82,7 @@ output = (action, filename = '', notes = '', message = '') ->
     console.error(text)
   else
     console.log(text)
+
 
 # Create a shorthand method for each action
 _(actions).forOwn (i, action) ->
@@ -81,8 +100,15 @@ output.line = ->
 output.disable = ->
   quiet = true
 
-output.enable  = ->
+output.enable = ->
   quiet = false
+
+
+# Count messages for unit tests
+output.counters = {}
+
+output.resetCounters = ->
+  output.counters = {}
 
 
 module.exports = output

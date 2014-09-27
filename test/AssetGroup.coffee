@@ -21,7 +21,7 @@ quiet = true
 # Helper
 #================================================================================
 
-build = ({root, files, config, tests}) ->
+build = ({root, files, config, warnings, errors, tests}) ->
   # Return a function for Mocha to run asynchronously
   (done) ->
     # Default config settings
@@ -48,8 +48,11 @@ build = ({root, files, config, tests}) ->
     output.line()
     output.building()
 
+    # Start counting warnings & errors
+    output.resetCounters()
+
     # Build it
-    (new AssetGroup(root, config)).build (err) ->
+    (new AssetGroup(root, config)).build (err, result) ->
       # Insert another blank line to separate build output from the test results
       output.finished()
       output.line()
@@ -59,10 +62,16 @@ build = ({root, files, config, tests}) ->
 
       # Get us outside any try..catch blocks that interfere with assertions
       process.nextTick ->
-        # Check for errors
+        # Check for unhandled errors
         throw new Error(err) if err
+
+        # Check for error/warning messages
+        expect(output.counters.error || 0).to.equal(errors || 0, "Expected #{errors || 'no'} error(s)")
+        expect(output.counters.warning || 0).to.equal(warnings || 0, "Expected #{warnings || 'no'} error(s)")
+
         # Run tests (synchronously)
         tests()
+
         # Tell Mocha we're done
         done()
 
@@ -247,6 +256,7 @@ describe 'AssetGroup.build()', ->
       'src/subdir/symlink' # -> subdir/
       'src/symlink' # -> ./
     ]
+    errors: 4
     tests: ->
       expect("#{fixtures}/build-symlink-loop/build/symlink").not.to.be.a.path()
       expect("#{fixtures}/build-symlink-loop/build/subdir").to.be.a.directory()
@@ -314,6 +324,7 @@ describe 'AssetGroup.build()', ->
       'src/combine.css/subdir/symlink' # -> combine.css/subdir/
       'src/combine.css/symlink' # -> combine.css/
     ]
+    errors: 4
     tests: ->
       expect("#{fixtures}/build-combine-loop/build/combine.css").to.have.content """
         body {
@@ -383,6 +394,7 @@ describe 'AssetGroup.build()', ->
       'src/_2.js'
       'src/import.js.yaml'
     ]
+    errors: 1
     tests: ->
       expect("#{fixtures}/build-yaml-error/build/import.js").to.have.content """
         f1();\n
@@ -619,6 +631,7 @@ describe 'AssetGroup.build()', ->
     files: [
       'src/invalid-url.css'
     ]
+    warnings: 1
     tests: ->
       expect("#{fixtures}/build-rewrite-invalid/build/invalid-url.css").to.have.content """
         body {
@@ -646,5 +659,6 @@ describe 'AssetGroup.build()', ->
     files: [
       '.gitkeep'
     ]
+    errors: 1
     tests: ->
       expect("#{fixtures}/build-src-missing/build").not.to.be.a.path()
