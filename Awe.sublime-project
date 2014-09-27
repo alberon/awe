@@ -10,7 +10,7 @@
         "fixtures/*/build",
         "lib",
         "man",
-        "node_modules",
+        "node_modules/.bin",
         "ruby_bundle"
       ],
       "file_exclude_patterns":
