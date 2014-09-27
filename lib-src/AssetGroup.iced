@@ -10,7 +10,6 @@ fs           = require('fs')
 mkdirp       = require('mkdirp')
 output       = require('./output')
 path         = require('path')
-readdir      = require('readdir')
 rmdir        = require('rimraf')
 S            = require('string')
 spawn        = require('child_process').spawn
@@ -119,6 +118,17 @@ class AssetGroup
     build(stack)
 
 
+  _buildFileOrDirectory: (src, dest, stack, cb) =>
+    await fs.stat(src, errTo(cb, defer stat))
+
+    if stat.isDirectory()
+      @_buildDirectory(src, dest, stack, cb)
+
+    else
+      await @_compileFile(src, dest, stack, errTo(cb, defer data))
+      @_write(data, cb)
+
+
   _buildDirectory: (src, dest, stack, cb) =>
     if src[-4..].toLowerCase() == '.css' || src[-3..].toLowerCase() == '.js'
       await @_compileDirectory(src, dest, stack, errTo(cb, defer data))
@@ -129,7 +139,18 @@ class AssetGroup
 
 
   _readDirectory: (dir, cb) =>
-    readdir.read(dir, readdir.CASELESS_SORT | readdir.INCLUDE_DIRECTORIES | readdir.NON_RECURSIVE, cb)
+    await fs.readdir(dir, errTo(cb, defer files))
+
+    files = files.sort (a, b) ->
+      a = a.toLowerCase()
+      b = b.toLowerCase()
+
+      switch
+        when a == b then 0
+        when a > b then 1
+        else -1
+
+    cb(null, files)
 
 
   _buildRegularDirectory: (src, dest, stack, cb) =>
@@ -148,11 +169,7 @@ class AssetGroup
       srcFile  = path.join(src, file)
       destFile = path.join(dest, file)
 
-      if file[-1..] == '/'
-        @_buildDirectory(srcFile[...-1], destFile[...-1], stack, cb)
-      else
-        await @_compileFile(srcFile, destFile, stack, errTo(cb, defer data))
-        @_write(data, cb)
+      @_buildFileOrDirectory(srcFile, destFile, stack, cb)
 
     async.each(files, build, cb)
 
@@ -268,7 +285,7 @@ class AssetGroup
     srcFile = path.join(src, file)
     destFile = path.join(dest, file)
 
-    await fs.lstat(srcFile, errTo(cb, defer stat))
+    await fs.stat(srcFile, errTo(cb, defer stat))
 
     if stat.isDirectory()
       @_copyGeneratedDirectory(srcFile, destFile, cb)
@@ -365,10 +382,6 @@ class AssetGroup
 
 
   _compileFileOrDirectory: (src, dest, stack, cb) =>
-    # readdir.read() returns 'dirname/' for directories
-    if src[-1..] == '/'
-      return @_compileDirectory(src[...-1], dest.replace(/\/$/, ''), stack, cb)
-
     await fs.stat(src, errTo(cb, defer stat))
 
     if stat.isDirectory()
