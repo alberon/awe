@@ -94,5 +94,6 @@ parseAssetGroup = (setting, config) ->
 
   optionalSetting(setting, config, 'autoprefixer', false, 'boolean')
   optionalSetting(setting, config, 'bower', 'bower_components/', ['string', false])
+  optionalSetting(setting, config, 'sourcemaps', true, 'boolean')
 
-  allowedSettings(setting, config, ['src', 'dest', 'bower', 'autoprefixer'])
+  allowedSettings(setting, config, ['src', 'dest', 'autoprefixer', 'bower', 'sourcemaps'])

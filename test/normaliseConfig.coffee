@@ -98,6 +98,25 @@ describe 'normaliseConfig()', ->
     expect(config.assets.theme.bower).to.be.false
 
 
+  it 'should set default value for sourcemaps', ->
+    normaliseConfig config =
+      assets:
+        theme:
+          src:  'assets/src/'
+          dest: 'assets/build/'
+
+    expect(config.assets.theme.sourcemaps).to.be.true
+
+    normaliseConfig config =
+      assets:
+        theme:
+          src:        'assets/src/'
+          dest:       'assets/build/'
+          sourcemaps: false
+
+    expect(config.assets.theme.sourcemaps).to.be.false
+
+
   it 'should require src setting for asset group', ->
     expectConfigError "Missing required setting 'src' in assets.theme",
       assets:

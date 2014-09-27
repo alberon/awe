@@ -25,6 +25,7 @@ class AssetGroup
   constructor: (@rootPath, config) ->
     @autoprefixer = config.autoprefixer
     @bower        = config.bower
+    @sourcemaps   = config.sourcemaps
 
     # Normalise paths
     @srcPath  = path.join(@rootPath, config.src.replace(/\/*$/, ''))
@@ -73,7 +74,8 @@ class AssetGroup
 
     await
       # Create a symlink to the source directory
-      @_createSymlink(@srcPath, @srcLink, errTo(cb, defer()))
+      if @sourcemaps
+        @_createSymlink(@srcPath, @srcLink, errTo(cb, defer()))
 
       # Create a symlink to the bower_components directory
       if @bower

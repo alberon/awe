@@ -30,6 +30,7 @@ build = ({root, files, config, warnings, errors, tests}) ->
       dest:         'build/'
       bower:        false
       autoprefixer: false
+      sourcemaps:   false
 
     # Check all the listed files exist - this is partly to double-check the
     # directory structure, and partly a way to document it
@@ -85,17 +86,6 @@ describe 'AssetGroup.build()', ->
   #----------------------------------------
   # Basic copy/compile functionality
   #----------------------------------------
-
-  it 'should create a symlink to the source files (for sourcemaps support)', build
-    root: "#{fixtures}/build-src-symlink"
-    files: [
-      'src/_source'
-    ]
-    tests: ->
-      expect("#{fixtures}/build-src-symlink/build/_src").to.be.a.directory()
-      expect("#{fixtures}/build-src-symlink/build/_src").to.be.a.symlink()
-      expect("#{fixtures}/build-src-symlink/build/_src/_source").to.be.a.file()
-
 
   it 'should copy JavaScript, CSS and unknown files', build
     root: "#{fixtures}/build-copy"
@@ -638,6 +628,41 @@ describe 'AssetGroup.build()', ->
           background: url(invalid.gif);
         }
       """
+
+
+  #----------------------------------------
+  # Source maps
+  #----------------------------------------
+
+  it 'should create a symlink to the source files (for sourcemaps support)', build
+    root: "#{fixtures}/build-sourcemap-symlink"
+    config:
+      sourcemaps: true
+    files: [
+      'src/_source'
+    ]
+    tests: ->
+      expect("#{fixtures}/build-sourcemap-symlink/build/_src").to.be.a.directory()
+      expect("#{fixtures}/build-sourcemap-symlink/build/_src").to.be.a.symlink()
+      expect("#{fixtures}/build-sourcemap-symlink/build/_src/_source").to.be.a.file()
+
+
+  it 'should not create a symlink to the source files if sourcemaps are disabled', build
+    root: "#{fixtures}/build-sourcemap-disabled"
+    files: [
+      'src/_source'
+    ]
+    tests: ->
+      expect("#{fixtures}/build-sourcemap-disabled/build/_src").not.to.be.a.symlink()
+      expect("#{fixtures}/build-sourcemap-disabled/build/_src").not.to.be.a.path()
+
+
+  # TODO: Generate sourcemaps for each type of file:
+  # - CSS
+  # - CoffeeScript
+  # - Sass
+  # - Combined directories
+  # - Imported YAML files
 
 
   #----------------------------------------
