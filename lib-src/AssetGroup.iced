@@ -41,15 +41,15 @@ class AssetGroup
   build: (cb) =>
     await
       # Check if the source directory exists
-      fs.exists(@srcPath, defer(srcExists))
+      fs.exists(@srcPath, defer srcExists)
 
       # Need to know if the destination already exists for the output message
-      fs.exists(@destPath, defer(destExists))
+      fs.exists(@destPath, defer destExists)
 
       # Also need to check if the Bower directory exists
       bowerExists = false
       if @bower
-        fs.exists(@bowerSrc, defer(bowerExists))
+        fs.exists(@bowerSrc, defer bowerExists)
 
     if !srcExists
       output.error(@srcPath, null, "Source directory doesn't exist")
