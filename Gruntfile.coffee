@@ -22,6 +22,7 @@ module.exports = (grunt) ->
         bare: true
         header: true
         runtime: 'node'
+        sourceMap: true
 
       lib:
         expand: true
@@ -36,6 +37,7 @@ module.exports = (grunt) ->
       options:
         bail: true
         reporter: 'spec'
+        require: 'lib/source-map-support'
 
       all:
         src: ['test/**/*.coffee', '!test/**/_*.coffee']

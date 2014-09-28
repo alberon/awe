@@ -1,5 +1,8 @@
+require('./source-map-support')
+
 chalk  = require('chalk')
 params = require('./params')
+
 
 try
   command = params.parse(process.argv[2...])

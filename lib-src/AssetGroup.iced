@@ -100,7 +100,8 @@ class AssetGroup
 
   _addSourceMapComment: (data) =>
     if data.dest[-3...].toLowerCase() == '.js'
-      data.content += "\n//# sourceMappingURL=#{path.basename(data.dest)}.map\n"
+      # Note: This is split into two strings to avoid interfering with source-map-support regex
+      data.content += "\n//" + "# sourceMappingURL=#{path.basename(data.dest)}.map\n"
     else if data.dest[-4...].toLowerCase() == '.css'
       data.content += "\n/*# sourceMappingURL=#{path.basename(data.dest)}.map */\n"
     else
