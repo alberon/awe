@@ -657,6 +657,36 @@ describe 'AssetGroup.build()', ->
       expect("#{fixtures}/build-sourcemap-disabled/build/_src").not.to.be.a.path()
 
 
+  it 'should create sourcemaps for CoffeeScript', build
+    root: "#{fixtures}/build-sourcemap-coffeescript"
+    config:
+      sourcemaps: true
+    files: [
+      'src/coffeescript.coffee'
+    ]
+    tests: ->
+      expect("#{fixtures}/build-sourcemap-coffeescript/build/coffeescript.js").to.have.content """
+        (function() {
+          console.log('JavaScript');
+
+        }).call(this);
+
+        //# sourceMappingURL=coffeescript.js.map\n
+      """
+      expect("#{fixtures}/build-sourcemap-coffeescript/build/coffeescript.js.map").to.have.content """
+        {
+          "version": 3,
+          "file": "coffeescript.js",
+          "sourceRoot": "_src",
+          "sources": [
+            "coffeescript.coffee"
+          ],
+          "names": [],
+          "mappings": "AAAA;AAAA,EAAA,OAAO,CAAC,GAAR,CAAY,YAAZ,CAAA,CAAA;AAAA"
+        }
+      """
+
+
   # TODO: Generate sourcemaps for each type of file:
   # - CSS
   # - CoffeeScript

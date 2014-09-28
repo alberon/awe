@@ -98,10 +98,22 @@ class AssetGroup
     cb()
 
 
+  _addSourceMapComment: (data) =>
+    if data.dest[-3...].toLowerCase() == '.js'
+      data.content += "\n//# sourceMappingURL=#{path.basename(data.dest)}.map\n"
+    else if data.dest[-4...].toLowerCase() == '.css'
+      data.content += "\n/*# sourceMappingURL=#{path.basename(data.dest)}.map */\n"
+    else
+      throw new Exception("Don't know how to add a source map comment to '#{data.dest}'")
+
   _write: (data, cb) =>
     return cb() if data.content == null
 
-    await fs.writeFile(data.dest, data.content, errTo(cb, defer()))
+    @_addSourceMapComment(data) if data.sourcemap
+
+    await
+      fs.writeFile(data.dest, data.content, errTo(cb, defer()))
+      fs.writeFile("#{data.dest}.map", data.sourcemap, errTo(cb, defer())) if data.sourcemap
 
     if data.action
       output(data.action, data.dest, "(#{data.count} files)" if data.count > 1)
@@ -183,8 +195,18 @@ class AssetGroup
 
   _compileCoffeeScript: (src, dest, cb) =>
     await @_getFile(src, dest, errTo(cb, defer data))
-    data.content = coffee.compile(data.content)
+
+    compiled = coffee.compile(data.content,
+      sourceMap:     true
+      sourceRoot:    path.relative(path.dirname(dest), @srcLink)
+      sourceFiles:   [path.relative(@srcPath, src)]
+      generatedFile: path.basename(dest)
+    )
+
+    data.content = compiled.js
+    data.sourcemap = compiled.v3SourceMap if @sourcemaps
     data.action = 'compiled'
+
     cb(null, data)
 
 
