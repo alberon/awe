@@ -1,21 +1,21 @@
-_              = require('lodash')
-async          = require('async')
-autoprefixer   = require('autoprefixer-core')
-cacheDir       = require('./cacheDir')
-chalk          = require('chalk')
-coffee         = require('coffee-script')
-errTo          = require('errto')
-fs             = require('fs')
-mkdirp         = require('mkdirp')
-output         = require('./output')
-path           = require('path')
-rewriteCssUrls = require('./rewriteCssUrls')
-rmdir          = require('rimraf')
-S              = require('string')
-spawn          = require('child_process').spawn
-tmp            = require('tmp')
-UrlRewriter    = require('./UrlRewriter')
-yamlMap        = require('./yamlMap')
+_            = require('lodash')
+async        = require('async')
+autoprefixer = require('autoprefixer-core')
+cacheDir     = require('./cacheDir')
+chalk        = require('chalk')
+coffee       = require('coffee-script')
+errTo        = require('errto')
+fs           = require('fs')
+mkdirp       = require('mkdirp')
+output       = require('./output')
+path         = require('path')
+rewriteCss   = require('./rewriteCss')
+rmdir        = require('rimraf')
+S            = require('string')
+spawn        = require('child_process').spawn
+tmp          = require('tmp')
+UrlRewriter  = require('./UrlRewriter')
+yamlMap      = require('./yamlMap')
 
 tmp.setGracefulCleanup()
 
@@ -103,7 +103,8 @@ class AssetGroup
       # Note: This is split into two strings to avoid interfering with source-map-support regex
       data.content += "\n//" + "# sourceMappingURL=#{path.basename(data.dest)}.map\n"
     else if data.dest[-4...].toLowerCase() == '.css'
-      data.content += "\n/*# sourceMappingURL=#{path.basename(data.dest)}.map */\n"
+      # PostCSS does this for us
+      #data.content += "\n/*# sourceMappingURL=#{path.basename(data.dest)}.map */\n"
     else
       throw new Exception("Don't know how to add a source map comment to '#{data.dest}'")
 
@@ -381,8 +382,10 @@ class AssetGroup
       bowerSrc:  @bowerSrc
       bowerDest: @bowerLink
 
-    # URL rewriting
-    result = rewriteCssUrls data.content, srcFile, (url) =>
+    # PostCSS doesn't seem to support sourceRoot
+    srcRelativeToDest = path.join(path.relative(path.dirname(destFile), @srcLink), path.relative(@srcPath, srcFile))
+
+    result = rewriteCss data.content, srcRelativeToDest, destFile, sourcemap: @sourcemaps, autoprefixer: @autoprefixer, rewriteUrls: (url) =>
       if S(url).startsWith('/AWEDESTROOTPATH/')
         return path.join(path.relative(path.dirname(srcFile), @srcPath), url[17..])
 
@@ -392,17 +395,10 @@ class AssetGroup
         output.warning(srcFile, '(URL rewriter)', e.message)
         return url
 
-    data.content = result.code
+    data.content = result.css
     data.sourcemap = result.map
-    data.sourcemap.sourceRoot = path.relative(path.dirname(destFile), @srcLink)
-    for source, i in data.sourcemap.sources
-      data.sourcemap.sources[i] = path.relative(@srcPath, source)
-
-    # Autoprefixer
-    if @autoprefixer
-      result = autoprefixer.process(data.content, map: {prev: data.sourcemap})
-      data.content = result.css
-      data.sourcemap = result.map
+    # for source, i in data.sourcemap.sources
+    #   data.sourcemap.sources[i] = path.relative(@srcPath, source)
 
 
   _compileMultipleFiles: (files, dest, stack, cb) =>

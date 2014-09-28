@@ -1,7 +1,7 @@
-expect         = require('chai').use(require('chai-fs')).expect
-rewriteCssUrls = require('../lib/rewriteCssUrls')
+expect     = require('chai').use(require('chai-fs')).expect
+rewriteCss = require('../lib/rewriteCss')
 
-describe 'rewriteCssUrls()', ->
+describe 'rewriteCss()', ->
 
   # Helper - mark which part of the file would be replaced
   callback = (url) -> "<#{url}>"
@@ -15,9 +15,8 @@ describe 'rewriteCssUrls()', ->
       }
     """
 
-    data = rewriteCssUrls(input, 'sample.css', callback)
-    expect(data.code).to.equal input
-    expect(data.map).to.be.an 'object'
+    data = rewriteCss(input, '', '', rewriteUrls: callback)
+    expect(data.css).to.equal input
 
 
   it 'should replace url(FILENAME)', ->
@@ -34,9 +33,8 @@ describe 'rewriteCssUrls()', ->
       }
     """
 
-    data = rewriteCssUrls(input, 'sample.css', callback)
-    expect(data.code).to.equal output
-    expect(data.map).to.be.an 'object'
+    data = rewriteCss(input, '', '', rewriteUrls: callback)
+    expect(data.css).to.equal output
 
 
   it 'should replace url(\'FILENAME\'), preserving the quotes', ->
@@ -53,9 +51,8 @@ describe 'rewriteCssUrls()', ->
       }
     """
 
-    data = rewriteCssUrls(input, 'sample.css', callback)
-    expect(data.code).to.equal output
-    expect(data.map).to.be.an 'object'
+    data = rewriteCss(input, '', '', rewriteUrls: callback)
+    expect(data.css).to.equal output
 
 
   it 'should replace url("FILENAME"), preserving the quotes', ->
@@ -72,9 +69,8 @@ describe 'rewriteCssUrls()', ->
       }
     """
 
-    data = rewriteCssUrls(input, 'sample.css', callback)
-    expect(data.code).to.equal output
-    expect(data.map).to.be.an 'object'
+    data = rewriteCss(input, '', '', rewriteUrls: callback)
+    expect(data.css).to.equal output
 
 
   it 'should replace multiple URLs', ->
@@ -93,9 +89,8 @@ describe 'rewriteCssUrls()', ->
       }
     """
 
-    data = rewriteCssUrls(input, 'sample.css', callback)
-    expect(data.code).to.equal output
-    expect(data.map).to.be.an 'object'
+    data = rewriteCss(input, '', '', rewriteUrls: callback)
+    expect(data.css).to.equal output
 
 
   it 'should ignore commented sections', ->
@@ -118,9 +113,8 @@ describe 'rewriteCssUrls()', ->
       }
     """
 
-    data = rewriteCssUrls(input, 'sample.css', callback)
-    expect(data.code).to.equal output
-    expect(data.map).to.be.an 'object'
+    data = rewriteCss(input, '', '', rewriteUrls: callback)
+    expect(data.css).to.equal output
 
 
   it 'should replace URLs in fonts', ->
@@ -137,6 +131,5 @@ describe 'rewriteCssUrls()', ->
       }
     """
 
-    data = rewriteCssUrls(input, 'sample.css', callback)
-    expect(data.code).to.equal output
-    expect(data.map).to.be.an 'object'
+    data = rewriteCss(input, '', '', rewriteUrls: callback)
+    expect(data.css).to.equal output

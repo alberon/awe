@@ -102,7 +102,7 @@ describe 'AssetGroup.build()', ->
       expect("#{fixtures}/build-copy/build/stylesheet.css").to.have.content """
         .red {
           color: red;
-        }
+        }\n
       """
 
       expect("#{fixtures}/build-copy/build/unknown.file").to.have.content """
@@ -131,10 +131,9 @@ describe 'AssetGroup.build()', ->
     ]
     tests: ->
       expect("#{fixtures}/build-sass/build/sass.css").to.have.content """
-        .main-red,
-        .also-red {
+        .main-red, .also-red {
           color: red;
-        }
+        }\n
       """
 
 
@@ -169,7 +168,7 @@ describe 'AssetGroup.build()', ->
         @font-face {
           font-family: myfont;
           src: url('../fonts/myfont.woff');
-        }
+        }\n
       """
 
 
@@ -183,7 +182,7 @@ describe 'AssetGroup.build()', ->
       expect("#{fixtures}/build-compass-inline/build/inline.css").to.have.content """
         .inlineImage {
           background: url('data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAQAIBRAA7');
-        }
+        }\n
       """
 
 
@@ -197,7 +196,7 @@ describe 'AssetGroup.build()', ->
     tests: ->
       # CSS file content must match
       content = fs.readFileSync("#{fixtures}/build-compass-sprites/build/sprite.css", 'utf8')
-      expect(content).to.match /\.icons-sprite,\n\.icons-icon1,\n\.icons-icon2 {/
+      expect(content).to.match /\.icons-sprite, \.icons-icon1, \.icons-icon2 {/
       expect(content).to.match /background-image: url\('_generated\/icons-[^']+\.png'\);/
 
       # Generated sprite must exist
@@ -288,10 +287,10 @@ describe 'AssetGroup.build()', ->
         .css {
           color: red;
         }
-        .scss,
-        .also-scss {
+
+        .scss, .also-scss {
           color: green;
-        }
+        }\n
       """
 
 
@@ -319,7 +318,7 @@ describe 'AssetGroup.build()', ->
       expect("#{fixtures}/build-combine-loop/build/combine.css").to.have.content """
         body {
           color: red;
-        }
+        }\n
       """
 
 
@@ -357,10 +356,10 @@ describe 'AssetGroup.build()', ->
         .css {
           color: red;
         }
-        .scss,
-        .also-scss {
+
+        .scss, .also-scss {
           color: green;
-        }
+        }\n
       """
 
 
@@ -453,12 +452,11 @@ describe 'AssetGroup.build()', ->
       'src/autoprefixer.css'
     ]
     tests: ->
-      # Note: Autoprefixer seems to remove the \n from the end
       expect("#{fixtures}/build-autoprefixer-css/build/autoprefixer.css").to.have.content """
         .css {
           -webkit-transition: -webkit-transform 1s;
                   transition: transform 1s;
-        }
+        }\n\n
       """
 
 
@@ -471,11 +469,10 @@ describe 'AssetGroup.build()', ->
     ]
     tests: ->
       expect("#{fixtures}/build-autoprefixer-scss/build/autoprefixer.css").to.have.content """
-        .scss,
-        .also-scss {
+        .scss, .also-scss {
           -webkit-transition: -webkit-transform 1s;
                   transition: transform 1s;
-        }
+        }\n
       """
 
 
@@ -552,7 +549,7 @@ describe 'AssetGroup.build()', ->
       expect("#{fixtures}/build-rewrite-symlink/build/subdir/local-symlink.css").to.have.content """
         body {
           background: url(../sample.gif);
-        }
+        }\n
       """
 
 
@@ -569,7 +566,7 @@ describe 'AssetGroup.build()', ->
       expect("#{fixtures}/build-rewrite-bower/build/subdir/bower-symlink.css").to.have.content """
         body {
           background: url(../_bower/sample.gif);
-        }
+        }\n
       """
 
 
@@ -587,10 +584,9 @@ describe 'AssetGroup.build()', ->
         .relative {
           background: url(sample.gif);
         }
-
         .bower {
           background: url(_bower/sample.gif);
-        }
+        }\n
       """
 
 
@@ -609,10 +605,9 @@ describe 'AssetGroup.build()', ->
         .relative {
           background: url(sample.gif);
         }
-
         .bower {
           background: url(_bower/sample.gif);
-        }
+        }\n
       """
 
 
@@ -626,7 +621,7 @@ describe 'AssetGroup.build()', ->
       expect("#{fixtures}/build-rewrite-invalid/build/invalid-url.css").to.have.content """
         body {
           background: url(invalid.gif);
-        }
+        }\n
       """
 
 
@@ -687,7 +682,7 @@ describe 'AssetGroup.build()', ->
       """
 
 
-  it 'should create sourcemaps for CSS (URL rewriter)', build
+  it 'should create sourcemaps for CSS with URL rewriter', build
     root: "#{fixtures}/build-sourcemap-css"
     config:
       sourcemaps: true
@@ -699,28 +694,54 @@ describe 'AssetGroup.build()', ->
         .red {
           color: red;
         }
-        /*# sourceMappingURL=styles.css.map */\n
+
+        /*# sourceMappingURL=styles.css.map */
       """
       expect("#{fixtures}/build-sourcemap-css/build/styles.css.map").to.have.content """
         {
           "version": 3,
           "sources": [
-            "styles.css"
+            "_src/styles.css"
           ],
           "names": [],
-          "mappings": "AAAA;EACE",
-          "sourcesContent": [
-            ".red {\\n  color: red;\\n}\\n"
-          ],
-          "sourceRoot": "_src"
+          "mappings": "AAAA;EACE,YAAW;EACZ",
+          "file": "styles.css"
         }
       """
 
 
-  # TODO: Generate sourcemaps for each type of file:
-  # - Sass
-  # - Combined directories
-  # - Imported YAML files
+  it 'should create sourcemaps for CSS with Autoprefixer', build
+    root: "#{fixtures}/build-sourcemap-css-autoprefixer"
+    config:
+      sourcemaps: true
+      autoprefixer: true
+    files: [
+      'src/styles.css'
+    ]
+    tests: ->
+      expect("#{fixtures}/build-sourcemap-css-autoprefixer/build/styles.css").to.have.content """
+        .red {
+          color: red;
+        }
+
+        /*# sourceMappingURL=styles.css.map */
+      """
+      expect("#{fixtures}/build-sourcemap-css-autoprefixer/build/styles.css.map").to.have.content """
+        {
+          "version": 3,
+          "sources": [
+            "_src/styles.css"
+          ],
+          "names": [],
+          "mappings": "AAAA;EACE,YAAW;EACZ",
+          "file": "styles.css"
+        }
+      """
+
+
+  it 'should create sourcemaps for Sass files'
+  it 'should create sourcemaps for combined directories'
+  it 'should create sourcemaps for YAML imports'
 
 
   #----------------------------------------
