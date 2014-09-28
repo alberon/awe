@@ -1,21 +1,21 @@
-_            = require('lodash')
-async        = require('async')
-autoprefixer = require('autoprefixer-core')
-cacheDir     = require('./cacheDir')
-chalk        = require('chalk')
-coffee       = require('coffee-script')
-css          = require('./css')
-errTo        = require('errto')
-fs           = require('fs')
-mkdirp       = require('mkdirp')
-output       = require('./output')
-path         = require('path')
-rmdir        = require('rimraf')
-S            = require('string')
-spawn        = require('child_process').spawn
-tmp          = require('tmp')
-UrlRewriter  = require('./UrlRewriter')
-yamlMap      = require('./yamlMap')
+_              = require('lodash')
+async          = require('async')
+autoprefixer   = require('autoprefixer-core')
+cacheDir       = require('./cacheDir')
+chalk          = require('chalk')
+coffee         = require('coffee-script')
+errTo          = require('errto')
+fs             = require('fs')
+mkdirp         = require('mkdirp')
+output         = require('./output')
+path           = require('path')
+rewriteCssUrls = require('./rewriteCssUrls')
+rmdir          = require('rimraf')
+S              = require('string')
+spawn          = require('child_process').spawn
+tmp            = require('tmp')
+UrlRewriter    = require('./UrlRewriter')
+yamlMap        = require('./yamlMap')
 
 tmp.setGracefulCleanup()
 
@@ -110,11 +110,18 @@ class AssetGroup
   _write: (data, cb) =>
     return cb() if data.content == null
 
-    @_addSourceMapComment(data) if data.sourcemap
-
     await
+      if @sourcemaps && data.sourcemap
+        @_addSourceMapComment(data)
+
+        if typeof data.sourcemap is 'object'
+          sourcemap = JSON.stringify(data.sourcemap, null, '  ')
+        else
+          sourcemap = data.sourcemap
+
+        fs.writeFile("#{data.dest}.map", sourcemap, errTo(cb, defer()))
+
       fs.writeFile(data.dest, data.content, errTo(cb, defer()))
-      fs.writeFile("#{data.dest}.map", data.sourcemap, errTo(cb, defer())) if data.sourcemap
 
     if data.action
       output(data.action, data.dest, "(#{data.count} files)" if data.count > 1)
@@ -197,15 +204,15 @@ class AssetGroup
   _compileCoffeeScript: (src, dest, cb) =>
     await @_getFile(src, dest, errTo(cb, defer data))
 
-    compiled = coffee.compile(data.content,
+    result = coffee.compile(data.content,
       sourceMap:     true
       sourceRoot:    path.relative(path.dirname(dest), @srcLink)
       sourceFiles:   [path.relative(@srcPath, src)]
       generatedFile: path.basename(dest)
     )
 
-    data.content = compiled.js
-    data.sourcemap = compiled.v3SourceMap if @sourcemaps
+    data.content = result.js
+    data.sourcemap = result.v3SourceMap
     data.action = 'compiled'
 
     cb(null, data)
@@ -213,7 +220,7 @@ class AssetGroup
 
   _getCss: (src, dest, cb) =>
     await @_getFile(src, dest, errTo(cb, defer data))
-    data.content = @_rewriteCss(data.content, src, dest)
+    @_rewriteCss(data, src, dest)
     cb(null, data)
 
 
@@ -296,7 +303,7 @@ class AssetGroup
     data.content = data.content.replace(/\/\* line .*? \*\/\n/g, '')
 
     # Rewrite the URLs in the CSS
-    data.content = @_rewriteCss(data.content, src, dest)
+    @_rewriteCss(data, src, dest)
 
     data.action = 'compiled'
 
@@ -364,7 +371,7 @@ class AssetGroup
       @_getFile(src, dest, cb)
 
 
-  _rewriteCss: (content, srcFile, destFile) =>
+  _rewriteCss: (data, srcFile, destFile) =>
     urlRewriter = new UrlRewriter
       root:      @rootPath
       srcDir:    @srcPath
@@ -375,7 +382,7 @@ class AssetGroup
       bowerDest: @bowerLink
 
     # URL rewriting
-    content = css.rewriteUrls content, (url) =>
+    result = rewriteCssUrls data.content, srcFile, (url) =>
       if S(url).startsWith('/AWEDESTROOTPATH/')
         return path.join(path.relative(path.dirname(srcFile), @srcPath), url[17..])
 
@@ -385,11 +392,17 @@ class AssetGroup
         output.warning(srcFile, '(URL rewriter)', e.message)
         return url
 
+    data.content = result.code
+    data.sourcemap = result.map
+    data.sourcemap.sourceRoot = path.relative(path.dirname(destFile), @srcLink)
+    for source, i in data.sourcemap.sources
+      data.sourcemap.sources[i] = path.relative(@srcPath, source)
+
     # Autoprefixer
     if @autoprefixer
-      content = autoprefixer.process(content).css
-
-    return content
+      result = autoprefixer.process(data.content, map: {prev: data.sourcemap})
+      data.content = result.css
+      data.sourcemap = result.map
 
 
   _compileMultipleFiles: (files, dest, stack, cb) =>

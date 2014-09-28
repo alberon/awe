@@ -1,15 +1,15 @@
 css = require('css')
 
 
-exports.rewriteUrls = (content, callback) ->
+regex = ///
+  (url\()  # url(
+  (['"]?)  # open quote, optional
+  (.*?)    # URL - ungreedy
+  \2       # close quote
+  (\))     # )
+///g
 
-  regex = ///
-    (url\()  # url(
-    (['"]?)  # open quote, optional
-    (.*?)    # URL - ungreedy
-    \2       # close quote
-    (\))     # )
-  ///g
+module.exports = (content, source, callback) ->
 
   visitNode = (node) ->
     if node.type == 'stylesheet'
@@ -23,6 +23,6 @@ exports.rewriteUrls = (content, callback) ->
     node.value = node.value.replace regex, (matches, pre, quote, url, post) ->
       pre + quote + callback(url) + quote + post
 
-  ast = css.parse(content)
+  ast = css.parse(content, source: source)
   visitNode(ast)
-  css.stringify(ast)
+  return css.stringify(ast, sourcemap: true)

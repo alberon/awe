@@ -687,9 +687,37 @@ describe 'AssetGroup.build()', ->
       """
 
 
+  it 'should create sourcemaps for CSS (URL rewriter)', build
+    root: "#{fixtures}/build-sourcemap-css"
+    config:
+      sourcemaps: true
+    files: [
+      'src/styles.css'
+    ]
+    tests: ->
+      expect("#{fixtures}/build-sourcemap-css/build/styles.css").to.have.content """
+        .red {
+          color: red;
+        }
+        /*# sourceMappingURL=styles.css.map */\n
+      """
+      expect("#{fixtures}/build-sourcemap-css/build/styles.css.map").to.have.content """
+        {
+          "version": 3,
+          "sources": [
+            "styles.css"
+          ],
+          "names": [],
+          "mappings": "AAAA;EACE",
+          "sourcesContent": [
+            ".red {\\n  color: red;\\n}\\n"
+          ],
+          "sourceRoot": "_src"
+        }
+      """
+
+
   # TODO: Generate sourcemaps for each type of file:
-  # - CSS
-  # - CoffeeScript
   # - Sass
   # - Combined directories
   # - Imported YAML files

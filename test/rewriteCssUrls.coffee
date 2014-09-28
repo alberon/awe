@@ -1,7 +1,7 @@
-css    = require('../lib/css')
-expect = require('chai').use(require('chai-fs')).expect
+expect         = require('chai').use(require('chai-fs')).expect
+rewriteCssUrls = require('../lib/rewriteCssUrls')
 
-describe 'css.rewriteUrls()', ->
+describe 'rewriteCssUrls()', ->
 
   # Helper - mark which part of the file would be replaced
   callback = (url) -> "<#{url}>"
@@ -15,7 +15,9 @@ describe 'css.rewriteUrls()', ->
       }
     """
 
-    expect(css.rewriteUrls(input, callback)).to.equal input
+    data = rewriteCssUrls(input, 'sample.css', callback)
+    expect(data.code).to.equal input
+    expect(data.map).to.be.an 'object'
 
 
   it 'should replace url(FILENAME)', ->
@@ -32,7 +34,9 @@ describe 'css.rewriteUrls()', ->
       }
     """
 
-    expect(css.rewriteUrls(input, callback)).to.equal output
+    data = rewriteCssUrls(input, 'sample.css', callback)
+    expect(data.code).to.equal output
+    expect(data.map).to.be.an 'object'
 
 
   it 'should replace url(\'FILENAME\'), preserving the quotes', ->
@@ -49,7 +53,9 @@ describe 'css.rewriteUrls()', ->
       }
     """
 
-    expect(css.rewriteUrls(input, callback)).to.equal output
+    data = rewriteCssUrls(input, 'sample.css', callback)
+    expect(data.code).to.equal output
+    expect(data.map).to.be.an 'object'
 
 
   it 'should replace url("FILENAME"), preserving the quotes', ->
@@ -66,7 +72,9 @@ describe 'css.rewriteUrls()', ->
       }
     """
 
-    expect(css.rewriteUrls(input, callback)).to.equal output
+    data = rewriteCssUrls(input, 'sample.css', callback)
+    expect(data.code).to.equal output
+    expect(data.map).to.be.an 'object'
 
 
   it 'should replace multiple URLs', ->
@@ -85,7 +93,9 @@ describe 'css.rewriteUrls()', ->
       }
     """
 
-    expect(css.rewriteUrls(input, callback)).to.equal output
+    data = rewriteCssUrls(input, 'sample.css', callback)
+    expect(data.code).to.equal output
+    expect(data.map).to.be.an 'object'
 
 
   it 'should ignore commented sections', ->
@@ -108,7 +118,9 @@ describe 'css.rewriteUrls()', ->
       }
     """
 
-    expect(css.rewriteUrls(input, callback)).to.equal output
+    data = rewriteCssUrls(input, 'sample.css', callback)
+    expect(data.code).to.equal output
+    expect(data.map).to.be.an 'object'
 
 
   it 'should replace URLs in fonts', ->
@@ -125,4 +137,6 @@ describe 'css.rewriteUrls()', ->
       }
     """
 
-    expect(css.rewriteUrls(input, callback)).to.equal output
+    data = rewriteCssUrls(input, 'sample.css', callback)
+    expect(data.code).to.equal output
+    expect(data.map).to.be.an 'object'
