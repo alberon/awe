@@ -687,25 +687,27 @@ describe 'AssetGroup.build()', ->
     config:
       sourcemaps: true
     files: [
-      'src/styles.css'
+      'src/sample.gif'
+      'src/target.css'
+      'src/subdir/local-symlink.css'
     ]
     tests: ->
-      expect("#{fixtures}/build-sourcemap-css/build/styles.css").to.have.content """
-        .red {
-          color: red;
+      expect("#{fixtures}/build-sourcemap-css/build/subdir/local-symlink.css").to.have.content """
+        body {
+          background: url(../sample.gif);
         }
 
-        /*# sourceMappingURL=styles.css.map */
+        /*# sourceMappingURL=local-symlink.css.map */
       """
-      expect("#{fixtures}/build-sourcemap-css/build/styles.css.map").to.have.content """
+      expect("#{fixtures}/build-sourcemap-css/build/subdir/local-symlink.css.map").to.have.content """
         {
           "version": 3,
           "sources": [
-            "_src/styles.css"
+            "../_src/subdir/local-symlink.css"
           ],
           "names": [],
-          "mappings": "AAAA;EACE,YAAW;EACZ",
-          "file": "styles.css"
+          "mappings": "AAAA;EACE,gCAA4B;EAC7B",
+          "file": "local-symlink.css"
         }
       """
 
@@ -720,8 +722,9 @@ describe 'AssetGroup.build()', ->
     ]
     tests: ->
       expect("#{fixtures}/build-sourcemap-css-autoprefixer/build/styles.css").to.have.content """
-        .red {
-          color: red;
+        .css {
+          -webkit-transition: -webkit-transform 1s;
+                  transition: transform 1s;
         }
 
         /*# sourceMappingURL=styles.css.map */
@@ -733,7 +736,7 @@ describe 'AssetGroup.build()', ->
             "_src/styles.css"
           ],
           "names": [],
-          "mappings": "AAAA;EACE,YAAW;EACZ",
+          "mappings": "AAAA;EACE,0CAAyB;UAAzB,0BAAyB;EAC1B",
           "file": "styles.css"
         }
       """
