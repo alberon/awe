@@ -1,0 +1,10 @@
+// This is just to make the line numbers change a bit
+$red: red;
+
+.main-red {
+  color: $red;
+}
+
+.also-red {
+  @extend .main-red;
+}

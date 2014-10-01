@@ -27,4 +27,10 @@ module.exports = (content, srcFile, destFile, settings = {}) ->
   if settings.autoprefixer
     processors.use(autoprefixer)
 
-  processors.process(content, from: srcFile, to: path.basename(destFile), map: settings.sourcemap)
+  # Source map
+  if settings.sourcemap
+    map = { prev: settings.prevSourcemap }
+  else
+    map = false
+
+  processors.process(content, from: srcFile, to: path.basename(destFile), map: map)

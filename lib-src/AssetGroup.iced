@@ -263,6 +263,10 @@ class AssetGroup
 
       # Disable cache busting URLs (e.g. sample.gif?123456) - we'll handle that too
       asset_cache_buster :none
+
+      # Disable line number comments - use sourcemaps instead
+      line_comments = false
+      sourcemap = #{if @sourcemaps then 'true' else 'false'}
     """
 
     await fs.write(configFd, new Buffer(compassConfig), 0, compassConfig.length, null, errTo(cb, defer()))
@@ -296,12 +300,19 @@ class AssetGroup
       # Get the content from the CSS file
       pathFromRoot = path.relative(@srcPath, path.dirname(src)) || '.'
       outputFile = path.join(tmpDir, pathFromRoot, path.basename(src).replace(/\.scss$/, '.css'))
-      # Note: Can't use getCss here because the original src is different to the file we're reading
       @_getFile(outputFile, dest, errTo(cb, defer data))
 
-    # Remove the comments showing the source lines until I can fix them
-    # TODO: Rewrite the paths instead of removing them
-    data.content = data.content.replace(/\/\* line .*? \*\/\n/g, '')
+      # Get the content from the source map
+      if @sourcemaps
+        fs.readFile("#{outputFile}.map", 'utf8', errTo(cb, defer sourcemap))
+
+    if @sourcemaps
+      data.sourcemap = JSON.parse(sourcemap)
+      # Make the sources relative to the source directory - we'll change them
+      # to be relative to the final destination file later
+      for source, i in data.sourcemap.sources
+        source = path.resolve(path.dirname(outputFile), source)
+        data.sourcemap.sources[i] = path.relative(@srcPath, source)
 
     # Rewrite the URLs in the CSS
     @_rewriteCss(data, src, dest)
@@ -385,7 +396,7 @@ class AssetGroup
     # PostCSS doesn't seem to support sourceRoot
     srcRelativeToDest = path.join(path.relative(path.dirname(destFile), @srcLink), path.relative(@srcPath, srcFile))
 
-    result = rewriteCss data.content, srcRelativeToDest, destFile, sourcemap: @sourcemaps, autoprefixer: @autoprefixer, rewriteUrls: (url) =>
+    result = rewriteCss data.content, srcRelativeToDest, destFile, sourcemap: @sourcemaps, prevSourcemap: data.sourcemap, autoprefixer: @autoprefixer, rewriteUrls: (url) =>
       if S(url).startsWith('/AWEDESTROOTPATH/')
         return path.join(path.relative(path.dirname(srcFile), @srcPath), url[17..])
 
@@ -397,8 +408,6 @@ class AssetGroup
 
     data.content = result.css
     data.sourcemap = result.map
-    # for source, i in data.sourcemap.sources
-    #   data.sourcemap.sources[i] = path.relative(@srcPath, source)
 
 
   _compileMultipleFiles: (files, dest, stack, cb) =>

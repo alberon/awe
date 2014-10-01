@@ -742,7 +742,34 @@ describe 'AssetGroup.build()', ->
       """
 
 
-  it 'should create sourcemaps for Sass files'
+  it 'should create sourcemaps for Sass files', build
+    root: "#{fixtures}/build-sourcemap-sass"
+    config:
+      sourcemaps: true
+    files: [
+      'src/sass.scss'
+    ]
+    tests: ->
+      expect("#{fixtures}/build-sourcemap-sass/build/sass.css").to.have.content """
+        .main-red, .also-red {
+          color: red;
+        }
+
+        /*# sourceMappingURL=sass.css.map */
+      """
+      expect("#{fixtures}/build-sourcemap-sass/build/sass.css.map").to.have.content """
+        {
+          "version": 3,
+          "sources": [
+            "_src/sass.scss"
+          ],
+          "names": [],
+          "mappings": "AAGA;EACE,YAHO;EACR",
+          "file": "sass.css"
+        }
+      """
+
+
   it 'should create sourcemaps for combined directories'
   it 'should create sourcemaps for YAML imports'
 
