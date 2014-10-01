@@ -722,6 +722,12 @@ describe 'AssetGroup.build()', ->
     ]
     tests: ->
       expect("#{fixtures}/build-sourcemap-css-autoprefixer/build/styles.css").to.have.content """
+        /* This is just to make the line numbers change a bit */
+        .another {
+          -webkit-transition: -webkit-transform 1s;
+                  transition: transform 1s;
+        }
+
         .css {
           -webkit-transition: -webkit-transform 1s;
                   transition: transform 1s;
@@ -736,7 +742,7 @@ describe 'AssetGroup.build()', ->
             "_src/styles.css"
           ],
           "names": [],
-          "mappings": "AAAA;EACE,0CAAyB;UAAzB,0BAAyB;EAC1B",
+          "mappings": "AAAA,yDAAwD;AACxD;EACE,0CAAyB;UAAzB,0BAAyB;EAC1B;;AAED;EACE,0CAAyB;UAAzB,0BAAyB;EAC1B",
           "file": "styles.css"
         }
       """
