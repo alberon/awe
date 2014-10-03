@@ -776,7 +776,42 @@ describe 'AssetGroup.build()', ->
       """
 
 
-  it 'should create sourcemaps for combined directories'
+  it 'should create sourcemaps for combined JavaScript directories', build
+    root: "#{fixtures}/build-sourcemap-combine-js"
+    config:
+      sourcemaps: true
+    files: [
+      'src/combine.js/1.js'
+      'src/combine.js/2-subdir/2.coffee'
+      'src/combine.js/_ignored.coffee'
+    ]
+    tests: ->
+      expect("#{fixtures}/build-sourcemap-combine-js/build/combine.js").to.have.content """
+        // This is just to move it down a line
+        console.log('JavaScript');
+
+        (function() {
+          console.log('CoffeeScript');
+
+        }).call(this);
+
+        //# sourceMappingURL=combine.js.map\n
+      """
+      expect("#{fixtures}/build-sourcemap-combine-js/build/combine.js.map").to.have.content """
+        {
+          "version": 3,
+          "sources": [
+            "_src/combine.js/1.js",
+            "_src/combine.js/2-subdir/2.coffee"
+          ],
+          "names": [],
+          "mappings": "AAAA;AACA;AACA;ACAA;AAAA,EAAA,OAAO,CAAC,GAAR,CAAY,cAAZ,CAAA,CAAA;AAAA",
+          "file": "combine.js"
+        }
+      """
+
+
+  it 'should create sourcemaps for combined CSS directories'
   it 'should create sourcemaps for YAML imports'
 
 

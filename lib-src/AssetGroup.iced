@@ -4,6 +4,7 @@ autoprefixer = require('autoprefixer-core')
 cacheDir     = require('./cacheDir')
 chalk        = require('chalk')
 coffee       = require('coffee-script')
+Concat       = require('concat-with-sourcemaps')
 errTo        = require('errto')
 fs           = require('fs')
 mkdirp       = require('mkdirp')
@@ -411,17 +412,24 @@ class AssetGroup
 
 
   _compileMultipleFiles: (files, dest, stack, cb) =>
-    count = 0
-
     compile = (file, cb) =>
       await @_compileFileOrDirectory(file, dest, stack, errTo(cb, defer data))
-      return cb() unless data
-      count += data.count
-      cb(null, data.content)
+      data.src = file if data
+      cb(null, data)
 
-    await async.map(files, compile, errTo(cb, defer content))
-    content = _.filter(content)
-    cb(null, content: content.join('\n'), count: count, action: 'compiled', dest: dest)
+    # Can't use async.each because they must be concatenated in order
+    await async.map(files, compile, errTo(cb, defer datas))
+
+    concat = new Concat(true, path.basename(dest), '\n');
+    count = 0
+
+    for data in datas
+      if data && data.content
+        source = path.join(path.relative(path.dirname(dest), @srcLink), path.relative(@srcPath, data.src))
+        concat.add(source, data.content, data.sourcemap)
+        count += data.count
+
+    cb(null, content: concat.content, sourcemap: JSON.parse(concat.sourceMap), count: count, action: 'compiled', dest: dest)
 
 
   _compileFileOrDirectory: (src, dest, stack, cb) =>
