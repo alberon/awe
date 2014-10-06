@@ -1,0 +1,8 @@
+// This comment is just to change the line numbers
+.scss {
+  font-weight: bold;
+}
+
+.also-scss {
+  @extend .scss;
+}

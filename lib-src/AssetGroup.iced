@@ -104,10 +104,17 @@ class AssetGroup
       # Note: This is split into two strings to avoid interfering with source-map-support regex
       data.content += "\n//" + "# sourceMappingURL=#{path.basename(data.dest)}.map\n"
     else if data.dest[-4...].toLowerCase() == '.css'
-      # PostCSS does this for us
-      #data.content += "\n/*# sourceMappingURL=#{path.basename(data.dest)}.map */\n"
+      data.content += "\n/*# sourceMappingURL=#{path.basename(data.dest)}.map */\n"
     else
       throw new Exception("Don't know how to add a source map comment to '#{data.dest}'")
+
+
+  _removeSourceMapComment: (data) =>
+    # This is for when an external library (PostCSS, Sass) adds a comment we
+    # don't want (because we want to combine files and then add the comment at
+    # the very end)
+    data.content = data.content.replace(/[\r\n]*\/\*# sourceMappingURL=[^ ]+ \*\/[\r\n]*$/, '\n')
+
 
   _write: (data, cb) =>
     return cb() if data.content == null
@@ -115,11 +122,8 @@ class AssetGroup
     await
       if @sourcemaps && data.sourcemap
         @_addSourceMapComment(data)
-
-        if typeof data.sourcemap is 'object'
-          sourcemap = JSON.stringify(data.sourcemap, null, '  ')
-        else
-          sourcemap = data.sourcemap
+        data.sourcemap.sourceRoot = path.relative(path.dirname(data.dest), @srcLink)
+        sourcemap = JSON.stringify(data.sourcemap, null, '  ')
 
         fs.writeFile("#{data.dest}.map", sourcemap, errTo(cb, defer()))
 
@@ -208,13 +212,12 @@ class AssetGroup
 
     result = coffee.compile(data.content,
       sourceMap:     true
-      sourceRoot:    path.relative(path.dirname(dest), @srcLink)
       sourceFiles:   [path.relative(@srcPath, src)]
       generatedFile: path.basename(dest)
     )
 
     data.content = result.js
-    data.sourcemap = result.v3SourceMap
+    data.sourcemap = JSON.parse(result.v3SourceMap)
     data.action = 'compiled'
 
     cb(null, data)
@@ -309,11 +312,14 @@ class AssetGroup
 
     if @sourcemaps
       data.sourcemap = JSON.parse(sourcemap)
+
       # Make the sources relative to the source directory - we'll change them
       # to be relative to the final destination file later
       for source, i in data.sourcemap.sources
         source = path.resolve(path.dirname(outputFile), source)
         data.sourcemap.sources[i] = path.relative(@srcPath, source)
+
+      @_removeSourceMapComment(data)
 
     # Rewrite the URLs in the CSS
     @_rewriteCss(data, src, dest)
@@ -394,10 +400,13 @@ class AssetGroup
       bowerSrc:  @bowerSrc
       bowerDest: @bowerLink
 
-    # PostCSS doesn't seem to support sourceRoot
-    srcRelativeToDest = path.join(path.relative(path.dirname(destFile), @srcLink), path.relative(@srcPath, srcFile))
+    # PostCSS expects input sourcemap paths to be relative to the new source file
+    if data.sourcemap
+      srcDir = path.dirname(srcFile)
+      for source, k in data.sourcemap.sources
+        data.sourcemap.sources[k] = path.relative(srcDir, path.resolve(@srcPath, source))
 
-    result = rewriteCss data.content, srcRelativeToDest, destFile, sourcemap: @sourcemaps, prevSourcemap: data.sourcemap, autoprefixer: @autoprefixer, rewriteUrls: (url) =>
+    result = rewriteCss data.content, path.relative(@srcPath, srcFile), destFile, sourcemap: @sourcemaps, prevSourcemap: data.sourcemap, autoprefixer: @autoprefixer, rewriteUrls: (url) =>
       if S(url).startsWith('/AWEDESTROOTPATH/')
         return path.join(path.relative(path.dirname(srcFile), @srcPath), url[17..])
 
@@ -408,7 +417,10 @@ class AssetGroup
         return url
 
     data.content = result.css
-    data.sourcemap = result.map
+
+    if @sourcemaps
+      data.sourcemap = result.map.toJSON()
+      @_removeSourceMapComment(data)
 
 
   _compileMultipleFiles: (files, dest, stack, cb) =>
@@ -425,11 +437,24 @@ class AssetGroup
 
     for data in datas
       if data && data.content
-        source = path.join(path.relative(path.dirname(dest), @srcLink), path.relative(@srcPath, data.src))
-        concat.add(source, data.content, data.sourcemap)
+        concat.add(data.src, data.content, data.sourcemap)
         count += data.count
 
-    cb(null, content: concat.content, sourcemap: JSON.parse(concat.sourceMap), count: count, action: 'compiled', dest: dest)
+    sourcemap = JSON.parse(concat.sourceMap)
+
+    # Convert absolute paths to relative
+    if sourcemap
+      for source, k in sourcemap.sources
+        # It may already be relative (I'm not sure under what circumstances but
+        # it happens in the unit tests), in which case we can either try to work
+        # out whether it's absolute or not, or we can convert it to always be
+        # absolute first - I've chosen the latter. Node.js 0.11 will add
+        # path.isAbsolute() which will make the former easier in the future.
+        source = path.resolve(@srcPath, source)
+        # And now we can convert it from absolute to relative
+        sourcemap.sources[k] = path.relative(@srcPath, source)
+
+    cb(null, content: concat.content, sourcemap: sourcemap, count: count, action: 'compiled', dest: dest)
 
 
   _compileFileOrDirectory: (src, dest, stack, cb) =>

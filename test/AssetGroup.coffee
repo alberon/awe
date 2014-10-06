@@ -697,17 +697,18 @@ describe 'AssetGroup.build()', ->
           background: url(../sample.gif);
         }
 
-        /*# sourceMappingURL=local-symlink.css.map */
+        /*# sourceMappingURL=local-symlink.css.map */\n
       """
       expect("#{fixtures}/build-sourcemap-css/build/subdir/local-symlink.css.map").to.have.content """
         {
           "version": 3,
           "sources": [
-            "../_src/subdir/local-symlink.css"
+            "subdir/local-symlink.css"
           ],
           "names": [],
           "mappings": "AAAA;EACE,gCAA4B;EAC7B",
-          "file": "local-symlink.css"
+          "file": "local-symlink.css",
+          "sourceRoot": "../_src"
         }
       """
 
@@ -733,17 +734,18 @@ describe 'AssetGroup.build()', ->
                   transition: transform 1s;
         }
 
-        /*# sourceMappingURL=styles.css.map */
+        /*# sourceMappingURL=styles.css.map */\n
       """
       expect("#{fixtures}/build-sourcemap-css-autoprefixer/build/styles.css.map").to.have.content """
         {
           "version": 3,
           "sources": [
-            "_src/styles.css"
+            "styles.css"
           ],
           "names": [],
           "mappings": "AAAA,yDAAwD;AACxD;EACE,0CAAyB;UAAzB,0BAAyB;EAC1B;;AAED;EACE,0CAAyB;UAAzB,0BAAyB;EAC1B",
-          "file": "styles.css"
+          "file": "styles.css",
+          "sourceRoot": "_src"
         }
       """
 
@@ -761,17 +763,18 @@ describe 'AssetGroup.build()', ->
           color: red;
         }
 
-        /*# sourceMappingURL=sass.css.map */
+        /*# sourceMappingURL=sass.css.map */\n
       """
       expect("#{fixtures}/build-sourcemap-sass/build/sass.css.map").to.have.content """
         {
           "version": 3,
           "sources": [
-            "_src/sass.scss"
+            "sass.scss"
           ],
           "names": [],
           "mappings": "AAGA;EACE,YAHO;EACR",
-          "file": "sass.css"
+          "file": "sass.css",
+          "sourceRoot": "_src"
         }
       """
 
@@ -801,17 +804,52 @@ describe 'AssetGroup.build()', ->
         {
           "version": 3,
           "sources": [
-            "_src/combine.js/1.js",
-            "_src/combine.js/2-subdir/2.coffee"
+            "combine.js/1.js",
+            "combine.js/2-subdir/2.coffee"
           ],
           "names": [],
           "mappings": "AAAA;AACA;AACA;ACAA;AAAA,EAAA,OAAO,CAAC,GAAR,CAAY,cAAZ,CAAA,CAAA;AAAA",
-          "file": "combine.js"
+          "file": "combine.js",
+          "sourceRoot": "_src"
         }
       """
 
 
-  it 'should create sourcemaps for combined CSS directories'
+  it 'should create sourcemaps for combined CSS directories', build
+    root: "#{fixtures}/build-sourcemap-combine-css"
+    config:
+      sourcemaps: true
+    files: [
+      'src/combine.css/_vars.scss'
+      'src/combine.css/1.css'
+      'src/combine.css/2-subdir/2.scss'
+    ]
+    tests: ->
+      expect("#{fixtures}/build-sourcemap-combine-css/build/combine.css").to.have.content """
+        .css {
+          color: red;
+        }
+
+        .scss, .also-scss {
+          font-weight: bold;
+        }
+
+        /*# sourceMappingURL=combine.css.map */\n
+      """
+      expect("#{fixtures}/build-sourcemap-combine-css/build/combine.css.map").to.have.content """
+        {
+          "version": 3,
+          "sources": [
+            "combine.css/1.css",
+            "combine.css/2-subdir/2.scss"
+          ],
+          "names": [],
+          "mappings": "AAAA;EACE,YAAW;EACZ;;ACDD;EACE,mBAAiB;EAAlB",
+          "file": "combine.css",
+          "sourceRoot": "_src"
+        }
+      """
+
   it 'should create sourcemaps for YAML imports'
 
 
