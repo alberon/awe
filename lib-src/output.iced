@@ -15,12 +15,12 @@ actions =
   error:     chalk.bold.white.bgRed('Error')
 
   # Target files
-  compiled:  chalk.bold.yellow('Compiled')
-  copied:    chalk.bold.green('Copied')
   created:   chalk.bold.red('Created')
   emptied:   chalk.bold.red('Emptied')
-  generated: chalk.bold.yellow('Generated')
   symlink:   chalk.bold.magenta('Symlink')
+  copied:    chalk.bold.green('Copied')
+  compiled:  chalk.bold.green('Compiled')
+  generated: chalk.bold.yellow('Generated')
 
 # Set this to the length of the longest action text (to avoid having to
 # calculate it every time)
