@@ -60,7 +60,8 @@ class AssetGroup
         fs.exists(@bowerSrc, defer bowerExists)
 
     if !srcExists
-      output.error(@srcPath, null, "Source directory doesn't exist")
+      file = path.relative(@rootPath, @srcPath)
+      output.error(file, null, "Source directory doesn't exist")
       return cb()
 
     if !bowerExists
@@ -74,10 +75,11 @@ class AssetGroup
     # (Re-)create the destination
     await mkdirp(@destPath, errTo(cb, defer()))
 
+    file = path.relative(@rootPath, @destPath + '/')
     if destExists
-      output.emptied(@destPath + '/')
+      output.emptied(file)
     else
-      output.created(@destPath + '/')
+      output.created(file)
 
     await
       # Create a symlink to the source directory
@@ -107,7 +109,8 @@ class AssetGroup
   _createSymlink: (target, link, cb) =>
     target = path.relative(path.dirname(link), target)
     await fs.symlink(target, link, errTo(cb, defer()))
-    output.symlink(link + '/', '-> ' + target)
+    file = path.relative(@rootPath, link + '/')
+    output.symlink(file, '-> ' + target)
     cb()
 
 
@@ -147,7 +150,8 @@ class AssetGroup
         fs.writeFile(data.dest, data.content, errTo(cb, defer()))
 
     if data.action
-      output(data.action, data.dest, "(#{data.count} files)" if data.count > 1)
+      file = path.relative(@rootPath, data.dest)
+      output(data.action, file, "(#{data.count} files)" if data.count > 1)
 
     cb()
 
@@ -156,7 +160,8 @@ class AssetGroup
     await fs.realpath(src, errTo(cancel, defer srcRealPath))
 
     if srcRealPath in stack
-      output.error(src, '(Symlink)', "Infinite loop detected: '#{src}' points to '#{srcRealPath}'")
+      file = path.relative(@rootPath, src)
+      output.error(file, '(Symlink)', "Infinite loop detected: '#{src}' points to '#{srcRealPath}'")
       return cancel()
 
     stack = stack.concat([srcRealPath])
@@ -307,7 +312,8 @@ class AssetGroup
     if code != 0
       result = result.replace(/\n?\s*Use --trace for backtrace./, '')
       message = chalk.bold.red("SASS/COMPASS ERROR") + chalk.bold.black(" (#{code})") + "\n#{result}"
-      output.error(src, 'Sass', message)
+      file = path.relative(@rootPath, src)
+      output.error(file, 'Sass', message)
       return cb('Sass compile failed')
 
     await
@@ -430,7 +436,8 @@ class AssetGroup
       try
         urlRewriter.rewrite(url)
       catch e
-        output.warning(srcFile, '(URL rewriter)', e.message)
+        file = path.relative(@rootPath, srcFile)
+        output.warning(file, '(URL rewriter)', e.message)
         return url
 
     data.content = result.css
