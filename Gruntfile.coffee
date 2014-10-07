@@ -37,7 +37,7 @@ module.exports = (grunt) ->
       options:
         bail: true
         reporter: 'spec'
-        require: 'lib/source-map-support'
+        require: 'lib/common'
 
       all:
         src: ['test/**/*.coffee', '!test/**/_*.coffee']

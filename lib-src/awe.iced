@@ -1,4 +1,4 @@
-require('./source-map-support')
+require('./common')
 
 chalk  = require('chalk')
 params = require('./params')

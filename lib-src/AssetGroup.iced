@@ -8,6 +8,7 @@ Concat       = require('concat-with-sourcemaps')
 errTo        = require('errto')
 fs           = require('fs')
 mkdirp       = require('mkdirp')
+mu           = require('mu2')
 output       = require('./output')
 path         = require('path')
 rewriteCss   = require('./rewriteCss')
@@ -38,6 +39,11 @@ class AssetGroup
     if @bower
       @bowerLink = path.join(@destPath, '_bower')
       @bowerSrc  = path.join(@rootPath, @bower)
+
+    if config['warning file']
+      @warningFile = path.join(@destPath, '_DO_NOT_EDIT.txt')
+    else
+      @warningFile = false
 
 
   build: (cb) =>
@@ -81,6 +87,12 @@ class AssetGroup
       # Create a symlink to the bower_components directory
       if @bower
         @_createSymlink(@bowerSrc, @bowerLink, errTo(cb, defer()))
+
+      # Create a file warning people not to edit the compiled files
+      if @warningFile
+        stream = mu.compileAndRender 'asset-warning.mustache',
+          source: path.relative(@destPath, @srcPath)
+        @_write(dest: path.join(@warningFile), stream: stream, action: 'generated', defer())
 
       # Create cache directory
       cacheDir.prepare(@rootPath, errTo(cb, defer @cachePath))
@@ -127,7 +139,12 @@ class AssetGroup
 
         fs.writeFile("#{data.dest}.map", sourcemap, errTo(cb, defer()))
 
-      fs.writeFile(data.dest, data.content, errTo(cb, defer()))
+      if data.stream
+        data.stream
+          .on('end', defer())
+          .pipe(fs.createWriteStream(data.dest))
+      else
+        fs.writeFile(data.dest, data.content, errTo(cb, defer()))
 
     if data.action
       output(data.action, data.dest, "(#{data.count} files)" if data.count > 1)
