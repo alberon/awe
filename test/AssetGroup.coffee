@@ -118,7 +118,7 @@ describe 'AssetGroup.build()', ->
     tests: ->
       expect("#{fixtures}/build-coffeescript/build/coffeescript.js").to.have.content """
         (function() {
-          console.log('JavaScript');
+          console.log('CoffeeScript');
 
         }).call(this);\n
       """
@@ -642,14 +642,16 @@ describe 'AssetGroup.build()', ->
       expect("#{fixtures}/build-sourcemap-symlink/build/_src/_source").to.be.a.file()
 
 
-  it 'should not create a symlink to the source files if sourcemaps are disabled', build
+  it 'should not create a symlink or .map file if sourcemaps are disabled', build
     root: "#{fixtures}/build-sourcemap-disabled"
     files: [
-      'src/_source'
+      'src/coffeescript.coffee'
     ]
     tests: ->
       expect("#{fixtures}/build-sourcemap-disabled/build/_src").not.to.be.a.symlink()
       expect("#{fixtures}/build-sourcemap-disabled/build/_src").not.to.be.a.path()
+      expect("#{fixtures}/build-sourcemap-disabled/build/coffeescript.js").to.be.a.path()
+      expect("#{fixtures}/build-sourcemap-disabled/build/coffeescript.js.map").not.to.be.a.path()
 
 
   it 'should create sourcemaps for CoffeeScript', build
@@ -662,7 +664,11 @@ describe 'AssetGroup.build()', ->
     tests: ->
       expect("#{fixtures}/build-sourcemap-coffeescript/build/coffeescript.js").to.have.content """
         (function() {
-          console.log('JavaScript');
+          console.log('CoffeeScript 1');
+
+          console.log('CoffeeScript 2');
+
+          console.log('CoffeeScript 3');
 
         }).call(this);
 
@@ -677,7 +683,7 @@ describe 'AssetGroup.build()', ->
             "coffeescript.coffee"
           ],
           "names": [],
-          "mappings": "AAAA;AAAA,EAAA,OAAO,CAAC,GAAR,CAAY,YAAZ,CAAA,CAAA;AAAA"
+          "mappings": "AAAA;AAAA,EAAA,OAAO,CAAC,GAAR,CAAY,gBAAZ,CAAA,CAAA;;AAAA,EACA,OAAO,CAAC,GAAR,CAAY,gBAAZ,CADA,CAAA;;AAAA,EAEA,OAAO,CAAC,GAAR,CAAY,gBAAZ,CAFA,CAAA;AAAA"
         }
       """
 
