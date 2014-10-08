@@ -1,0 +1,4 @@
+assets:
+    test:
+        src: src/
+        dest: build/

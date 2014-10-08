@@ -68,11 +68,11 @@ build = ({root, files, config, warnings, errors, tests}) ->
         throw new Error(err) if err
 
         # Check for error/warning messages
-        expect(output.counters.error || 0).to.equal(errors || 0, "Expected #{errors || 'no'} error(s)")
-        expect(output.counters.warning || 0).to.equal(warnings || 0, "Expected #{warnings || 'no'} error(s)")
+        expect(output.counters.error || 0).to.equal(errors || 0, "Expected #{errors || 0} error(s)")
+        expect(output.counters.warning || 0).to.equal(warnings || 0, "Expected #{warnings || 0} error(s)")
 
         # Run tests (synchronously)
-        tests()
+        tests() if tests
 
         # Tell Mocha we're done
         done()
@@ -149,6 +149,14 @@ describe 'AssetGroup.build()', ->
       expect("#{fixtures}/build-underscores/_ignored.js").not.to.be.a.path()
       expect("#{fixtures}/build-underscores/_vars.scss").not.to.be.a.path()
       expect("#{fixtures}/build-underscores/_vars.css").not.to.be.a.path()
+
+
+  it 'should display a warning when CSS is invalid', build
+    root: "#{fixtures}/build-css-invalid"
+    files: [
+      'src/invalid.css'
+    ]
+    warnings: 1
 
 
   #----------------------------------------

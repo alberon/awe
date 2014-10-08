@@ -423,13 +423,7 @@ class AssetGroup
       bowerSrc:  @bowerSrc
       bowerDest: @bowerLink
 
-    # PostCSS expects input sourcemap paths to be relative to the new source file
-    if data.sourcemap
-      srcDir = path.dirname(srcFile)
-      for source, k in data.sourcemap.sources
-        data.sourcemap.sources[k] = path.relative(srcDir, path.resolve(@srcPath, source))
-
-    result = rewriteCss data.content, path.relative(@srcPath, srcFile), destFile, sourcemap: @sourcemaps, prevSourcemap: data.sourcemap, autoprefixer: @autoprefixer, rewriteUrls: (url) =>
+    rewriteUrl = (url) =>
       if S(url).startsWith('/AWEDESTROOTPATH/')
         return path.join(path.relative(path.dirname(srcFile), @srcPath), url[17..])
 
@@ -439,6 +433,29 @@ class AssetGroup
         file = path.relative(@rootPath, srcFile)
         output.warning(file, '(URL rewriter)', e.message)
         return url
+
+    # PostCSS expects input sourcemap paths to be relative to the new source file
+    if data.sourcemap
+      srcDir = path.dirname(srcFile)
+      for source, k in data.sourcemap.sources
+        data.sourcemap.sources[k] = path.relative(srcDir, path.resolve(@srcPath, source))
+
+    try
+      result = rewriteCss(
+        data.content,
+        path.relative(@srcPath, srcFile),
+        destFile,
+        sourcemap: @sourcemaps,
+        prevSourcemap: data.sourcemap,
+        autoprefixer: @autoprefixer,
+        rewriteUrls: rewriteUrl
+      )
+    catch e
+      throw e unless e.source # Looks like a CSS error
+      file = path.relative(@rootPath, srcFile)
+      message = "Invalid CSS:\n#{e.reason} on line #{e.line} column #{e.column}"
+      output.warning(file, '(CSS)', message)
+      return
 
     data.content = result.css
 
