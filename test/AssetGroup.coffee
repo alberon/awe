@@ -111,6 +111,19 @@ describe 'AssetGroup.build()', ->
       """
 
 
+  it 'should copy images', build
+    root: "#{fixtures}/build-copy-images"
+    files: [
+      'src/sample.gif'
+    ]
+    tests: ->
+      # Using hex encoding because it's the easiest way to compare two files
+      # This test is necessary because the file must be copied in binary mode not UTF-8 else it is corrupted
+      data1 = 'Hex encoding: ' + fs.readFileSync("#{fixtures}/build-copy-images/build/sample.gif", encoding: 'hex')
+      data2 = 'Hex encoding: ' + fs.readFileSync("#{fixtures}/build-copy-images/src/sample.gif", encoding: 'hex')
+      expect(data1).to.equal(data2)
+
+
   it 'should compile CoffeeScript files', build
     root: "#{fixtures}/build-coffeescript"
     files: [

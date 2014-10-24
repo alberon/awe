@@ -142,10 +142,17 @@ class AssetGroup
 
         fs.writeFile("#{data.dest}.map", sourcemap, errTo(cb, defer()))
 
+      # Stream
       if data.stream
         data.stream
           .on('end', defer())
           .pipe(fs.createWriteStream(data.dest))
+
+      # Buffer
+      else if data.buffer
+        fs.writeFile(data.dest, data.buffer, errTo(cb, defer()))
+
+      # String
       else
         fs.writeFile(data.dest, data.content, errTo(cb, defer()))
 
@@ -227,6 +234,11 @@ class AssetGroup
   _getFile: (src, dest, cb) =>
     await fs.readFile(src, 'utf8', errTo(cb, defer content))
     cb(null, content: content, count: 1, action: 'copied', dest: dest)
+
+
+  _getBuffer: (src, dest, cb) =>
+    await fs.readFile(src, errTo(cb, defer buffer))
+    cb(null, buffer: buffer, count: 1, action: 'copied', dest: dest)
 
 
   _compileCoffeeScript: (src, dest, cb) =>
@@ -368,7 +380,7 @@ class AssetGroup
 
 
   _copyGeneratedFile: (src, dest, cb) =>
-    await @_getFile(src, dest, errTo(cb, defer data))
+    await @_getBuffer(src, dest, errTo(cb, defer data))
     data.action = 'generated'
     @_write(data, cb)
 
@@ -408,9 +420,13 @@ class AssetGroup
     else if src[-4..].toLowerCase() == '.css'
       @_getCss(src, dest, cb)
 
-    # Copy other files
-    else
+    # Copy JavaScript as a string
+    else if src[-3..].toLowerCase() == '.js'
       @_getFile(src, dest, cb)
+
+    # Copy other files in binary mode (side-effect: they are ignored when in a .js or .css directory)
+    else
+      @_getBuffer(src, dest, cb)
 
 
   _rewriteCss: (data, srcFile, destFile) =>
