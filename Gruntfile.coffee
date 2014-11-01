@@ -9,7 +9,7 @@ module.exports = (grunt) ->
     # Update Ruby gems
     shell:
       bundle:
-        command: 'bundle install --path=ruby_bundle --binstubs=ruby_bundle/bin --no-deployment --without=production'
+        command: 'bundle install --path=ruby_bundle --binstubs=ruby_bundle/bin --no-deployment --without=production && bundle update'
 
     # Delete files
     clean:
