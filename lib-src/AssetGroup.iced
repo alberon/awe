@@ -126,7 +126,11 @@ class AssetGroup
 
 
   _inlineSourceMapContent: (data, cb) =>
-    sourceToContent = (file, cb) => fs.readFile(path.join(@srcPath, file), 'utf8', cb)
+    sourceToContent = (file, cb) =>
+      await fs.readFile(path.join(@srcPath, file), 'utf8', errTo(cb, defer content))
+      content = content.replace(/\r\n/g, "\n") # Firefox doesn't like Windows line endings
+      cb(null, content)
+
     await async.map(data.sourcemap.sources, sourceToContent, errTo(cb, defer contents))
     data.sourcemap.sourcesContent = contents
     cb()
