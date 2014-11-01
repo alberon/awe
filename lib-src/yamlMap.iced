@@ -14,7 +14,9 @@ module.exports = (file, srcPath, bowerPath, cb) ->
   await fs.readFile(file, 'utf8', errTo(cb, defer content))
 
   errorHandler = (message) ->
-    output.error(path.relative(config.rootPath, file), '(YAML import map)', message)
+    # config.rootPath is not available in unit tests
+    relFile = if config.rootPath then path.relative(config.rootPath, file) else file
+    output.error(relFile, '(YAML import map)', message)
 
   # Parse YAML to JS
   try
