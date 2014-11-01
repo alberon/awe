@@ -67,10 +67,10 @@ output = (action, filename = '', notes = '', message = '') ->
   if action == 'finished'
     if output.counters.error
       s = if output.counters.error == 1 then '' else 'S'
-      text += ' ' + chalk.bold.white.bgRed(" ** #{output.counters.error} ERROR#{s} ** ")
+      text += '\n' + chalk.bold.white.bgRed(" ** #{output.counters.error} ERROR#{s}  ** ")
     if output.counters.warning
       s = if output.counters.warning == 1 then '' else 'S'
-      text += ' ' + chalk.yellow.inverse(" ** #{output.counters.warning} WARNING#{s} ** ")
+      text += '\n' + chalk.yellow.inverse(" ** #{output.counters.warning} WARNING#{s} ** ")
 
   # Detailed message
   message = S(message).trim().s
