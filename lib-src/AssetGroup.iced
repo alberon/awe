@@ -132,7 +132,7 @@ class AssetGroup
 
 
   _write: (data, cb) =>
-    return cb() if data.content == null
+    return cb() if !data || data.content == null
 
     await
       if @sourcemaps && data.sourcemap
@@ -244,11 +244,16 @@ class AssetGroup
   _compileCoffeeScript: (src, dest, cb) =>
     await @_getFile(src, dest, errTo(cb, defer data))
 
-    result = coffee.compile(data.content,
-      sourceMap:     true
-      sourceFiles:   [path.relative(@srcPath, src)]
-      generatedFile: path.basename(dest)
-    )
+    try
+      result = coffee.compile(data.content,
+        sourceMap:     true
+        sourceFiles:   [path.relative(@srcPath, src)]
+        generatedFile: path.basename(dest)
+      )
+    catch e
+      file = path.relative(@rootPath, src)
+      output.error(file, null, e.toString().replace('[stdin]:', ''))
+      return cb()
 
     data.content = result.js
     data.sourcemap = JSON.parse(result.v3SourceMap)
@@ -313,7 +318,7 @@ class AssetGroup
 
     # Compile the file using Compass
     cmd = path.resolve(__dirname, '..', 'ruby_bundle', 'bin', 'compass')
-    args = ['compile', '--config', configFilename, src]
+    args = ['compile', '--trace', '--config', configFilename, src]
 
     result = ''
     bundle = spawn(cmd, args)
@@ -325,8 +330,8 @@ class AssetGroup
       result = result.replace(/\n?\s*Use --trace for backtrace./, '')
       message = chalk.bold.red("SASS/COMPASS ERROR") + chalk.bold.black(" (#{code})") + "\n#{result}"
       file = path.relative(@rootPath, src)
-      output.error(file, 'Sass', message)
-      return cb('Sass compile failed')
+      output.error(file, null, message)
+      return cb()
 
     await
       # Copy any extra files that were generated

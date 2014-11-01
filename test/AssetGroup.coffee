@@ -83,6 +83,7 @@ build = ({root, files, config, warnings, errors, tests}) ->
 #================================================================================
 
 describe 'AssetGroup.build()', ->
+  @timeout 5000
 
   #----------------------------------------
   # Basic copy/compile functionality
@@ -138,7 +139,7 @@ describe 'AssetGroup.build()', ->
       """
 
 
-  it 'should compile SASS files', build
+  it 'should compile Sass files', build
     root: "#{fixtures}/build-sass"
     files: [
       'src/sass.scss'
@@ -170,6 +171,26 @@ describe 'AssetGroup.build()', ->
       'src/invalid.css'
     ]
     warnings: 1
+
+
+  #----------------------------------------
+  # Error handling
+  #----------------------------------------
+
+  it 'should handle errors in Sass files', build
+    root: "#{fixtures}/build-error-sass"
+    files: [
+      'src/invalid.scss'
+    ]
+    errors: 1
+
+
+  it 'should handle errors in CoffeeScript files', build
+    root: "#{fixtures}/build-error-coffeescript"
+    files: [
+      'src/invalid.coffee'
+    ]
+    errors: 1
 
 
   #----------------------------------------
