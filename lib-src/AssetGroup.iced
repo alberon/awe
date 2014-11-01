@@ -34,8 +34,6 @@ class AssetGroup
     @destPath = path.join(@rootPath, config.dest.replace(/\/*$/, ''))
 
     # Generated paths
-    @srcLink = path.join(@destPath, '_src')
-
     if @bower
       @bowerLink = path.join(@destPath, '_bower')
       @bowerSrc  = path.join(@rootPath, @bower)
@@ -82,10 +80,6 @@ class AssetGroup
       output.created(file)
 
     await
-      # Create a symlink to the source directory
-      if @sourcemaps
-        @_createSymlink(@srcPath, @srcLink, errTo(cb, defer()))
-
       # Create a symlink to the bower_components directory
       if @bower
         @_createSymlink(@bowerSrc, @bowerLink, errTo(cb, defer()))
@@ -131,15 +125,24 @@ class AssetGroup
     data.content = data.content.replace(/[\r\n]*\/\*# sourceMappingURL=[^ ]+ \*\/[\r\n]*$/, '\n')
 
 
+  _inlineSourceMapContent: (data, cb) =>
+    sourceToContent = (file, cb) => fs.readFile(path.join(@srcPath, file), 'utf8', cb)
+    await async.map(data.sourcemap.sources, sourceToContent, errTo(cb, defer contents))
+    data.sourcemap.sourcesContent = contents
+    cb()
+
+
   _write: (data, cb) =>
     return cb() if !data || data.content == null
 
+    if @sourcemaps && data.sourcemap
+      data.sourcemap.sourceRoot = path.relative(path.dirname(data.dest), @srcPath)
+      await @_inlineSourceMapContent(data, errTo(cb, defer()))
+      @_addSourceMapComment(data)
+
     await
       if @sourcemaps && data.sourcemap
-        @_addSourceMapComment(data)
-        data.sourcemap.sourceRoot = path.relative(path.dirname(data.dest), @srcLink)
         sourcemap = JSON.stringify(data.sourcemap, null, '  ')
-
         fs.writeFile("#{data.dest}.map", sourcemap, errTo(cb, defer()))
 
       # Stream

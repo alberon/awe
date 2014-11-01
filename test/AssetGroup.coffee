@@ -672,27 +672,12 @@ describe 'AssetGroup.build()', ->
   # Source maps
   #----------------------------------------
 
-  it 'should create a symlink to the source files (for sourcemaps support)', build
-    root: "#{fixtures}/build-sourcemap-symlink"
-    config:
-      sourcemaps: true
-    files: [
-      'src/_source'
-    ]
-    tests: ->
-      expect("#{fixtures}/build-sourcemap-symlink/build/_src").to.be.a.directory()
-      expect("#{fixtures}/build-sourcemap-symlink/build/_src").to.be.a.symlink()
-      expect("#{fixtures}/build-sourcemap-symlink/build/_src/_source").to.be.a.file()
-
-
-  it 'should not create a symlink or .map file if sourcemaps are disabled', build
+  it 'should not create a .map file if sourcemaps are disabled', build
     root: "#{fixtures}/build-sourcemap-disabled"
     files: [
       'src/coffeescript.coffee'
     ]
     tests: ->
-      expect("#{fixtures}/build-sourcemap-disabled/build/_src").not.to.be.a.symlink()
-      expect("#{fixtures}/build-sourcemap-disabled/build/_src").not.to.be.a.path()
       expect("#{fixtures}/build-sourcemap-disabled/build/coffeescript.js").to.be.a.path()
       expect("#{fixtures}/build-sourcemap-disabled/build/coffeescript.js.map").not.to.be.a.path()
 
@@ -721,12 +706,15 @@ describe 'AssetGroup.build()', ->
         {
           "version": 3,
           "file": "coffeescript.js",
-          "sourceRoot": "_src",
+          "sourceRoot": "../src",
           "sources": [
             "coffeescript.coffee"
           ],
           "names": [],
-          "mappings": "AAAA;AAAA,EAAA,OAAO,CAAC,GAAR,CAAY,gBAAZ,CAAA,CAAA;;AAAA,EACA,OAAO,CAAC,GAAR,CAAY,gBAAZ,CADA,CAAA;;AAAA,EAEA,OAAO,CAAC,GAAR,CAAY,gBAAZ,CAFA,CAAA;AAAA"
+          "mappings": "AAAA;AAAA,EAAA,OAAO,CAAC,GAAR,CAAY,gBAAZ,CAAA,CAAA;;AAAA,EACA,OAAO,CAAC,GAAR,CAAY,gBAAZ,CADA,CAAA;;AAAA,EAEA,OAAO,CAAC,GAAR,CAAY,gBAAZ,CAFA,CAAA;AAAA",
+          "sourcesContent": [
+            "console.log 'CoffeeScript 1'\\nconsole.log 'CoffeeScript 2'\\nconsole.log 'CoffeeScript 3'\\n"
+          ]
         }
       """
 
@@ -757,7 +745,10 @@ describe 'AssetGroup.build()', ->
           "names": [],
           "mappings": "AAAA;EACE,gCAA4B;EAC7B",
           "file": "local-symlink.css",
-          "sourceRoot": "../_src"
+          "sourceRoot": "../../src",
+          "sourcesContent": [
+            "body {\\n  background: url(sample.gif);\\n}\\n"
+          ]
         }
       """
 
@@ -794,7 +785,10 @@ describe 'AssetGroup.build()', ->
           "names": [],
           "mappings": "AAAA,yDAAwD;AACxD;EACE,0CAAyB;UAAzB,0BAAyB;EAC1B;;AAED;EACE,0CAAyB;UAAzB,0BAAyB;EAC1B",
           "file": "styles.css",
-          "sourceRoot": "_src"
+          "sourceRoot": "../src",
+          "sourcesContent": [
+            "/* This is just to make the line numbers change a bit */\\n.another {\\n  transition: transform 1s;\\n}\\n\\n.css {\\n  transition: transform 1s;\\n}\\n"
+          ]
         }
       """
 
@@ -823,7 +817,10 @@ describe 'AssetGroup.build()', ->
           "names": [],
           "mappings": "AAGA;EACE,YAHO;EACR",
           "file": "sass.css",
-          "sourceRoot": "_src"
+          "sourceRoot": "../src",
+          "sourcesContent": [
+            "// This is just to make the line numbers change a bit\\n$red: red;\\n\\n.main-red {\\n  color: $red;\\n}\\n\\n.also-red {\\n  @extend .main-red;\\n}\\n"
+          ]
         }
       """
 
@@ -859,7 +856,11 @@ describe 'AssetGroup.build()', ->
           "names": [],
           "mappings": "AAAA;AACA;AACA;ACAA;AAAA,EAAA,OAAO,CAAC,GAAR,CAAY,cAAZ,CAAA,CAAA;AAAA",
           "file": "combine.js",
-          "sourceRoot": "_src"
+          "sourceRoot": "../src",
+          "sourcesContent": [
+            "// This is just to move it down a line\\nconsole.log('JavaScript');\\n",
+            "# This is just to move it down a couple\\n# of lines\\nconsole.log 'CoffeeScript'\\n"
+          ]
         }
       """
 
@@ -895,7 +896,11 @@ describe 'AssetGroup.build()', ->
           "names": [],
           "mappings": "AAAA;EACE,YAAW;EACZ;;ACDD;EACE,mBAAiB;EAAlB",
           "file": "combine.css",
-          "sourceRoot": "_src"
+          "sourceRoot": "../src",
+          "sourcesContent": [
+            ".css {\\n  color: red;\\n}\\n",
+            "// This comment is just to change the line numbers\\n.scss {\\n  font-weight: bold;\\n}\\n\\n.also-scss {\\n  @extend .scss;\\n}\\n"
+          ]
         }
       """
 
@@ -941,7 +946,13 @@ describe 'AssetGroup.build()', ->
           "names": [],
           "mappings": "AAAA;AACA;ACDA;AACA;AACA;ACFA;AACA;AACA;AACA;ACHA;AACA;AACA;AACA;AACA",
           "file": "import.js",
-          "sourceRoot": "_src"
+          "sourceRoot": "../src",
+          "sourcesContent": [
+            "console.log('File 1');\\n",
+            "// This is just to move it down a line\\nconsole.log('File 2');\\n",
+            "// This is just to move it down 2 lines\\n// This is just to move it down 2 lines\\nconsole.log('File 3');\\n",
+            "// This is just to move it down 3 lines\\n// This is just to move it down 3 lines\\n// This is just to move it down 3 lines\\nconsole.log('File 4');\\n"
+          ]
         }
       """
 
