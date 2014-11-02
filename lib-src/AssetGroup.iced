@@ -21,6 +21,8 @@ yamlMap      = require('./yamlMap')
 
 tmp.setGracefulCleanup()
 
+bundlePath  = path.resolve(__dirname, '..', 'ruby_bundle')
+compassPath = path.resolve(__dirname, '..', 'ruby_bundle', 'bin', 'compass')
 
 class AssetGroup
 
@@ -136,12 +138,24 @@ class AssetGroup
     cb()
 
 
+  _rewriteSourceMapFilenames: (data) =>
+    for source, k in data.sourcemap.sources
+      source = path.resolve(@srcPath, source)
+
+      # Compass sometimes adds its own internal files to the sourcemap which
+      # results in ugly ../../../ paths - rewrite them to something readable.
+      # Note: This has to be done *after* _inlineSourceMapContent() is called.
+      if S(source).startsWith(bundlePath)
+        data.sourcemap.sources[k] = '_awe/ruby_bundle' + source[bundlePath.length...]
+
+
   _write: (data, cb) =>
     return cb() if !data || data.content == null
 
     if @sourcemaps && data.sourcemap
       data.sourcemap.sourceRoot = path.relative(path.dirname(data.dest), @srcPath)
       await @_inlineSourceMapContent(data, errTo(cb, defer()))
+      @_rewriteSourceMapFilenames(data)
       @_addSourceMapComment(data)
 
     await
@@ -324,11 +338,10 @@ class AssetGroup
     await fs.close(configFd, errTo(cb, defer()))
 
     # Compile the file using Compass
-    cmd = path.resolve(__dirname, '..', 'ruby_bundle', 'bin', 'compass')
     args = ['compile', '--trace', '--config', configFilename, src]
 
     result = ''
-    bundle = spawn(cmd, args)
+    bundle = spawn(compassPath, args)
     bundle.stdout.on 'data', (data) => result += data
     bundle.stderr.on 'data', (data) => result += data
     await bundle.on 'close', defer code
@@ -362,9 +375,9 @@ class AssetGroup
 
       # Make the sources relative to the source directory - we'll change them
       # to be relative to the final destination file later
-      for source, i in data.sourcemap.sources
+      for source, k in data.sourcemap.sources
         source = path.resolve(path.dirname(outputFile), source)
-        data.sourcemap.sources[i] = path.relative(@srcPath, source)
+        data.sourcemap.sources[k] = path.relative(@srcPath, source)
 
       @_removeSourceMapComment(data)
 
