@@ -984,6 +984,33 @@ describe 'AssetGroup.build()', ->
       """
 
 
+  it 'should support sourcemaps for empty files', build
+    # This is because concat-with-sourcemaps crashes on empty CSS files -
+    # probably an incompatibility with PostCSS since JS files are fine
+    root: "#{fixtures}/build-sourcemap-combine-empty"
+    config:
+      sourcemaps: true
+    files: [
+      'src/dir.css/empty.css'
+    ]
+    tests: ->
+      expect("#{fixtures}/build-sourcemap-combine-empty/build/dir.css").to.have.content """
+
+        /*# sourceMappingURL=dir.css.map */\n
+      """
+      expect("#{fixtures}/build-sourcemap-combine-empty/build/dir.css.map").to.have.content """
+        {
+          "version": 3,
+          "sources": [],
+          "names": [],
+          "mappings": "",
+          "file": "dir.css",
+          "sourceRoot": "../src",
+          "sourcesContent": []
+        }
+      """
+
+
   #----------------------------------------
   # Miscellaneous
   #----------------------------------------

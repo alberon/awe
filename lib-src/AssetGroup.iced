@@ -518,7 +518,9 @@ class AssetGroup
     count = 0
 
     for data in datas
-      if data && data.content
+      # Ignore files with only "\n" to work around a bug where concat-with-
+      # sourcemaps crashes with "Invalid mapping" error
+      if data && data.content && data.content != "\n"
         concat.add(data.src, data.content, data.sourcemap)
         count += data.count
 
