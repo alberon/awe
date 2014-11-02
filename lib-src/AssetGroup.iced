@@ -292,9 +292,9 @@ class AssetGroup
       output_style = :expanded
 
       # Input files
-      sass_path        = '#{@srcPath}'
-      images_path      = '#{@srcPath}/img'
-      fonts_path       = '#{@srcPath}/fonts'
+      sass_path        =  '#{@srcPath}'
+      images_path      =  '#{@srcPath}/img'
+      fonts_path       =  '#{@srcPath}/fonts'
       sprite_load_path << '#{@srcPath}/_sprites'
 
       # Output to a temp directory so we can catch any generated files too
@@ -549,7 +549,7 @@ class AssetGroup
 
 
   _compileYamlImports: (yamlFile, dest, cb) =>
-    await yamlMap(yamlFile, @srcPath, @bowerSrc, errTo(cb, defer files))
+    await yamlMap(yamlFile, @bowerSrc, errTo(cb, defer files))
 
     await @_compileMultipleFiles(files, dest, defer(err, data))
 

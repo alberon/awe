@@ -76,10 +76,6 @@ class UrlRewriter
       file = @destDir + file.substr(@srcDir.length)
     else if @bowerSrc and S(file).startsWith(@bowerSrc)
       file = @bowerDest + file.substr(@bowerSrc.length)
-    else if @bowerSrc
-      throw new Error("Invalid file path: '#{url}' in '#{@_stripRoot(@srcFile)}' (resolves to '#{@_stripRoot(file)}' which is outside the source directory '#{@_stripRoot(@srcDir)}' and Bower directory '#{@_stripRoot(@bowerSrc)}')")
-    else
-      throw new Error("Invalid file path: '#{url}' in '#{@_stripRoot(@srcFile)}' (resolves to '#{@_stripRoot(file)}' which is outside the source directory '#{@_stripRoot(@srcDir)}')")
 
     # Convert to a relative path
     url = path.relative(path.dirname(@destFile), file)

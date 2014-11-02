@@ -12,10 +12,10 @@ describe 'UrlRewriter', ->
     root:      fixtures
     srcDir:    path.join(fixtures, 'src')
     srcFile:   path.join(fixtures, 'src', 'sample.css')
-    destDir:   path.join(fixtures, 'dest')
-    destFile:  path.join(fixtures, 'dest', 'sample.css')
+    destDir:   path.join(fixtures, 'the', 'dest')
+    destFile:  path.join(fixtures, 'the', 'dest', 'sample.css')
     bowerSrc:  path.join(fixtures, 'bower_components')
-    bowerDest: path.join(fixtures, 'dest' ,'bower_components')
+    bowerDest: path.join(fixtures, 'the', 'dest' ,'bower_components')
 
   # Helpers
   create = (params = {}) ->
@@ -65,8 +65,8 @@ describe 'UrlRewriter', ->
     expect(rewrite('../bower_components/sample.gif')).to.equal 'bower_components/sample.gif'
 
 
-  it 'should throw an error if the target file is outside the src. and Bower directories', ->
-    expect(-> rewrite('../outside.gif')).to.throw /Invalid file path/
+  it 'should rewrite paths pointing outside the source directory', ->
+    expect(rewrite('../outside.gif')).to.equal '../../outside.gif'
 
 
   it 'should throw an error if the target file is not found', ->

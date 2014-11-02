@@ -8,7 +8,7 @@ S      = require('string')
 yaml   = require('js-yaml')
 
 
-module.exports = (file, srcPath, bowerPath, cb) ->
+module.exports = (file, bowerPath, cb) ->
 
   # Read YAML file
   await fs.readFile(file, 'utf8', errTo(cb, defer content))
@@ -30,14 +30,14 @@ module.exports = (file, srcPath, bowerPath, cb) ->
       return cb(err)
 
   # Normalise it
-  files = normalise(files, path.dirname(file), srcPath, bowerPath, errorHandler)
+  files = normalise(files, path.dirname(file), bowerPath, errorHandler)
 
   # Run callback
   cb(null, files)
 
 
 # This is exported for unit testing only
-normalise = module.exports.normalise = (files, filePath, srcPath, bowerPath, error) ->
+normalise = module.exports.normalise = (files, filePath, bowerPath, error) ->
   if files not instanceof Array
     error("Does not contain an array of files")
     return []
@@ -48,12 +48,7 @@ normalise = module.exports.normalise = (files, filePath, srcPath, bowerPath, err
 
     # String value is simply a relative path to a file
     if typeof value is 'string'
-      file = path.resolve(filePath, value)
-
-      if S(file).startsWith(srcPath)
-        normalisedFiles.push(file)
-      else
-        error("Invalid import path: '#{value}' resolves to '#{file}' which is outside the src directory '#{srcPath}' (skipped)")
+      normalisedFiles.push(path.resolve(filePath, value))
 
     # The only other type allowed is an object (bower: file.js)
     else if typeof value isnt 'object' || value == null
@@ -66,11 +61,6 @@ normalise = module.exports.normalise = (files, filePath, srcPath, bowerPath, err
       error("Invalid import path: 'bower: #{value.bower}': Bower is disabled")
 
     else
-      file = path.resolve(bowerPath, value.bower)
-
-      if S(file).startsWith(bowerPath)
-        normalisedFiles.push(file)
-      else
-        error("Invalid import path: 'bower: #{value.bower}' resolves to '#{file}' which is outside the Bower directory '#{bowerPath}' (skipped)")
+      normalisedFiles.push(path.resolve(bowerPath, value.bower))
 
   return normalisedFiles

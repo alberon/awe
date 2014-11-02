@@ -1,1 +1,1 @@
-alert('THIS SHOULD NOT BE IMPORTED');
+f3();

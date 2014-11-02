@@ -351,7 +351,7 @@ describe 'AssetGroup.build()', ->
       """
 
 
-  it 'should skip imports outside the source directory in YAML files', build
+  it 'should allow imports outside the source directory in YAML files', build
     root: "#{fixtures}/build-yaml-error"
     files: [
       'outside.js'
@@ -359,11 +359,11 @@ describe 'AssetGroup.build()', ->
       'src/_2.js'
       'src/import.js.yaml'
     ]
-    errors: 1
     tests: ->
       expect("#{fixtures}/build-yaml-error/build/import.js").to.have.content """
         f1();\n
         f2();\n
+        f3();\n
       """
 
 

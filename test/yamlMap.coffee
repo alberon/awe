@@ -4,7 +4,7 @@ yamlMap = require('../lib/yamlMap')
 
 
 normalise = (config) ->
-  yamlMap.normalise(config, '/FILEPATH', '/FILEPATH', '/BOWERPATH', (message) -> throw new Error(message))
+  yamlMap.normalise(config, '/FILEPATH', '/BOWERPATH', (message) -> throw new Error(message))
 
 expectNormaliseError = (error, config) ->
   expect(-> normalise(config)).to.throw(error)
@@ -65,7 +65,7 @@ describe 'yamlMap()', ->
   fixtures = path.resolve(__dirname, '../fixtures/yaml-map')
 
   it 'should support relative paths', (done) ->
-    yamlMap "#{fixtures}/relative.yaml", fixtures, null, (err, files) ->
+    yamlMap "#{fixtures}/relative.yaml", null, (err, files) ->
       expect(err).to.not.be.ok
       expect(files).to.deep.equal [
         "#{fixtures}/sample.css"
@@ -74,7 +74,7 @@ describe 'yamlMap()', ->
 
 
   it 'should support bower paths', (done) ->
-    yamlMap "#{fixtures}/bower.yaml", fixtures, '/bower/', (err, files) ->
+    yamlMap "#{fixtures}/bower.yaml", '/bower/', (err, files) ->
       expect(err).to.not.be.ok
       expect(files).to.deep.equal [
         "/bower/sample.css"
@@ -83,7 +83,7 @@ describe 'yamlMap()', ->
 
 
   it 'should support multiple files', (done) ->
-    yamlMap "#{fixtures}/multiple.yaml", fixtures, '/bower/', (err, files) ->
+    yamlMap "#{fixtures}/multiple.yaml", '/bower/', (err, files) ->
       expect(err).to.not.be.ok
       expect(files).to.deep.equal [
         "#{fixtures}/sample.css"
