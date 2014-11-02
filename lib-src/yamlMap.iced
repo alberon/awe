@@ -39,7 +39,8 @@ module.exports = (file, srcPath, bowerPath, cb) ->
 # This is exported for unit testing only
 normalise = module.exports.normalise = (files, filePath, srcPath, bowerPath, error) ->
   if files not instanceof Array
-    files = [files]
+    error("Does not contain an array of files")
+    return []
 
   normalisedFiles = []
 
