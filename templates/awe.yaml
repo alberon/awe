@@ -1,11 +1,5 @@
 # Awe config - see http://djm.me/awe-docs for documentation
 
-#===============================================================================
-# Assets
-#===============================================================================
-assets:
-
-    theme:
-        src: www/wp-content/themes/mytheme/src/
-        dest: www/wp-content/themes/mytheme/build/
-        autoprefixer: true
+theme:
+    src: www/wp-content/themes/mytheme/src/
+    dest: www/wp-content/themes/mytheme/build/

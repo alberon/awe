@@ -1,4 +1,3 @@
 assets:
-    theme:
-        src: assets/src/
-        dest: assets/build/
+    src: assets/src/
+    dest: assets/build/

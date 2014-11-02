@@ -4,5 +4,5 @@ fs         = require('fs')
 
 
 exports.groups = ->
-  for name, group of config.data.assets
+  for name, group of config.data
     new AssetGroup(config.rootPath, group)

@@ -3,13 +3,13 @@ ConfigError = require('./errors').ConfigError
 
 
 # Helpers
-requireSetting = (setting, config, key, allowedTypes) ->
+requiredSetting = (setting, config, key, allowedTypes) ->
   if key of config
     checkSettingType(setting, config, key, allowedTypes)
   else
     throw new ConfigError("Missing required setting '#{key}' in #{setting}")
 
-optionalSetting = (setting, config, key, defaultValue, allowedTypes) ->
+optionalSetting = (setting, config, key, allowedTypes, defaultValue) ->
   if key of config
     checkSettingType(setting, config, key, allowedTypes)
   else
@@ -22,16 +22,26 @@ typesToString = (types) ->
     types.push("#{secondLast} or #{last}")
   types = types.join(', ')
 
+settingName = (setting, key) ->
+  if setting
+    if key then "Setting '#{setting}.#{key}'" else "Setting '#{setting}'"
+  else
+    if key then "Setting '#{key}'" else 'Root'
+
 checkSettingType = (setting, config, key, allowedTypes) ->
   # Skip if no valid types specified
   return if allowedTypes == null
 
   # Single types can be passed directly
-  if typeof allowedTypes in ['string', 'boolean']
+  if !_.isArray(allowedTypes)
     allowedTypes = [allowedTypes]
 
-  value = config[key]
+  value = if key then config[key] else config
+
   type = typeof value
+  if type is 'object' and _.isArray(value)
+    type = 'array'
+
   typesForError = []
 
   # Check each type
@@ -42,6 +52,10 @@ checkSettingType = (setting, config, key, allowedTypes) ->
       when 'string', 'boolean'
         return if type is allowedType
         typesForError.push('a ' + allowedType)
+
+      when 'array', 'object'
+        return if type is allowedType
+        typesForError.push('an ' + allowedType)
 
       # Specific values
       when true, false
@@ -54,7 +68,7 @@ checkSettingType = (setting, config, key, allowedTypes) ->
 
   # No valid types found
   typesForError = typesToString(typesForError)
-  throw new ConfigError("Setting '#{setting}.#{key}' must be #{typesForError} (actual type is #{type})")
+  throw new ConfigError("#{settingName(setting, key)} must be #{typesForError} (actual type is #{type})")
 
 allowedSettings = (setting, config, keys) ->
   for own key, value of config
@@ -69,32 +83,27 @@ module.exports = (config) ->
   if type in ['object', 'string'] && _.isEmpty(config)
     throw new ConfigError("File is empty")
 
-  if type != 'object'
-    throw new ConfigError("Root must be an object (actual type is #{type})")
+  checkSettingType(null, config, null, 'object')
 
-  if 'assets' of config
-    parseAssets('assets', config.assets)
-
-  allowedSettings('root', config, ['assets'])
-
-
-parseAssets = (setting, config) ->
   for own key, value of config
 
     # Validate the name
     if key.match(/[^a-zA-Z0-9]/)
-      throw new ConfigError("Invalid group name '#{key}' in #{setting} (a-z, 0-9 only)")
+      throw new ConfigError("Invalid group name '#{key}' (a-z, 0-9 only)")
 
-    parseAssetGroup("#{setting}.#{key}", value)
+    # Validate the type
+    checkSettingType(null, config, key, 'object')
+
+    parseAssetGroup(key, value)
 
 
 parseAssetGroup = (setting, config) ->
-  requireSetting(setting, config, 'src', 'string')
-  requireSetting(setting, config, 'dest', 'string')
-
-  optionalSetting(setting, config, 'autoprefixer', false, 'boolean')
-  optionalSetting(setting, config, 'bower', 'bower_components/', ['string', false])
-  optionalSetting(setting, config, 'sourcemaps', true, 'boolean')
-  optionalSetting(setting, config, 'warning file', true, 'boolean')
-
   allowedSettings(setting, config, ['src', 'dest', 'autoprefixer', 'bower', 'sourcemaps', 'warning file'])
+
+  requiredSetting(setting, config, 'src', 'string')
+  requiredSetting(setting, config, 'dest', 'string')
+
+  optionalSetting(setting, config, 'autoprefixer', 'boolean', true)
+  optionalSetting(setting, config, 'bower', ['string', false], 'bower_components/')
+  optionalSetting(setting, config, 'sourcemaps', 'boolean', true)
+  optionalSetting(setting, config, 'warning file', 'boolean', true)
