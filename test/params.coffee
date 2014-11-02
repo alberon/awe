@@ -75,10 +75,10 @@ describe 'params.parse()', ->
       module: 'cmd-help'
       args:   ['build']
 
-  it 'should default to global help', ->
+  it 'should default to watch command', ->
     expect(parse()).to.deep.equal
-      name:   'help'
-      module: 'cmd-help'
+      name:   'watch'
+      module: 'cmd-watch'
       args:   []
 
   it 'should throw error on unknown global parameter', ->

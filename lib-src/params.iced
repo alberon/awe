@@ -21,9 +21,9 @@ exports.synonyms = synonyms =
 # parameters that may need to be passed to an external program.
 exports.parse = (args) ->
   command = {
-    name: ''
+    name:   ''
     module: ''
-    args: args
+    args:   args
   }
 
   # This doesn't do much since it'll only ever loop once, but it's here for
@@ -35,28 +35,28 @@ exports.parse = (args) ->
       arg = synonym
 
     if commands[arg]
-      command.name = arg
+      command.name   = arg
       command.module = commands[arg]
 
       # Special case for -h and --help command parameters (with no other
       # parameters), for consistency and to save each command implementing
       # this flag separately
       if _.isEqual(args, ['-h']) || _.isEqual(args, ['--help'])
-        command.name = 'help'
+        command.name   = 'help'
         command.module = commands['help']
-        command.args = [arg]
+        command.args   = [arg]
 
       return command
 
     # Global help flag
     else if arg == '-h' || arg == '--help'
-      command.name = 'help'
+      command.name   = 'help'
       command.module = commands['help']
       return command
 
     # Global version flag
     else if arg == '-v' || arg == '--version'
-      command.name = 'version'
+      command.name   = 'version'
       command.module = commands['version']
       return command
 
@@ -69,6 +69,6 @@ exports.parse = (args) ->
       throw new Error('Unknown command: ' + arg)
 
   # No command given
-  command.name = 'help'
-  command.module = commands['help']
+  command.name   = 'watch'
+  command.module = commands['watch']
   return command
