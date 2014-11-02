@@ -10,14 +10,14 @@ indent_style = space
 insert_final_newline = true
 trim_trailing_whitespace = true
 
-# Removed "/" from all paths because it doesn't seem to be working properly :-S
 # Docs & templates use 4 spaces since that's what we use for most PHP projects
-[docs**.md]
+[*.md]
 indent_size = 4
 
 [*.yaml]
 indent_size = 4
 
 # Markdown files need trailing whitespace to prevent line folding
+# Removed "/" from the path because it doesn't seem to be working properly :-S
 [man-src**.md]
 trim_trailing_whitespace = false
