@@ -99,7 +99,7 @@ class AssetGroup
       fs.realpath(@srcPath, errTo(cb, defer srcRealPath))
 
     # Compile the directory
-    @_buildRegularDirectory(@srcPath, @destPath, [], cb)
+    @_buildRegularDirectory(@srcPath, @destPath, cb)
 
 
   _createSymlink: (target, link, cb) =>
@@ -184,36 +184,24 @@ class AssetGroup
     cb()
 
 
-  _preventLoops: (src, stack, cancel, build) =>
-    await fs.realpath(src, errTo(cancel, defer srcRealPath))
-
-    if srcRealPath in stack
-      file = path.relative(@rootPath, src)
-      output.error(file, '(Symlink)', "Infinite loop detected: '#{src}' points to '#{srcRealPath}'")
-      return cancel()
-
-    stack = stack.concat([srcRealPath])
-    build(stack)
-
-
-  _buildFileOrDirectory: (src, dest, stack, cb) =>
+  _buildFileOrDirectory: (src, dest, cb) =>
     await fs.stat(src, errTo(cb, defer stat))
 
     if stat.isDirectory()
-      @_buildDirectory(src, dest, stack, cb)
+      @_buildDirectory(src, dest, cb)
 
     else
-      await @_compileFile(src, dest, stack, errTo(cb, defer data))
+      await @_compileFile(src, dest, errTo(cb, defer data))
       @_write(data, cb)
 
 
-  _buildDirectory: (src, dest, stack, cb) =>
+  _buildDirectory: (src, dest, cb) =>
     if src[-4..].toLowerCase() == '.css' || src[-3..].toLowerCase() == '.js'
-      await @_compileDirectory(src, dest, stack, errTo(cb, defer data))
+      await @_compileDirectory(src, dest, errTo(cb, defer data))
       @_write(data, cb)
 
     else
-      @_buildRegularDirectory(src, dest, stack, cb)
+      @_buildRegularDirectory(src, dest, cb)
 
 
   _readDirectory: (dir, cb) =>
@@ -231,9 +219,7 @@ class AssetGroup
     cb(null, files)
 
 
-  _buildRegularDirectory: (src, dest, stack, cb) =>
-    await @_preventLoops(src, stack, cb, defer stack)
-
+  _buildRegularDirectory: (src, dest, cb) =>
     # Get a list of files in the source directory
     await @_readDirectory(src, errTo(cb, defer files))
 
@@ -247,7 +233,7 @@ class AssetGroup
       srcFile  = path.join(src, file)
       destFile = path.join(dest, file)
 
-      @_buildFileOrDirectory(srcFile, destFile, stack, cb)
+      @_buildFileOrDirectory(srcFile, destFile, cb)
 
     async.each(files, build, cb)
 
@@ -428,7 +414,7 @@ class AssetGroup
     async.each(files, _.partial(@_copyGeneratedFileOrDirectory, src, dest), cb)
 
 
-  _compileFile: (src, dest, stack, cb) =>
+  _compileFile: (src, dest, cb) =>
     # Compile CoffeeScript
     if src[-7..].toLowerCase() == '.coffee'
       @_compileCoffeeScript(src, dest.replace(/\.coffee$/i, '.js'), cb)
@@ -439,7 +425,7 @@ class AssetGroup
 
     # Import files listed in a YAML file
     else if src[-9..].toLowerCase() == '.css.yaml' || src[-8..].toLowerCase() == '.js.yaml'
-      @_compileYamlImports(src, dest.replace(/\.yaml$/i, ''), stack, cb)
+      @_compileYamlImports(src, dest.replace(/\.yaml$/i, ''), cb)
 
     # Copy CSS and replace URLs
     else if src[-4..].toLowerCase() == '.css'
@@ -505,9 +491,9 @@ class AssetGroup
       @_removeSourceMapComment(data)
 
 
-  _compileMultipleFiles: (files, dest, stack, cb) =>
+  _compileMultipleFiles: (files, dest, cb) =>
     compile = (file, cb) =>
-      await @_compileFileOrDirectory(file, dest, stack, errTo(cb, defer data))
+      await @_compileFileOrDirectory(file, dest, errTo(cb, defer data))
       data.src = file if data
       cb(null, data)
 
@@ -541,18 +527,16 @@ class AssetGroup
     cb(null, content: concat.content, sourcemap: sourcemap, count: count, action: 'compiled', dest: dest)
 
 
-  _compileFileOrDirectory: (src, dest, stack, cb) =>
+  _compileFileOrDirectory: (src, dest, cb) =>
     await fs.stat(src, errTo(cb, defer stat))
 
     if stat.isDirectory()
-      @_compileDirectory(src, dest, stack, cb)
+      @_compileDirectory(src, dest, cb)
     else
-      @_compileFile(src, dest, stack, cb)
+      @_compileFile(src, dest, cb)
 
 
-  _compileDirectory: (src, dest, stack, cb) =>
-    await @_preventLoops(src, stack, cb, defer stack)
-
+  _compileDirectory: (src, dest, cb) =>
     await @_readDirectory(src, errTo(cb, defer files))
 
     # Remove files starting with _
@@ -561,12 +545,12 @@ class AssetGroup
     # Convert to absolute paths
     files = files.map (file) -> path.join(src, file)
 
-    @_compileMultipleFiles(files, dest, stack, cb)
+    @_compileMultipleFiles(files, dest, cb)
 
 
-  _compileYamlImports: (yamlFile, dest, stack, cb) =>
+  _compileYamlImports: (yamlFile, dest, cb) =>
     await yamlMap(yamlFile, @srcPath, @bowerSrc, errTo(cb, defer files))
-    @_compileMultipleFiles(files, dest, stack, cb)
+    @_compileMultipleFiles(files, dest, cb)
 
 
 module.exports = AssetGroup

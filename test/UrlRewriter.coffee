@@ -61,23 +61,8 @@ describe 'UrlRewriter', ->
     expect(rewrite('../sample.gif', params)).to.equal 'sample.gif'
 
 
-  it 'should rewrite paths in symlinked files relative to the original file', ->
-    params =
-      srcFile: path.join(fixtures, 'src', 'symlink', 'sample.css') # Real path is src/sample.css
-      destFile: path.join(fixtures, 'dest', 'symlink', 'sample.css')
-
-    expect(rewrite('sample.gif', params)).to.equal '../sample.gif'
-
-
   it 'should rewrite paths pointing to bower_components/', ->
     expect(rewrite('../bower_components/sample.gif')).to.equal 'bower_components/sample.gif'
-
-
-  it 'should rewrite paths in symlinks to bower_components/', ->
-    params =
-      srcFile: path.join(fixtures, 'src', 'bower.css') # Real path is bower_components/bower.css
-
-    expect(rewrite('sample.gif', params)).to.equal 'bower_components/sample.gif'
 
 
   it 'should throw an error if the target file is outside the src. and Bower directories', ->

@@ -248,55 +248,6 @@ describe 'AssetGroup.build()', ->
 
 
   #----------------------------------------
-  # Symlinks
-  #----------------------------------------
-
-  it 'should convert symlinks to files to regular files', build
-    root: "#{fixtures}/build-symlink-files"
-    files: [
-      'src/file.txt'
-      'src/symlink.txt' # -> file.txt
-    ]
-    tests: ->
-      expect("#{fixtures}/build-symlink-files/build/file.txt").to.be.a.file()
-      expect("#{fixtures}/build-symlink-files/build/file.txt").not.to.be.a.symlink()
-      expect("#{fixtures}/build-symlink-files/build/symlink.txt").to.be.a.file()
-      expect("#{fixtures}/build-symlink-files/build/symlink.txt").not.to.be.a.symlink()
-
-
-  it 'should convert symlinks to directories to regular directories', build
-    root: "#{fixtures}/build-symlink-dirs"
-    files: [
-      'src/orig/file.txt'
-      'src/symlink' # -> orig/
-    ]
-    tests: ->
-      expect("#{fixtures}/build-symlink-dirs/build/orig").to.be.a.directory()
-      expect("#{fixtures}/build-symlink-dirs/build/orig").not.to.be.a.symlink()
-      expect("#{fixtures}/build-symlink-dirs/build/orig/file.txt").to.be.a.file()
-      expect("#{fixtures}/build-symlink-dirs/build/symlink").to.be.a.directory()
-      expect("#{fixtures}/build-symlink-dirs/build/symlink").not.to.be.a.symlink()
-      expect("#{fixtures}/build-symlink-dirs/build/symlink/file.txt").to.be.a.file()
-
-
-  it 'should detect infinite symlink loops and skip them with an error message', build
-    root: "#{fixtures}/build-symlink-loop"
-    files: [
-      'src/a/b' # -> b
-      'src/b/a' # -> a
-      'src/subdir/file.txt'
-      'src/subdir/symlink' # -> subdir/
-      'src/symlink' # -> ./
-    ]
-    errors: 4
-    tests: ->
-      expect("#{fixtures}/build-symlink-loop/build/symlink").not.to.be.a.path()
-      expect("#{fixtures}/build-symlink-loop/build/subdir").to.be.a.directory()
-      expect("#{fixtures}/build-symlink-loop/build/subdir/file.txt").to.be.a.file()
-      expect("#{fixtures}/build-symlink-loop/build/subdir/symlink").not.to.be.a.path()
-
-
-  #----------------------------------------
   # Combine directories
   #----------------------------------------
 
@@ -345,24 +296,6 @@ describe 'AssetGroup.build()', ->
     tests: ->
       expect("#{fixtures}/build-combine-other/build/combine.other").to.be.a.directory()
       expect("#{fixtures}/build-combine-other/build/combine.other/sample.txt").to.be.a.file()
-
-
-  it 'should detect infinite symlink loops in combined directories and skip them with an error message', build
-    root: "#{fixtures}/build-combine-loop"
-    files: [
-      'src/combine.css/a/b' # -> combine.css/b
-      'src/combine.css/b/a' # -> combine.css/a
-      'src/combine.css/subdir/file.css'
-      'src/combine.css/subdir/symlink' # -> combine.css/subdir/
-      'src/combine.css/symlink' # -> combine.css/
-    ]
-    errors: 4
-    tests: ->
-      expect("#{fixtures}/build-combine-loop/build/combine.css").to.have.content """
-        body {
-          color: red;
-        }\n
-      """
 
 
   #----------------------------------------
@@ -581,38 +514,6 @@ describe 'AssetGroup.build()', ->
   #----------------------------------------
   # For full tests see UrlRewriter.coffee - this just checks they are applied correctly
 
-  it 'should rewrite relative URLs in symlinked files', build
-    root: "#{fixtures}/build-rewrite-symlink"
-    files: [
-      'src/sample.gif'
-      'src/target.css'
-      'src/subdir/local-symlink.css'
-    ]
-    tests: ->
-      expect("#{fixtures}/build-rewrite-symlink/build/subdir/local-symlink.css").to.have.content """
-        body {
-          background: url(../sample.gif);
-        }\n
-      """
-
-
-  it 'should rewrite relative URLs in Bower symlinked files', build
-    root: "#{fixtures}/build-rewrite-bower"
-    config:
-      bower: 'bower_components/'
-    files: [
-      'bower_components/sample.gif'
-      'bower_components/target.css'
-      'src/subdir/bower-symlink.css'
-    ]
-    tests: ->
-      expect("#{fixtures}/build-rewrite-bower/build/subdir/bower-symlink.css").to.have.content """
-        body {
-          background: url(../_bower/sample.gif);
-        }\n
-      """
-
-
   it 'should rewrite relative URLs in directory-combined CSS files', build
     root: "#{fixtures}/build-rewrite-combined"
     config:
@@ -629,6 +530,23 @@ describe 'AssetGroup.build()', ->
         }
         .bower {
           background: url(_bower/sample.gif);
+        }\n
+      """
+
+
+  it 'should rewrite relative URLs to Bower files', build
+    root: "#{fixtures}/build-rewrite-bower"
+    config:
+      bower: 'bower_components/'
+    files: [
+      'bower_components/sample.gif'
+      'bower_components/target.css'
+      'src/subdir/bower.css.yaml'
+    ]
+    tests: ->
+      expect("#{fixtures}/build-rewrite-bower/build/subdir/bower.css").to.have.content """
+        body {
+          background: url(../_bower/sample.gif);
         }\n
       """
 
@@ -714,40 +632,6 @@ describe 'AssetGroup.build()', ->
           "mappings": "AAAA;AAAA,EAAA,OAAO,CAAC,GAAR,CAAY,gBAAZ,CAAA,CAAA;;AAAA,EACA,OAAO,CAAC,GAAR,CAAY,gBAAZ,CADA,CAAA;;AAAA,EAEA,OAAO,CAAC,GAAR,CAAY,gBAAZ,CAFA,CAAA;AAAA",
           "sourcesContent": [
             "console.log 'CoffeeScript 1'\\nconsole.log 'CoffeeScript 2'\\nconsole.log 'CoffeeScript 3'\\n"
-          ]
-        }
-      """
-
-
-  it 'should create sourcemaps for CSS with URL rewriter', build
-    root: "#{fixtures}/build-sourcemap-css"
-    config:
-      sourcemaps: true
-    files: [
-      'src/sample.gif'
-      'src/target.css'
-      'src/subdir/local-symlink.css'
-    ]
-    tests: ->
-      expect("#{fixtures}/build-sourcemap-css/build/subdir/local-symlink.css").to.have.content """
-        body {
-          background: url(../sample.gif);
-        }
-
-        /*# sourceMappingURL=local-symlink.css.map */\n
-      """
-      expect("#{fixtures}/build-sourcemap-css/build/subdir/local-symlink.css.map").to.have.content """
-        {
-          "version": 3,
-          "sources": [
-            "subdir/local-symlink.css"
-          ],
-          "names": [],
-          "mappings": "AAAA;EACE,gCAA4B;EAC7B",
-          "file": "local-symlink.css",
-          "sourceRoot": "../../src",
-          "sourcesContent": [
-            "body {\\n  background: url(sample.gif);\\n}\\n"
           ]
         }
       """

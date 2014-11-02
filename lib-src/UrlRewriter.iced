@@ -5,27 +5,24 @@ S    = require('string')
 
 # This class is responsible for converting relative URLs in CSS source files to
 # the equivalent relative URL in the destination file, taking into account
-# combined files, symlinks and Bower. It is NOT responsible for parsing the CSS.
-# It is a class because we expect there to be more than one URL to rewrite in
-# each file, and this way we only have to resolve and validate the file paths
-# once per file. It could potentially be improved by making it reusable across
-# multiple files, since the root, srcDir and destDir don't vary.
+# combined files and Bower. It is NOT responsible for parsing the CSS. It is a
+# class because we expect there to be more than one URL to rewrite in each file,
+# and this way we only have to resolve and validate the file paths once per
+# file. It could potentially be improved by making it reusable across multiple
+# files, since the root, srcDir and destDir don't vary.
 class UrlRewriter
 
   constructor: (params) ->
 
-    # Resolve any symlinks in the source files
-    @root    = fs.realpathSync(params.root)
-    @srcDir  = fs.realpathSync(params.srcDir)
-    @srcFile = fs.realpathSync(params.srcFile)
-
-    # Destination files may not exist yet, but we don't care anyway
-    @destDir  = params.destDir
-    @destFile = params.destFile
+    @root     = S(params.root).chompRight('/').s
+    @srcDir   = S(params.srcDir).chompRight('/').s
+    @srcFile  = S(params.srcFile).chompRight('/').s
+    @destDir  = S(params.destDir).chompRight('/').s
+    @destFile = S(params.destFile).chompRight('/').s
 
     # Bower is optional
     if params.bowerSrc and params.bowerDest
-      @bowerSrc  = fs.realpathSync(params.bowerSrc)
+      @bowerSrc  = S(params.bowerSrc).chompRight('/').s
       @bowerDest = params.bowerDest
     else
       @bowerSrc  = false
@@ -43,10 +40,7 @@ class UrlRewriter
       else
         bowerMsg = ''
 
-      if @srcFile == params.srcFile
-        throw new Error("UrlRewriter: Source file '#{@srcFile}' is not in source directory '#{@srcDir}'" + bowerMsg)
-      else
-        throw new Error("Source file '#{params.srcFile}' resolves to '#{@srcFile}' which is not in source directory '#{@srcDir}'" + bowerMsg)
+      throw new Error("UrlRewriter: Source file '#{@srcFile}' is not in source directory '#{@srcDir}'" + bowerMsg)
 
     if @destFile.indexOf(@destDir) != 0
       throw new Error("UrlRewriter: Destination file '#{@destFile}' is not in destination directory '#{@destDir}'")
@@ -73,14 +67,9 @@ class UrlRewriter
     # Find the destination file
     file = path.resolve(path.dirname(@srcFile), file)
 
-    # Resolve any symlinks, which helpfully also ensures the file exists
-    try
-      file = fs.realpathSync(file)
-    catch e
-      if e.code == 'ENOENT'
-        throw new Error("Invalid file path: '#{url}' in '#{@_stripRoot(@srcFile)}' (resolves to '#{@_stripRoot(file)}' which was not found)")
-      else
-        throw e
+    # Check the file exists
+    if !fs.existsSync(file)
+      throw new Error("Invalid file path: '#{url}' in '#{@_stripRoot(@srcFile)}' (resolves to '#{@_stripRoot(file)}' which was not found)")
 
     # Replace the source directory prefix with the destination directory
     if S(file).startsWith(@srcDir)
