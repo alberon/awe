@@ -416,6 +416,14 @@ describe 'AssetGroup.build()', ->
       """
 
 
+  it 'should show an error if a file cannot be found', build
+    root: "#{fixtures}/build-yaml-missing"
+    files: [
+      'src/import-error.js.yaml'
+    ]
+    errors: 1
+
+
   #----------------------------------------
   # Autoprefixer
   #----------------------------------------

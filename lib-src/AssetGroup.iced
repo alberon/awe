@@ -550,7 +550,17 @@ class AssetGroup
 
   _compileYamlImports: (yamlFile, dest, cb) =>
     await yamlMap(yamlFile, @srcPath, @bowerSrc, errTo(cb, defer files))
-    @_compileMultipleFiles(files, dest, cb)
+
+    await @_compileMultipleFiles(files, dest, defer(err, data))
+
+    if !err
+      cb(null, data)
+    else if err.code == 'ENOENT'
+      file = path.relative(@srcPath, yamlFile)
+      output.error(file, '(YAML import map)', 'File not found: ' + err.path)
+      cb()
+    else
+      cb(err)
 
 
 module.exports = AssetGroup
