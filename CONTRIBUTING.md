@@ -168,6 +168,27 @@ When you run `grunt watch`, every time you modify a source file (`lib-src/*.iced
 
 ## Writing documentation
 
+### Installing Sphinx
+
+Install virtualenvwrapper:
+
+```bash
+$ sudo pip install virtualenvwrapper
+$ echo '[ -f /usr/local/bin/virtualenvwrapper_lazy.sh ] && source /usr/local/bin/virtualenvwrapper_lazy.sh' >> ~/.bashrc
+$ source /usr/local/bin/virtualenvwrapper_lazy.sh
+```
+
+Create & switch to that environment:
+
+```bash
+$ mkvirtualenv awe
+$ workon awe
+$ pip install -r requirements.txt
+```
+
+
+## Writing Markdown files
+
 The documentation is written in [GitHub Flavored Markdown](https://help.github.com/articles/github-flavored-markdown), designed to be viewed directly in the GitHub interface. This makes it easy to find the documentation for the currently installed version, or any other version, simply by switching branches/tags.
 
 ### Conventions

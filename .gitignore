@@ -4,6 +4,9 @@
 # Compiled man pages (run `grunt build` or `grunt man`)
 /man/
 
+# Compiled documentation (run `grunt build` or `grunt docs`)
+/build/docs/
+
 # Output from test scripts (run `grunt test`) and sample builds
 /fixtures/*/build/
 /sample/*/build/

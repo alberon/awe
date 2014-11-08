@@ -6,13 +6,19 @@ module.exports = (grunt) ->
 
     pkg: grunt.file.readJSON('package.json')
 
-    # Update Ruby gems
     shell:
+
+      # Update Ruby gems
       bundle:
         command: 'bundle install --path=ruby_bundle --binstubs=ruby_bundle/bin --no-deployment --without=production && bundle update'
 
+      # Build documentation
+      docs:
+        command: 'sphinx-build -b html docs build/docs/html'
+
     # Delete files
     clean:
+      docs: 'build/docs/'
       lib: 'lib/'
       man: 'man/'
 
@@ -82,6 +88,12 @@ module.exports = (grunt) ->
         files: 'Gruntfile.coffee'
         tasks: ['clear', 'build']
 
+      # Build docs/
+      docs:
+        files: 'docs/**'
+        # Skip clean:docs because I have issues with Chrome not refreshing properly
+        tasks: ['clear', 'shell:docs']
+
       # Build lib/
       lib:
         files: 'lib-src/**/*.iced'
@@ -99,8 +111,9 @@ module.exports = (grunt) ->
 
   # Register tasks
   grunt.registerTask('default', 'Rebuild everything and watch for changes', ['watch'])
-  grunt.registerTask('build', 'Rebuild everything', ['lib', 'man'])
+  grunt.registerTask('build', 'Rebuild everything', ['docs', 'lib', 'man'])
   grunt.registerTask('bundle', 'Update Ruby gems', ['shell:bundle'])
+  grunt.registerTask('docs', 'Rebuild build/docs/ from docs/', ['clean:docs', 'shell:docs'])
   grunt.registerTask('lib', 'Rebuild lib/ from lib-src/', ['clean:lib', 'coffee:lib'])
   grunt.registerTask('man', 'Rebuild man/ from man-src/', ['clean:man', 'markedman:man'])
 
