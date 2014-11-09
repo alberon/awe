@@ -26,8 +26,7 @@ describe 'config.data', ->
   it 'should contain the parsed, normalised config data', ->
     expect(config.data).to.deep.equal
       assets:
-        theme:
-          src: 'assets/src/'
-          dest: 'assets/build/'
+        src: 'assets/src/'
+        dest: 'assets/build/'
 
       normalised: true
