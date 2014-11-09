@@ -94,7 +94,7 @@ module.exports = (grunt) ->
 
       # Build docs/
       docs:
-        files: 'docs/**/*.rst'
+        files: 'docs/*'
         # Skip clean:docs because I have issues with Chrome not refreshing properly
         tasks: ['clear', 'shell:docs']
 

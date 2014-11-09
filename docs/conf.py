@@ -70,7 +70,7 @@ with open('../package.json') as json_file:
 # non-false value, then it is used:
 #today = ''
 # Else, today_fmt is used as the format for a strftime call.
-#today_fmt = '%B %d, %Y'
+today_fmt = '%-d %B %Y'
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
@@ -275,6 +275,8 @@ texinfo_documents = [
 #texinfo_no_detailmenu = False
 
 
+# -- Custom options -------------------------------------------------------
+
 # Read The Docs theme
 # http://read-the-docs.readthedocs.org/en/latest/theme.html
 if os.environ.get('READTHEDOCS', None) != 'True':
@@ -287,6 +289,3 @@ highlight_language = 'none'
 
 # Show TODO items
 todo_include_todos = True
-
-# Date format
-today_fmt = '%-d %B %Y'
