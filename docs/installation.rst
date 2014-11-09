@@ -7,8 +7,8 @@
     .. contents::
        :local:
 
-.. note::
-   :class: wy-alert-success
+.. admonition:: Alberon Note
+   :class: note wy-alert-success
 
    If you are using Jericho (Alberon's shared development server) you can skip to :doc:`setup`.
 

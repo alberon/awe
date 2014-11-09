@@ -237,7 +237,8 @@ Then in future sessions switch to that environment before running ``grunt``:
 ------------------
 
 - `reStructuredText quick reference <http://docutils.sourceforge.net/docs/user/rst/quickref.html>`_
-- `Paragraph-level markup <http://sphinx-doc.org/markup/para.html>`_ (``note::``, ``warning::``, etc.)
+- `Paragraph-level markup <http://sphinx-doc.org/markup/para.html>`_ (``versionadded::``, ``deprecated::``, etc.)
+- `Admonitions list <http://docutils.sourceforge.net/docs/ref/rst/directives.html#admonitions>`_ (``note::``, ``warning::``, etc.)
 - `Code examples markups <http://sphinx-doc.org/markup/code.html>`_ (``code-block::``)
 - `Inline markup <http://sphinx-doc.org/markup/inline.html>`_ (``:ref:``, ``:doc:``, etc.)
 - `TOC tree <http://sphinx-doc.org/markup/toctree.html>`_ (``:toctree:``)
