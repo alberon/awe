@@ -229,7 +229,7 @@ latex_documents = [
 latex_show_pagerefs = True
 
 # If true, show URL addresses after external links.
-#latex_show_urls = False
+latex_show_urls = 'footnote'
 
 # Documents to append as an appendix to all manuals.
 #latex_appendices = []
@@ -287,3 +287,6 @@ highlight_language = 'none'
 
 # Show TODO items
 todo_include_todos = True
+
+# Date format
+today_fmt = '%-d %B %Y'
