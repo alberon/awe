@@ -277,15 +277,17 @@ texinfo_documents = [
 
 # -- Custom options -------------------------------------------------------
 
-# Read The Docs theme
-# http://read-the-docs.readthedocs.org/en/latest/theme.html
+# Default to plain text blocks
+highlight_language = 'none'
+
+# Only when run locally (not on Read The Docs):
 if os.environ.get('READTHEDOCS', None) != 'True':
+
+    # Read The Docs theme
+    # http://read-the-docs.readthedocs.org/en/latest/theme.html
     import sphinx_rtd_theme
     html_theme = 'sphinx_rtd_theme'
     html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 
-# Default to plain text blocks
-highlight_language = 'none'
-
-# Show TODO items
-todo_include_todos = True
+    # Show TODO items
+    todo_include_todos = True
