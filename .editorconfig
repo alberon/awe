@@ -9,10 +9,3 @@ indent_size = 2
 indent_style = space
 insert_final_newline = true
 trim_trailing_whitespace = true
-
-# Docs & templates use 4 spaces since that's what we use for most PHP projects
-[*.md]
-indent_size = 4
-
-[*.yaml]
-indent_size = 4

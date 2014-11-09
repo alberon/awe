@@ -1,0 +1,3 @@
+# Templates use 4 spaces since that's what we use for most PHP projects
+[*]
+indent_size = 4

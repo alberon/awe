@@ -1,6 +1,10 @@
-########
- Assets
-########
+################
+ Asset building
+################
+
+.. contents::
+   :local:
+
 
 =================
  Getting started
@@ -26,7 +30,7 @@ Next, add the following to the ``awe.yaml`` configuration file, altering the pat
 
 .. code-block:: yaml
 
-    assets:
+    theme:
         src:  www/wp-content/themes/mytheme/src/
         dest: www/wp-content/themes/mytheme/build/
 
@@ -47,26 +51,21 @@ All your source files should go into the ``src/`` directory you created above. F
         ├── A.css
         └── B.js
 
-.. index::
-   single: awe build (command)
-   single: build (command)
----------------------------
- Run the ``build`` command
----------------------------
+-----------------------
+ Run the build command
+-----------------------
 
-Finally, run this command to generate the ``build/`` directory:
+Finally, run the ``build`` command to generate the ``build/`` directory:
 
 .. code-block:: bash
 
     $ awe build
 
-Or run this command to generate it and then wait for further changes:
+Or run the ``watch`` command to generate it and then wait for further changes:
 
 .. code-block:: bash
 
     $ awe watch
-
-(Watch is the default command so you can also just run ``awe`` on its own.)
 
 Since there are no special files in the list above, you will get exactly the same structure::
 
@@ -80,6 +79,7 @@ Since there are no special files in the list above, you will get exactly the sam
         └── B.js
 
 However, read on to see what Awe can do!
+
 
 ==============
  CoffeeScript
@@ -99,6 +99,7 @@ Would result in this output::
     └── subdirectory/
         └── A.js
 
+
 ======
  Sass
 ======
@@ -117,9 +118,9 @@ Would result in this output::
     └── subdirectory/
         └── A.css
 
-===============
- Ignored files
-===============
+--------------------------
+ Ignored files (partials)
+--------------------------
 
 Sass has the ability to ``@import`` other files (`partials <http://sass-lang.com/guide#topic-4>`_). Typically you do not want these to be compiled into their own CSS files. Awe ignores *all* files and directories that start with an underscore (``_``), so all you need to do is follow this convention. For example::
 
@@ -135,6 +136,7 @@ Will result in this output::
     └── styles.css
 
 **Note:** This also applies to other file types - use an underscore for any files and directories you want Awe to ignore.
+
 
 =========
  Compass
@@ -169,12 +171,15 @@ This is compiled to:
 
 You may need to be aware of the following configuration options that Awe uses:
 
-- ``images_path`` is set to ``<src dir>/img/`` - this is used by `image-url()`_ , `inline-image()`_ and related functions
-- ``fonts_path`` is set to ``<src dir>/fonts/`` - this is used by [``font-url()``](http://compass-style.org/reference/compass/helpers/urls/), [``inline-font-files()``](http://compass-style.org/reference/compass/helpers/inline-data/) and related functions
-- ``sprite_load_path`` is set to ``[<src dir>/img/, <src dir>/_sprites/]`` - this is used for [sprite generation](#sprites)
+- ``images_path = 'src/img/'`` (used by `image-url()`_, `inline-image()`_ and related functions)
+- ``fonts_path = 'src/fonts/'`` (used by `font-url()`_, `inline-font-files()`_ and related functions)
+- ``sprite_load_path = ['src/img/', 'src/_sprites/']`` (used for `sprite generation <#sprites>`_)
 
-.. _image-url(): http://compass-style.org/reference/compass/helpers/urls/#image-url
-.. _inline-image(): http://compass-style.org/reference/compass/helpers/inline-data/#inline-image
+.. _image-url():         http://compass-style.org/reference/compass/helpers/urls/#image-url
+.. _inline-image():      http://compass-style.org/reference/compass/helpers/inline-data/#inline-image
+.. _font-url():          http://compass-style.org/reference/compass/helpers/urls/#font-url
+.. _inline-font-files(): http://compass-style.org/reference/compass/helpers/inline-data/#inline-font-files
+
 
 =========
  Sprites
@@ -223,7 +228,38 @@ And the following classes will appear in the output file, ready for you to use i
     .navbar-save         { ... }
     .navbar-save:hover   { ... }
 
-For further details (and more complex scenarios), please see the Compass [spriting documentation](http://compass-style.org/help/tutorials/spriting/). However, be aware that the Compass documentation refers to ``images/``, whereas Awe uses either ``_sprites/`` or ``img/``.
+-------------------
+ Advanced spriting
+-------------------
+
+If you require more control over the classes that are generated, there are several other ways to create them. For example:
+
+.. code-block:: scss
+
+    @import 'compass/utilities/sprites';
+
+    $navbar-map: sprite-map('navbar/*.png');
+
+    .navbar {
+        background: $navbar-map;
+    }
+
+    @each $sprite in sprite-names($navbar-map) {
+        .navbar-#{$sprite} {
+            @include sprite($navbar-map, $sprite, true);
+        }
+    }
+
+For more details, please see the Compass `spriting documentation`_, `options`_ and `mixins`_.
+
+.. _spriting documentation: http://compass-style.org/help/tutorials/spriting/
+.. _options:                http://compass-style.org/help/tutorials/spriting/customization-options/
+.. _mixins:                 http://compass-style.org/reference/compass/utilities/sprites/base/
+
+.. highlights::
+
+    **Note:** The Compass documentation uses ``images/`` as the base directory, whereas Awe uses ``_sprites/`` (or ``img/``).
+
 
 =================
  Combining files
@@ -231,17 +267,17 @@ For further details (and more complex scenarios), please see the Compass [spriti
 
 Awe can automatically combine multiple CSS/JavaScript files into a single file, allowing you to split the source files up neatly while reducing the number of downloads for end users.
 
-Awe does this based on the directory structure, not with a config file, to make it really easy to understand and maintain the source files. Simply create a directory with a name that ends ``.css`` or ``.js`` and all the files within that directory will be concatenated (in alphabetical order) into a single output file. For example::
+Simply create a directory with a name that ends ``.css`` or ``.js`` and all the files within that directory will be concatenated (in alphabetical/numerical order) into a single output file. For example::
 
     src/
     └── combined.css/
         ├── 1.css
-        ├── 2.scss
-        └── 3/
-            ├── A.css
-            └── B.scss
+        ├── 2/
+        │   ├── A.css
+        │   └── B.scss
+        └── 3.scss
 
-First the ``.scss`` files will be compiled to CSS, then all 4 files will be combined (in the order ``1.css``, ``2.scss``, ``3/A.css``, ``3/B.scss``) into a single ``combined.css`` file::
+First the ``.scss`` files will be compiled to CSS, then all 4 files will be combined (in the order ``1.css``, ``2/A.css``, ``2/B.scss``, ``3.scss``) into a single ``combined.css`` file::
 
     build/
     └── combined.css
@@ -249,6 +285,7 @@ First the ``.scss`` files will be compiled to CSS, then all 4 files will be comb
 Simple as that!
 
 **Note:** It is best to avoid mixing subdirectories and files, as some programs display all subdirectories first which may be confusing. If you do mix them, it's best to number them all to make it clear what order they are loaded in (e.g. ``1-subdirectory/``, ``2-file.js``, ``3-another-directory/``).
+
 
 ==============
  Import files
@@ -275,18 +312,19 @@ Will compile to::
     build/
     └── vendor.js
 
-When importing files from Bower ([see below](#using-bower)) you can prefix the filename with ``bower:`` instead of providing a relative path:
+To import files from Bower (`see below <#using-bower>`_), simply prefix the filename with ``bower:``:
 
 .. code-block:: yaml
 
     - bower: jquery/jquery.js
     - bower: jquery-ui/ui/jquery-ui.js
 
+
 =============
  Using Bower
 =============
 
-[Bower](http://bower.io/) is a package manager for third-party assets. It makes it easier to install and upgrade frontend dependencies such as jQuery and Bootstrap.
+`Bower <http://bower.io/>`_ is a package manager for third-party assets. It makes it easier to install and upgrade frontend dependencies such as jQuery and Bootstrap.
 
 ---------------------
  Installing packages
@@ -301,13 +339,13 @@ Install the packages you need using Bower as normal - for example:
 
 This will create ``bower_components/`` directory in the project root (same directory as ``awe.yaml``) containing the package and any dependencies.
 
-For more details, please see the [Bower documentation](http://bower.io/).
+For more details, please see the `Bower documentation <http://bower.io/>`_.
 
 ---------------------------
  Import the files you need
 ---------------------------
 
-Create a ``.js.yaml`` or ``.css.yaml`` [import file](#import-files) (e.g. ``src/jquery.js.yaml``), for example:
+Create a ``.js.yaml`` or ``.css.yaml`` `import file <#import-files>`_ (e.g. ``src/jquery.js.yaml``), for example:
 
 .. code-block:: yaml
 
