@@ -2,8 +2,10 @@
  Asset building
 ################
 
-.. contents::
-   :local:
+.. only:: html
+
+    .. contents::
+       :local:
 
 
 =================

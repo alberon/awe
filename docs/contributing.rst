@@ -2,8 +2,10 @@
  Contributing
 ##############
 
-.. contents::
-   :local:
+.. only:: html
+
+    .. contents::
+       :local:
 
 
 To submit an improvement to the documentation, simply edit the file using `GitHub <https://github.com/davejamesmiller/awe>`_. This will automatically be turned into a pull request.
@@ -21,7 +23,7 @@ If you want to submit a new feature, you may want to open an `issue <https://git
  Check system requirements
 ---------------------------
 
-First make sure your system meets the `system requirements <installing#system-requirements>`_.
+First make sure your system meets the :ref:`system requirements <requirements>`.
 
 ----------------------
  Download source code
@@ -202,6 +204,12 @@ When you run ``grunt watch``, every time you modify a source file (``lib-src/*.i
  Installing Sphinx
 -------------------
 
+Install LaTeX:
+
+.. code-block:: bash
+
+    $ sudo apt-get install texlive-full
+
 Install virtualenvwrapper:
 
 .. code-block:: bash
@@ -234,6 +242,7 @@ Then in future sessions switch to that environment before running ``grunt``:
 - `Inline markup <http://sphinx-doc.org/markup/inline.html>`_ (``:ref:``, ``:doc:``, etc.)
 - `TOC tree <http://sphinx-doc.org/markup/toctree.html>`_ (``:toctree:``)
 - `Wyrm CSS classes <http://wyrmsass.org/section-4.html>`_
+
 
 ========================
  Writing Markdown files
@@ -321,7 +330,7 @@ Then open ``http://<hostname>:5001/`` in your web browser instead.
 - Run ``git pull`` to ensure all changes are merged
 - Test with ``grunt test``
 - Check the documentation is up-to-date
-- Update the changelog
+- Update the :doc:`changelog`
 
 ---------
  Release

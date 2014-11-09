@@ -16,6 +16,9 @@ module.exports = (grunt) ->
       docs:
         command: 'sphinx-build -b html docs build/docs/html'
 
+      pdfdocs:
+        command: 'sphinx-build -b latex docs build/docs/pdf && make -C build/docs/pdf all-pdf'
+
     # Delete files
     clean:
       docs: 'build/docs/'
@@ -116,6 +119,7 @@ module.exports = (grunt) ->
   grunt.registerTask('docs', 'Rebuild build/docs/ from docs/', ['clean:docs', 'shell:docs'])
   grunt.registerTask('lib', 'Rebuild lib/ from lib-src/', ['clean:lib', 'coffee:lib'])
   grunt.registerTask('man', 'Rebuild man/ from man-src/', ['clean:man', 'markedman:man'])
+  grunt.registerTask('pdfdocs', 'Rebuild build/docs/ from docs/ inc. PDF version', ['clean:docs', 'shell:docs', 'shell:pdfdocs'])
 
   grunt.registerTask 'test', 'Run unit tests (all tests or specified test suite)', (suite) ->
     if suite

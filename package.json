@@ -3,7 +3,7 @@
   "version": "0.0.5",
   "description": "Simplifies the building and maintenance of websites / web apps, by handling the compilation & minification of assets, and deployment to remote servers",
   "license": "MIT",
-  "homepage": "https://github.com/davejamesmiller/awe",
+  "homepage": "http://awe.alberon.co.uk/",
   "bugs": "https://github.com/davejamesmiller/awe/issues",
   "repository": {
     "type": "git",

@@ -2,8 +2,10 @@
  Quick reference
 #################
 
-.. contents::
-   :local:
+.. only:: html
+
+    .. contents::
+       :local:
 
 
 ==================================

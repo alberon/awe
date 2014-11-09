@@ -189,14 +189,24 @@ htmlhelp_basename = 'Awedoc'
 # -- Options for LaTeX output ---------------------------------------------
 
 latex_elements = {
-# The paper size ('letterpaper' or 'a4paper').
-#'papersize': 'letterpaper',
+    # The paper size ('letterpaper' or 'a4paper').
+    #'papersize': 'letterpaper',
 
-# The font size ('10pt', '11pt' or '12pt').
-#'pointsize': '10pt',
+    # The font size ('10pt', '11pt' or '12pt').
+    #'pointsize': '10pt',
 
-# Additional stuff for the LaTeX preamble.
-#'preamble': '',
+    # Additional stuff for the LaTeX preamble.
+    'preamble': '\n'.join((
+        # Fix the unicode characters in the file tree diagrams
+        r'\DeclareUnicodeCharacter{251C}{+}',  # BOX DRAWINGS LIGHT VERTICAL AND RIGHT
+        r'\DeclareUnicodeCharacter{2514}{+}',  # BOX DRAWINGS LIGHT UP AND RIGHT
+        r'\DeclareUnicodeCharacter{00A0}{ }',  # NO-BREAK SPACE
+
+        # Fix "! Undefined control sequence. <argument> \node@class@name" error when using ".. role"
+        # Based on https://bitbucket.org/birkenfeld/sphinx/issue/1564/custom-roles-are-not-properly-translated
+        # (I couldn't get the patches suggested in that issue to work either!)
+        r'\renewcommand{\DUspan}[2]{#2}',
+    )),
 }
 
 # Grouping the document tree into LaTeX files. List of tuples
@@ -216,10 +226,10 @@ latex_documents = [
 #latex_use_parts = False
 
 # If true, show page references after internal links.
-#latex_show_pagerefs = False
+latex_show_pagerefs = True
 
 # If true, show URL addresses after external links.
-#latex_show_urls = False
+latex_show_urls = True
 
 # Documents to append as an appendix to all manuals.
 #latex_appendices = []

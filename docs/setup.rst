@@ -2,8 +2,10 @@
  Project setup
 ###############
 
-.. contents::
-   :local:
+.. only:: html
+
+    .. contents::
+       :local:
 
 
 =====================

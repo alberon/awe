@@ -2,13 +2,17 @@
  Installation
 ##############
 
-.. contents::
-   :local:
+.. only:: html
+
+    .. contents::
+       :local:
 
 .. note::
    :class: wy-alert-success
 
    If you are using Jericho (Alberon's shared development server) you can skip to :doc:`setup`.
+
+.. _requirements:
 
 =====================
  System requirements
@@ -124,14 +128,14 @@ To install a specific version, use the ``awe@<version>`` syntax of npm, for exam
 
     $ sudo npm install -g awe@1.0.0
 
-To see a list of all available versions, see the `changelog <changelog>`_.
+To see a list of all available versions, see the :doc:`changelog`.
 
 
 ===========
  Upgrading
 ===========
 
-Because Awe is installed globally, you only need to upgrade it once per machine, not separately for each project. Every effort will be made to ensure backwards compatibility, though you should check the `changelog <changelog>`_ to see what has changed.
+Because Awe is installed globally, you only need to upgrade it once per machine, not separately for each project. Every effort will be made to ensure backwards compatibility, though you should check the :doc:`changelog` to see what has changed.
 
 ----------------------
  Checking for updates
