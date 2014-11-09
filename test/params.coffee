@@ -1,5 +1,5 @@
 expect = require('chai').expect
-params = require('../lib/params')
+params = require('../lib-build/params')
 
 describe 'params.commands ', ->
 

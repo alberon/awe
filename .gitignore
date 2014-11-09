@@ -1,11 +1,12 @@
 # Compiled JavaScript (run `grunt build` or `grunt lib`)
-/lib/
+/lib-build/
 
 # Compiled man pages (run `grunt build` or `grunt man`)
-/man/
+/man-build/
 
-# Compiled documentation (run `grunt build` or `grunt docs`)
-/build/docs/
+# Compiled documentation (run `grunt build` or `grunt docs` for HTML; `grunt pdfdocs` for PDF)
+/docs-html/
+/docs-pdf/
 
 # Output from test scripts (run `grunt test`) and sample builds
 /fixtures/*/build/

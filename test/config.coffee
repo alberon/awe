@@ -1,4 +1,4 @@
-config = require('../lib/config')
+config = require('../lib-build/config')
 expect = require('chai').expect
 path   = require('path')
 

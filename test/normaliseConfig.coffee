@@ -1,7 +1,7 @@
 expect          = require('chai').expect
-config          = require('../lib/config')
-ConfigError     = require('../lib/errors').ConfigError
-normaliseConfig = require('../lib/normaliseConfig')
+config          = require('../lib-build/config')
+ConfigError     = require('../lib-build/errors').ConfigError
+normaliseConfig = require('../lib-build/normaliseConfig')
 
 
 expectConfigError = (error, config) ->

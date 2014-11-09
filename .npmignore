@@ -1,6 +1,11 @@
 # Source files
-/lib-src/
-/man-src/
+/docs/
+/lib/
+/man/
+
+# Documentation
+/docs-html/
+/docs-pdf/
 
 # Test scripts, fixtures and sample files
 /fixtures/
@@ -12,9 +17,9 @@
 /ruby_bundle/
 
 # Editor files
-/.editorconfig
+.editorconfig
 /*.sublime-project
 /*.sublime-workspace
 
 # Grunt
-Gruntfile.coffee
+/Gruntfile.coffee

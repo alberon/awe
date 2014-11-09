@@ -1,8 +1,8 @@
 _          = require('lodash')
-AssetGroup = require('../lib/AssetGroup')
+AssetGroup = require('../lib-build/AssetGroup')
 expect     = require('chai').use(require('chai-fs')).expect
 fs         = require('fs')
-output     = require('../lib/output')
+output     = require('../lib-build/output')
 path       = require('path')
 rmdir      = require('rimraf').sync
 

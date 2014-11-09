@@ -4,10 +4,10 @@
   "description": "Simplifies the building and maintenance of websites / web apps, by handling the compilation & minification of assets, and deployment to remote servers",
   "license": "MIT",
   "homepage": "http://awe.alberon.co.uk/",
-  "bugs": "https://github.com/davejamesmiller/awe/issues",
+  "bugs": "https://github.com/alberon/awe/issues",
   "repository": {
     "type": "git",
-    "url": "http://github.com/davejamesmiller/awe.git"
+    "url": "http://github.com/alberon/awe.git"
   },
   "author": {
     "name": "Dave James Miller",
@@ -16,13 +16,13 @@
   },
   "preferGlobal": true,
   "directories": {
-    "bin": "./bin",
-    "lib": "./lib",
-    "man": "./man"
+    "bin": "bin",
+    "lib": "lib-build",
+    "man": "man-build"
   },
   "scripts": {
     "test": "grunt test",
-    "prepublish": "grunt build test",
+    "prepublish": "grunt prepublish",
     "install": "bundle install --path=ruby_bundle --binstubs=ruby_bundle/bin --deployment --without=development"
   },
   "engines": {

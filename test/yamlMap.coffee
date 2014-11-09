@@ -1,6 +1,6 @@
 expect  = require('chai').expect
 path    = require('path')
-yamlMap = require('../lib/yamlMap')
+yamlMap = require('../lib-build/yamlMap')
 
 
 normalise = (config) ->

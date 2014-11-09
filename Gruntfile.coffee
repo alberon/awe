@@ -14,16 +14,17 @@ module.exports = (grunt) ->
 
       # Build documentation
       docs:
-        command: 'sphinx-build -b html docs build/docs/html'
+        command: 'sphinx-build -b html docs docs-html'
 
       pdfdocs:
-        command: 'sphinx-build -b latex docs build/docs/pdf && make -C build/docs/pdf all-pdf'
+        command: 'sphinx-build -b latex docs docs-pdf && make -C docs-pdf all-pdf'
 
     # Delete files
     clean:
-      docs: 'build/docs/'
-      lib: 'lib/'
-      man: 'man/'
+      docs:    'docs-html/'
+      lib:     'lib-build/'
+      man:     'man-build/'
+      pdfdocs: 'docs-pdf/'
 
     # Compile CoffeeScript files
     coffee:
@@ -36,9 +37,9 @@ module.exports = (grunt) ->
       lib:
         expand: true
         nonull: true
-        cwd: 'lib-src/'
+        cwd: 'lib/'
         src: '**/*.iced'
-        dest: 'lib/'
+        dest: 'lib-build/'
         ext: '.js'
 
     # Run unit tests
@@ -46,7 +47,7 @@ module.exports = (grunt) ->
       options:
         bail: true
         reporter: 'spec'
-        require: 'lib/common'
+        require: 'lib-build/common'
 
       all:
         src: ['test/**/*.coffee', '!test/**/_*.coffee']
@@ -64,9 +65,9 @@ module.exports = (grunt) ->
       man:
         expand: true
         nonull: true
-        cwd: 'man-src/'
+        cwd: 'man/'
         src: '*.[1-8].md'
-        dest: 'man/'
+        dest: 'man-build/'
         ext: ''
         extDot: 'last'
 
@@ -74,17 +75,17 @@ module.exports = (grunt) ->
     testMap:
       lib:
         expand: true
-        src: 'lib-src/**/*.iced'
+        src: 'lib/**/*.iced'
 
       # options:
       #   additional:
-      #     'lib-src/AssetGroup.iced': 'test/assets.coffee'
-      #     'lib-src/cacheDir.iced':   'test/assets.coffee'
-      #     'lib-src/cmd-build.iced':  'test/assets.coffee'
+      #     'lib/AssetGroup.iced': 'test/assets.coffee'
+      #     'lib/cacheDir.iced':   'test/assets.coffee'
+      #     'lib/cmd-build.iced':  'test/assets.coffee'
 
     # Watch for changes
     watch:
-      # Build everything
+      # Build everything at start & when this file is modified
       buildAll:
         options:
           atBegin: true
@@ -93,18 +94,18 @@ module.exports = (grunt) ->
 
       # Build docs/
       docs:
-        files: 'docs/**'
+        files: 'docs/**/*.rst'
         # Skip clean:docs because I have issues with Chrome not refreshing properly
         tasks: ['clear', 'shell:docs']
 
-      # Build lib/
+      # Build lib-build/
       lib:
-        files: 'lib-src/**/*.iced'
+        files: 'lib/**/*.iced'
         tasks: ['clear', 'lib', 'newer:testMap:lib']
 
-      # Build man/
+      # Build man-build/
       man:
-        files: 'man-src/*.[1-8].md'
+        files: 'man/*.[1-8].md'
         tasks: ['clear', 'man']
 
       # Run modified test suite
@@ -113,13 +114,14 @@ module.exports = (grunt) ->
         tasks: ['clear', 'newer:mochaTest:all']
 
   # Register tasks
-  grunt.registerTask('default', 'Rebuild everything and watch for changes', ['watch'])
-  grunt.registerTask('build', 'Rebuild everything', ['docs', 'lib', 'man'])
-  grunt.registerTask('bundle', 'Update Ruby gems', ['shell:bundle'])
-  grunt.registerTask('docs', 'Rebuild build/docs/ from docs/', ['clean:docs', 'shell:docs'])
-  grunt.registerTask('lib', 'Rebuild lib/ from lib-src/', ['clean:lib', 'coffee:lib'])
-  grunt.registerTask('man', 'Rebuild man/ from man-src/', ['clean:man', 'markedman:man'])
-  grunt.registerTask('pdfdocs', 'Rebuild build/docs/ from docs/ inc. PDF version', ['clean:docs', 'shell:docs', 'shell:pdfdocs'])
+  grunt.registerTask 'default',     'Build everything and watch for changes',         ['watch']
+  grunt.registerTask 'build',       'Build everything (except PDF docs)',             ['lib', 'man', 'docs']
+  grunt.registerTask 'lib',         'Build JavaScript files (lib/ -> lib-build/)',    ['clean:lib', 'coffee:lib']
+  grunt.registerTask 'man',         'Build manual pages (man/ -> man-build/)',        ['clean:man', 'markedman:man']
+  grunt.registerTask 'docs',        'Build HTML documentation (docs/ -> docs-html/)', ['clean:docs', 'shell:docs']
+  grunt.registerTask 'pdfdocs',     'Build PDF documentation (docs/ -> docs-pdf/)',   ['clean:pdfdocs', 'shell:pdfdocs']
+  grunt.registerTask 'bundle',      'Update Ruby gems',                               ['shell:bundle']
+  grunt.registerTask 'prepublish',  'Build for publishing on npm',                    ['lib', 'man', 'test']
 
   grunt.registerTask 'test', 'Run unit tests (all tests or specified test suite)', (suite) ->
     if suite
@@ -128,13 +130,14 @@ module.exports = (grunt) ->
     else
       grunt.task.run('mochaTest:all')
 
-  grunt.registerMultiTask 'testMap', ->
+  # Run tests corresponding to modified source files
+  grunt.registerMultiTask 'testMap', '(For internal use only)', ->
     additional = this.options().additional
     files = []
 
     this.files.forEach (file) =>
       file.src.forEach (src) =>
-        if matches = src.match /lib-src\/(.+)\.(coffee|iced)$/
+        if matches = src.match /lib\/(.+)\.iced$/
           files.push("test/#{matches[1]}.coffee")
         if additional && src of additional
           if additional[src] instanceof Array
@@ -148,6 +151,4 @@ module.exports = (grunt) ->
   # Lazy-load plugins & custom tasks
   require('jit-grunt')(grunt,
     coffee: 'grunt-iced-coffee'
-  )(
-    customTasksDir: 'tasks/'
   )

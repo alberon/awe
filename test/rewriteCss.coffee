@@ -1,5 +1,5 @@
 expect     = require('chai').use(require('chai-fs')).expect
-rewriteCss = require('../lib/rewriteCss')
+rewriteCss = require('../lib-build/rewriteCss')
 
 describe 'rewriteCss()', ->
 

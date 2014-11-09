@@ -1,4 +1,4 @@
-errors = require('../lib/errors')
+errors = require('../lib-build/errors')
 expect = require('chai').expect
 
 # These are so simple there should be no need for them, but it turns out it's

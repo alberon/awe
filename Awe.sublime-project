@@ -7,9 +7,11 @@
       [
         ".awe",
         ".bundle",
+        "docs-html",
+        "docs-pdf",
         "fixtures/*/build",
-        "lib",
-        "man",
+        "lib-build",
+        "man-build",
         "node_modules/.bin",
         "ruby_bundle"
       ],

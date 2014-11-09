@@ -1,5 +1,5 @@
 expect = require('chai').expect
-output = require('../lib/output')
+output = require('../lib-build/output')
 
 describe 'output', ->
 
