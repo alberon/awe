@@ -11,5 +11,6 @@
    assets
    reference
    changelog
+   design
    contributing
    license

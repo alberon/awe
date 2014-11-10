@@ -27,20 +27,27 @@ Then simply open ``awe.yaml`` in your preferred text editor to customise it as n
 
     .. code-block:: yaml
 
-        theme:
-            # This is a comment
-            src:  www/wp-content/themes/mytheme/src/
-            dest: www/wp-content/themes/mytheme/build/
+        ASSETS:
+
+            theme:
+
+                # This is a comment
+                src:  www/wp-content/themes/mytheme/src/
+                dest: www/wp-content/themes/mytheme/build/
 
     Note how indentation is used to determine the structure, similar to Python and CoffeeScript, and strings do not need to be quoted. It also supports comments, unlike JSON. The equivalent JSON file would be:
 
     .. code-block:: json
 
         {
-            "theme": {
-                "//":   "This is a trick to add a comment! http://stackoverflow.com/a/244858/167815",
-                "src":  "www/wp-content/themes/mytheme/src/",
-                "dest": "www/wp-content/themes/mytheme/build/"
+            "ASSETS": {
+
+                "theme": {
+                    "//":   "This is a trick to add a comment! http://stackoverflow.com/a/244858/167815",
+                    "src":  "www/wp-content/themes/mytheme/src/",
+                    "dest": "www/wp-content/themes/mytheme/build/"
+                }
+
             }
         }
 

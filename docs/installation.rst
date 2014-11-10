@@ -12,6 +12,7 @@
 
    If you are using Jericho (Alberon's shared development server) you can skip to :doc:`setup`.
 
+
 .. _requirements:
 
 =====================
@@ -23,6 +24,10 @@
 -------
 
 Awe is developed and tested on Linux. It should run on Mac OS X too, but it hasn't been tested. It won't work on Windows because it uses symlinks.
+
+.. note::
+
+   I could add Windows support if there is demand for it, but this would add complexity (e.g. symlinks to ``bower_components/`` would not be possible) and some features may not be possible (e.g. deployment via SSH).
 
 ---------------
  Node.js & npm

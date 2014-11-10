@@ -32,9 +32,12 @@ Next, add the following to the ``awe.yaml`` configuration file, altering the pat
 
 .. code-block:: yaml
 
-    theme:
-        src:  www/wp-content/themes/mytheme/src/
-        dest: www/wp-content/themes/mytheme/build/
+    ASSETS:
+
+        theme:
+
+            src:  www/wp-content/themes/mytheme/src/
+            dest: www/wp-content/themes/mytheme/build/
 
 **Note:** The ``build/`` directory **should not** be an existing directory as anything inside will be deleted.
 
@@ -343,6 +346,20 @@ This will create ``bower_components/`` directory in the project root (same direc
 
 For more details, please see the `Bower documentation <http://bower.io/>`_.
 
+------------------------
+ Update the config file
+------------------------
+
+.. code-block:: yaml
+
+    ASSETS:
+
+        theme:
+
+            src:   www/wp-content/themes/mytheme/src/
+            dest:  www/wp-content/themes/mytheme/build/
+            bower: bower_components/
+
 ---------------------------
  Import the files you need
 ---------------------------
@@ -380,16 +397,3 @@ Will result in::
 (``->`` indicates a symlink.)
 
 The URLs from ``jquery-ui.css`` (now in ``app.css``) will automatically be rewritten to ``url(_bower/jquery-ui/themes/smoothness/<filename>)``.
-
--------------------
- Custom Bower path
--------------------
-
-If the Bower components are installed somewhere other than ``bower_components/`` (relative to ``awe.yaml``) you can specify a custom location in ``awe.yaml``:
-
-.. code-block:: yaml
-
-    theme:
-        src:   www/wp-content/themes/mytheme/src/
-        dest:  www/wp-content/themes/mytheme/build/
-        bower: www/wp-content/themes/mytheme/bower_components/

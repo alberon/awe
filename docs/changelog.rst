@@ -19,8 +19,15 @@
  :future:`Upcoming release`
 ----------------------------
 
+- Changed config file format
+- Add source maps
+- Add support for YAML import files
+- Remove support for URL rewriting when following symlinks (too confusing, especially over Samba where you can't tell whether a file is a symlink)
 - Add support for Autoprefixer
-- ...
+- Validate config file format
+- Support custom Bower path
+- Improved error handling/reporting
+- Switched to Read The Docs (Sphinx) for documentation
 
 -----------------------------
  v0.0.5_ :date:`(7 Sep 2014)`

@@ -1,5 +1,12 @@
-# Awe config - see http://djm.me/awe-docs for documentation
+# Awe config - see http://awe.alberon.co.uk/ for documentation
 
-theme:
-    src: www/wp-content/themes/mytheme/src/
-    dest: www/wp-content/themes/mytheme/build/
+ASSETS:
+
+    theme:
+
+        src:          www/wp-content/themes/mytheme/src/
+        dest:         www/wp-content/themes/mytheme/build/
+        bower:        bower_components/
+        autoprefixer: true
+        sourcemaps:   true
+        warning file: true

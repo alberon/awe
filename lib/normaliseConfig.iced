@@ -9,11 +9,15 @@ requiredSetting = (setting, config, key, allowedTypes) ->
   else
     throw new ConfigError("Missing required setting '#{key}' in #{setting}")
 
+
 optionalSetting = (setting, config, key, allowedTypes, defaultValue) ->
   if key of config
     checkSettingType(setting, config, key, allowedTypes)
+    return true
   else
     config[key] = defaultValue
+    return false
+
 
 typesToString = (types) ->
   if types.length > 1
@@ -22,11 +26,13 @@ typesToString = (types) ->
     types.push("#{secondLast} or #{last}")
   types = types.join(', ')
 
+
 settingName = (setting, key) ->
   if setting
     if key then "Setting '#{setting}.#{key}'" else "Setting '#{setting}'"
   else
     if key then "Setting '#{key}'" else 'Root'
+
 
 checkSettingType = (setting, config, key, allowedTypes) ->
   # Skip if no valid types specified
@@ -70,6 +76,7 @@ checkSettingType = (setting, config, key, allowedTypes) ->
   typesForError = typesToString(typesForError)
   throw new ConfigError("#{settingName(setting, key)} must be #{typesForError} (actual type is #{type})")
 
+
 allowedSettings = (setting, config, keys) ->
   for own key, value of config
     if key not in keys
@@ -80,21 +87,30 @@ allowedSettings = (setting, config, keys) ->
 module.exports = (config) ->
   type = typeof config
 
+  # Root
   if type in ['object', 'string'] && _.isEmpty(config)
     throw new ConfigError("File is empty")
 
   checkSettingType(null, config, null, 'object')
 
+  # Setting groups
+  allowedSettings(null, config, ['ASSETS'])
+
+  if optionalSetting(null, config, 'ASSETS', ['object'])
+    parseAssets('ASSETS', config.ASSETS)
+
+
+parseAssets = (setting, config) ->
   for own key, value of config
 
     # Validate the name
     if key.match(/[^a-zA-Z0-9]/)
-      throw new ConfigError("Invalid group name '#{key}' (a-z, 0-9 only)")
+      throw new ConfigError("Invalid group name '#{key}' in #{setting} (a-z, 0-9 only)")
 
     # Validate the type
-    checkSettingType(null, config, key, 'object')
+    checkSettingType(setting, config, key, 'object')
 
-    parseAssetGroup(key, value)
+    parseAssetGroup("#{setting}.#{key}", value)
 
 
 parseAssetGroup = (setting, config) ->
@@ -103,7 +119,7 @@ parseAssetGroup = (setting, config) ->
   requiredSetting(setting, config, 'src', 'string')
   requiredSetting(setting, config, 'dest', 'string')
 
-  optionalSetting(setting, config, 'autoprefixer', 'boolean', true)
-  optionalSetting(setting, config, 'bower', ['string', false], 'bower_components/')
-  optionalSetting(setting, config, 'sourcemaps', 'boolean', true)
-  optionalSetting(setting, config, 'warning file', 'boolean', true)
+  optionalSetting(setting, config, 'autoprefixer', 'boolean', false)
+  optionalSetting(setting, config, 'bower', ['string', false], false)
+  optionalSetting(setting, config, 'sourcemaps', 'boolean', false)
+  optionalSetting(setting, config, 'warning file', 'boolean', false)

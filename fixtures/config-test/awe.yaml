@@ -1,3 +1,8 @@
-assets:
-    src: assets/src/
-    dest: assets/build/
+# Awe config - see http://awe.alberon.co.uk/ for documentation
+
+ASSETS:
+
+    test:
+
+        src:  assets/src/
+        dest: assets/build/

@@ -69,6 +69,6 @@ exports.parse = (args) ->
       throw new Error('Unknown command: ' + arg)
 
   # No command given
-  command.name   = 'watch'
-  command.module = commands['watch']
+  command.name   = 'help'
+  command.module = commands['help']
   return command

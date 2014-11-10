@@ -1,15 +1,22 @@
-test1:
-    src: src1/
-    dest: build/1/
-    autoprefixer: true
+# Awe config - see http://awe.alberon.co.uk/ for documentation
 
-test2:
-    # Deliberately removed the trailing / here
-    src: src2
-    dest: build/2
-    bower: false
+ASSETS:
 
-test3:
-    src: src3/
-    dest: build/3/
-    bower: bower_custom/
+    test1:
+
+        src: src1/
+        dest: build/1/
+        autoprefixer: true
+
+    test2:
+
+        # Deliberately removed the trailing / here
+        src: src2
+        dest: build/2
+        bower: false
+
+    test3:
+
+        src: src3/
+        dest: build/3/
+        bower: bower_custom/

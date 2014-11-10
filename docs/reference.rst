@@ -51,16 +51,20 @@ These commands can only be run from a directory containing an ``awe.yaml`` confi
 
 .. code-block:: yaml
 
-    groupname:                          # required (a-z, 0-9 only)
-        src:          path/to/src/      # required
-        dest:         path/to/build/    # required
-        autoprefixer: false             # optional (default: true)
-        bower:        false             # optional (default: bower_components/)
-        sourcemaps:   false             # optional (default: true)
-        warning file: false             # optional (default: true)
+    ASSETS:
 
-    anothergroup:                       # optional
-        ...
+        groupname:                          # required (a-z, 0-9 only)
+
+            src:          path/to/src/      # required
+            dest:         path/to/build/    # required
+            bower:        bower_components/ # optional (default: false)
+            autoprefixer: true              # optional (default: false)
+            sourcemaps:   true              # optional (default: false)
+            warning file: true              # optional (default: false)
+
+        anothergroup:                       # optional
+
+            #...
 
 
 ============================

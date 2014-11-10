@@ -1,3 +1,6 @@
-assets:
-    src: src/
-    dest: build/
+ASSETS:
+
+    test:
+
+        src:  src/
+        dest: build/

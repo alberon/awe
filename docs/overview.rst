@@ -2,14 +2,9 @@
  Overview
 ##########
 
-Awe is a command-line build tool for website assets - it makes it easy to compile CoffeeScript & Sass files, autoprefix CSS files and combine source files together - with full source map support for easier debugging.
+Awe simplifies the building and maintenance of websites / web apps, by handling the compilation of **assets** -- it makes it easy to compile CoffeeScript & Sass files, autoprefix CSS files and combine source files together, with full source map support for easier debugging.
 
-It is designed for web/software development agencies and freelancers managing many different websites, so:
-
-- It relies on convention rather than configuration, to make it easy to use and ensure consistency between sites
-- It is installed system-wide, not per-project, to avoid the maintenance overhead of installing and upgrading it for each site separately
-
-Unlike `Grunt <http://gruntjs.com/>`_ and `Gulp <http://gulpjs.com/>`_, Awe is not designed to be a general purpose task runner or build tool - so it won't suit everyone, but it should be much easier to configure.
+In the future it will also handle **deployment** to remote live/staging servers, and related functionality such as **configuration management**.
 
 
 ==========
