@@ -32,7 +32,6 @@ import json
 # ones.
 extensions = [
     'sphinx.ext.todo',
-    'sphinx.ext.ifconfig',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -280,8 +279,11 @@ texinfo_documents = [
 # Default to plain text blocks
 highlight_language = 'none'
 
+# Local version?
+local = os.environ.get('READTHEDOCS', None) != 'True'
+
 # Only when run locally (not on Read The Docs):
-if os.environ.get('READTHEDOCS', None) != 'True':
+if local:
 
     # Read The Docs theme
     # http://read-the-docs.readthedocs.org/en/latest/theme.html
@@ -291,3 +293,6 @@ if os.environ.get('READTHEDOCS', None) != 'True':
 
     # Show TODO items
     todo_include_todos = True
+
+    # Show a link to the online docs in the index page
+    tags.add('local')
