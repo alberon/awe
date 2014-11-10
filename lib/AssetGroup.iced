@@ -65,6 +65,7 @@ class AssetGroup
       return cb()
 
     if !bowerExists
+      output.warning(@bower, null, 'Bower directory does not exist') if @bower
       @bower     = false
       @bowerLink = null
       @bowerSrc  = null

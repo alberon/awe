@@ -27,7 +27,7 @@ describe 'config.data', ->
     expect(config.data).to.deep.equal
       ASSETS:
         test:
-          src: 'assets/src/'
+          src:  'assets/src/'
           dest: 'assets/build/'
 
       normalised: true

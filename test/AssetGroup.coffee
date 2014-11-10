@@ -69,7 +69,7 @@ build = ({root, files, config, warnings, errors, tests}) ->
 
         # Check for error/warning messages
         expect(output.counters.error || 0).to.equal(errors || 0, "Expected #{errors || 0} error(s)")
-        expect(output.counters.warning || 0).to.equal(warnings || 0, "Expected #{warnings || 0} error(s)")
+        expect(output.counters.warning || 0).to.equal(warnings || 0, "Expected #{warnings || 0} warning(s)")
 
         # Run tests (synchronously)
         tests() if tests
@@ -176,6 +176,11 @@ describe 'AssetGroup.build()', ->
   #----------------------------------------
   # Error handling
   #----------------------------------------
+
+  it 'should show an error if src/ does not exist', build
+    root: "#{fixtures}/build-error-src"
+    errors: 1
+
 
   it 'should handle errors in Sass files', build
     root: "#{fixtures}/build-error-sass"
@@ -493,13 +498,14 @@ describe 'AssetGroup.build()', ->
       expect("#{fixtures}/build-bower-symlink/build/_bower/bower.txt").to.be.a.file()
 
 
-  it 'should not create a symlink if the bower target directory does not exist', build
+  it 'should show a warning and not create a symlink if the bower target directory does not exist', build
     root: "#{fixtures}/build-bower-missing"
     config:
       bower: 'bower_components/'
     files: [
       'src/_source'
     ]
+    warnings: 1
     tests: ->
       expect("#{fixtures}/build-bower-missing/build/_bower").not.to.be.a.symlink()
       expect("#{fixtures}/build-bower-missing/build/_bower").not.to.be.a.path()

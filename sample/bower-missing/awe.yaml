@@ -1,0 +1,5 @@
+ASSETS:
+  test:
+    src:   src/
+    dest:  build/
+    bower: bower_components/
