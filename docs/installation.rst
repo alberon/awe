@@ -25,7 +25,8 @@
 
 Awe is developed and tested on Linux. It should run on Mac OS X too, but it hasn't been tested. It won't work on Windows because it uses symlinks.
 
-.. note::
+.. admonition:: Future Idea
+   :class: note
 
    I could add Windows support if there is demand for it, but this would add complexity (e.g. symlinks to ``bower_components/`` would not be possible) and some features may not be possible (e.g. deployment via SSH).
 
