@@ -114,14 +114,14 @@ module.exports = (grunt) ->
         tasks: ['clear', 'newer:mochaTest:all']
 
   # Register tasks
-  grunt.registerTask 'default',     'Build everything and watch for changes',         ['watch']
-  grunt.registerTask 'build',       'Build everything (except PDF docs)',             ['lib', 'man', 'docs']
-  grunt.registerTask 'lib',         'Build JavaScript files (lib/ -> lib-build/)',    ['clean:lib', 'coffee:lib']
-  grunt.registerTask 'man',         'Build manual pages (man/ -> man-build/)',        ['clean:man', 'markedman:man']
-  grunt.registerTask 'docs',        'Build HTML documentation (docs/ -> docs-html/)', ['clean:docs', 'shell:docs']
-  grunt.registerTask 'pdfdocs',     'Build PDF documentation (docs/ -> docs-pdf/)',   ['clean:pdfdocs', 'shell:pdfdocs']
-  grunt.registerTask 'bundle',      'Update Ruby gems',                               ['shell:bundle']
-  grunt.registerTask 'prepublish',  'Build for publishing on npm',                    ['lib', 'man', 'test']
+  grunt.registerTask 'default',     'Build everything and watch for further changes',         ['watch']
+  grunt.registerTask 'build',       'Build everything (lib, man & docs; excludes PDF docs)',  ['lib', 'man', 'docs']
+  grunt.registerTask 'lib',         'Build JavaScript files (lib/ -> lib-build/)',            ['clean:lib', 'coffee:lib']
+  grunt.registerTask 'man',         'Build manual pages (man/ -> man-build/)',                ['clean:man', 'markedman:man']
+  grunt.registerTask 'docs',        'Build HTML documentation (docs/ -> docs-html/)',         ['clean:docs', 'shell:docs']
+  grunt.registerTask 'pdfdocs',     'Build PDF documentation (docs/ -> docs-pdf/)',           ['clean:pdfdocs', 'shell:pdfdocs']
+  grunt.registerTask 'bundle',      'Update Ruby gems',                                       ['shell:bundle']
+  grunt.registerTask 'prepublish',  'Build for publishing on npm',                            ['lib', 'man', 'test']
 
   grunt.registerTask 'test', 'Run unit tests (all tests or specified test suite)', (suite) ->
     if suite

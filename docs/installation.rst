@@ -1,6 +1,6 @@
-##############
+################################################################################
  Installation
-##############
+################################################################################
 
 .. only:: html
 
@@ -10,29 +10,30 @@
 .. admonition:: Alberon Note
    :class: note wy-alert-success
 
-   If you are using Jericho (Alberon's shared development server) you can skip to :doc:`setup`.
+   If you are using Jericho (Alberon's shared development server), Awe is already installed and you can skip to :doc:`config`.
 
 
 .. _requirements:
 
-=====================
+================================================================================
  System requirements
-=====================
+================================================================================
 
--------
+----------------------------------------
  Linux
--------
+----------------------------------------
 
 Awe is developed and tested on Linux. It should run on Mac OS X too, but it hasn't been tested. It won't work on Windows because it uses symlinks.
 
-.. admonition:: Future Idea
+.. admonition:: Future Plans
    :class: note
 
    I could add Windows support if there is demand for it, but this would add complexity (e.g. symlinks to ``bower_components/`` would not be possible) and some features may not be possible (e.g. deployment via SSH).
 
----------------
+
+----------------------------------------
  Node.js & npm
----------------
+----------------------------------------
 
 `Node.js <https://nodejs.org/>`_ and `npm <https://www.npmjs.org/>`_ must be installed. Awe is tested on Node.js 0.10, and may not work on older versions.
 
@@ -42,6 +43,7 @@ To check they're installed, run:
 
     $ node --version
     $ npm --version
+
 
 Installing Node.js on Debian
 ............................
@@ -64,9 +66,10 @@ Then run the following to install it:
     $ sudo apt-get install curl nodejs nodejs-legacy
     $ curl https://www.npmjs.org/install.sh | sudo sh
 
-----------------
+
+----------------------------------------
  Ruby & Bundler
-----------------
+----------------------------------------
 
 You must also have `Ruby <https://www.ruby-lang.org/>`_ and `Bundler <http://bundler.io/>`_ installed - they are required to run `Compass <http://compass-style.org/>`_, Sass files to CSS.
 
@@ -81,6 +84,7 @@ To check they're installed, run:
 
 (Compass itself will be installed by Awe, so it does not need to be installed manually.)
 
+
 Installing Ruby on Debian
 .........................
 
@@ -89,9 +93,10 @@ Installing Ruby on Debian
     $ sudo apt-get install ruby ruby-dev
     $ sudo gem install bundler
 
-------------------
+
+----------------------------------------
  Bower (optional)
-------------------
+----------------------------------------
 
 You may also install `Bower <http://bower.io/>`_ for managing third-party assets:
 
@@ -106,9 +111,9 @@ To check it's installed, run:
     $ bower --version
 
 
-============
+================================================================================
  Installing
-============
+================================================================================
 
 Simply install Awe using npm:
 
@@ -124,9 +129,10 @@ To check it's installed, run:
 
     $ awe --version
 
--------------------------------
+
+----------------------------------------
  Installing a specific version
--------------------------------
+----------------------------------------
 
 To install a specific version, use the ``awe@<version>`` syntax of npm, for example:
 
@@ -137,15 +143,16 @@ To install a specific version, use the ``awe@<version>`` syntax of npm, for exam
 To see a list of all available versions, see the :doc:`changelog`.
 
 
-===========
+================================================================================
  Upgrading
-===========
+================================================================================
 
 Because Awe is installed globally, you only need to upgrade it once per machine, not separately for each project. Every effort will be made to ensure backwards compatibility, though you should check the :doc:`changelog` to see what has changed.
 
-----------------------
+
+----------------------------------------
  Checking for updates
-----------------------
+----------------------------------------
 
 .. code-block:: bash
 
@@ -160,17 +167,19 @@ If there is a newer version, the currently installed version and latest version 
     Package  Current  Wanted  Latest  Location
     awe        1.0.0   1.1.0   1.1.0  /usr/lib > awe
 
----------------------------------
+
+----------------------------------------
  Upgrading to the latest version
----------------------------------
+----------------------------------------
 
 .. code-block:: bash
 
     $ sudo npm update -g awe
 
----------------------------------
+
+----------------------------------------
  Upgrading to a specific version
----------------------------------
+----------------------------------------
 
 To upgrade (or downgrade) to a specific version, use ``install`` instead:
 
@@ -179,9 +188,9 @@ To upgrade (or downgrade) to a specific version, use ``install`` instead:
     $ sudo npm install -g awe@1.0.0
 
 
-==============
+================================================================================
  Uninstalling
-==============
+================================================================================
 
 To remove Awe from your machine, simply uninstall it with npm:
 

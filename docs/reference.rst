@@ -1,6 +1,6 @@
-#################
+################################################################################
  Quick reference
-#################
+################################################################################
 
 .. only:: html
 
@@ -8,13 +8,13 @@
        :local:
 
 
-==================================
+================================================================================
  Command-line interface (``awe``)
-==================================
+================================================================================
 
------------------
+----------------------------------------
  Global commands
------------------
+----------------------------------------
 
 These commands can be run from any directory:
 
@@ -29,9 +29,10 @@ These commands can be run from any directory:
     # Display the current version number
     $ awe version
 
-------------------
+
+----------------------------------------
  Project commands
-------------------
+----------------------------------------
 
 These commands can only be run from a directory containing an ``awe.yaml`` config file (or any subdirectory):
 
@@ -39,37 +40,38 @@ These commands can only be run from a directory containing an ``awe.yaml`` confi
 
     # Build once
     $ awe build
+    $ awe b
 
     # Build then wait for further changes
     $ awe watch
-    $ awe          # 'watch' is the default command
+    $ awe w
 
 
-===================================
+================================================================================
  Configuration file (``awe.yaml``)
-===================================
+================================================================================
 
 .. code-block:: yaml
+
+    # Awe config - see http://awe.alberon.co.uk/ for documentation
 
     ASSETS:
 
         groupname:                          # required (a-z, 0-9 only)
-
             src:          path/to/src/      # required
             dest:         path/to/build/    # required
-            bower:        bower_components/ # optional (default: false)
-            autoprefixer: true              # optional (default: false)
-            sourcemaps:   true              # optional (default: false)
-            warning file: true              # optional (default: false)
+            bower:        bower_components/ # optional (default: off)
+            autoprefixer: on                # optional (default: off)
+            sourcemaps:   on                # optional (default: off)
+            warning file: on                # optional (default: off)
 
         anothergroup:                       # optional
+            # ...
 
-            #...
 
-
-============================
+================================================================================
  Assets directory structure
-============================
+================================================================================
 
 ::
 
@@ -114,8 +116,21 @@ These commands can only be run from a directory containing an ``awe.yaml`` confi
     ├── sample3.js             ├── sample3.js               JavaScript file is copied
     ├── sample4.coffee         ├── sample4.js               CoffeeScript file is compiled
     │                          │
-    └── subdirectory/          └── subdirectory/            Directory structure is preserved
-        ├── A.css                  ├── A.css
-        ├── B.scss                 ├── B.css
-        ├── C.js                   ├── C.js
-        └── D.coffee               └── D.js
+    ├── subdirectory/          ├── subdirectory/            Directory structure is preserved
+    │   ├── A.css              │   ├── A.css
+    │   ├── B.scss             │   ├── B.css
+    │   ├── C.js               │   ├── C.js
+    │   └── D.coffee           │   └── D.js
+    │                          │
+    ├── vendor.css.yaml        ├── vendor.css               YAML import file (.css.yaml)
+    └── vendor.js.yaml         └── vendor.js                YAML import file (.js.yaml)
+
+================================================================================
+ YAML import files
+================================================================================
+
+.. code-block:: yaml
+
+    - _vendor/jquery.js         # Relative path to partial
+    - ../vendor/jquery.js       # Relative path to outside directory
+    - bower: jquery/jquery.js   # File inside bower_components/

@@ -1,6 +1,6 @@
-#################################
+################################################################################
  Awe --- Alberon Web Environment
-#################################
+################################################################################
 
 .. Link to the online documentation
 .. only:: local and html
@@ -16,9 +16,10 @@
 
    overview
    installation
-   setup
+   config
    assets
    reference
+   cache
    changelog
    design
    contributing

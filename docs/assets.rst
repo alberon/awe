@@ -1,6 +1,6 @@
-################
+################################################################################
  Asset building
-################
+################################################################################
 
 .. only:: html
 
@@ -8,42 +8,61 @@
        :local:
 
 
-=================
+================================================================================
  Getting started
-=================
+================================================================================
 
-------------------------------
+----------------------------------------
  Create your source directory
-------------------------------
+----------------------------------------
 
-First, create a directory for your source files. Let's say you're making a WordPress theme, so you would create a subdirectory named ``src/`` in your theme:
+First, create a directory for your source files. Let's say you're making a WordPress theme - you would create a subdirectory named ``src/`` in your theme as follows:
 
 .. code-block:: bash
 
     $ mkdir www/wp-content/themes/mytheme/src/
 
-**Tip:** If you prefer, you can keep the ``src/`` directory outside the document root - e.g. ``app/assets/`` in Laravel.
 
----------------
+----------------------------------------
  Configuration
----------------
+----------------------------------------
 
-Next, add the following to the ``awe.yaml`` configuration file, altering the paths as necessary:
+Next, add the following to the ``awe.yaml`` configuration file, replacing the paths as necessary:
 
 .. code-block:: yaml
 
     ASSETS:
 
-        theme:
+        default:
+            src:          www/wp-content/themes/mytheme/src/
+            dest:         www/wp-content/themes/mytheme/build/
+            bower:        off
+            autoprefixer: off
+            sourcemaps:   on
+            warning file: on
 
-            src:  www/wp-content/themes/mytheme/src/
-            dest: www/wp-content/themes/mytheme/build/
+.. warning::
 
-**Note:** The ``build/`` directory **should not** be an existing directory as anything inside will be deleted.
+    The ``build/`` directory **should not** be an existing directory -- anything inside will be deleted.
 
---------------------------
+.. tip::
+
+    The ``src/`` directory can be outside the document root if you prefer. The suggested directory layout for Laravel 5 is:
+
+    .. code-block:: yaml
+
+        ASSETS:
+
+            default:
+                src:          resources/assets/
+                dest:         public/assets/
+
+    And for Laravel 4, use ``app/assets/`` as the source directory.
+
+
+----------------------------------------
  Create your source files
---------------------------
+----------------------------------------
 
 All your source files should go into the ``src/`` directory you created above. For now, let's imagine you have these files::
 
@@ -56,9 +75,10 @@ All your source files should go into the ``src/`` directory you created above. F
         ├── A.css
         └── B.js
 
------------------------
+
+----------------------------------------
  Run the build command
------------------------
+----------------------------------------
 
 Finally, run the ``build`` command to generate the ``build/`` directory:
 
@@ -86,9 +106,31 @@ Since there are no special files in the list above, you will get exactly the sam
 However, read on to see what Awe can do!
 
 
-==============
+================================================================================
+ Autoprefixer
+================================================================================
+
+`Autoprefixer <https://github.com/postcss/autoprefixer>`_ automatically adds vendor prefixes (``-webkit-``, ``-moz-``, etc.) to your CSS files. Simply enable it in the config:
+
+.. code-block:: yaml
+    :emphasize-lines: 7
+
+    ASSETS:
+
+        default:
+            src:          www/wp-content/themes/mytheme/src/
+            dest:         www/wp-content/themes/mytheme/build/
+            bower:        off
+            autoprefixer: on
+            sourcemaps:   on
+            warning file: on
+
+For more details about how it works, and how to selectively disable it, see the `Autoprefixer documentation <https://github.com/postcss/autoprefixer#readme>`_.
+
+
+================================================================================
  CoffeeScript
-==============
+================================================================================
 
 `CoffeeScript <http://coffeescript.org/>`_ is "a little language that compiles into JavaScript". It has a very simple 1-to-1 mapping of input files (``.coffee``) to output files (``.js``). For example, these source files::
 
@@ -105,9 +147,9 @@ Would result in this output::
         └── A.js
 
 
-======
+================================================================================
  Sass
-======
+================================================================================
 
 `Sass <http://sass-lang.com/>`_ is an extension to CSS, and compiles ``.scss`` files to ``.css``. For example, these source files::
 
@@ -123,9 +165,10 @@ Would result in this output::
     └── subdirectory/
         └── A.css
 
---------------------------
+
+----------------------------------------
  Ignored files (partials)
---------------------------
+----------------------------------------
 
 Sass has the ability to ``@import`` other files (`partials <http://sass-lang.com/guide#topic-4>`_). Typically you do not want these to be compiled into their own CSS files. Awe ignores *all* files and directories that start with an underscore (``_``), so all you need to do is follow this convention. For example::
 
@@ -140,12 +183,12 @@ Will result in this output::
     build/
     └── styles.css
 
-**Note:** This also applies to other file types - use an underscore for any files and directories you want Awe to ignore.
+**Note:** This also applies to other file types -- use an underscore for any files and directories you want Awe to ignore.
 
 
-=========
+================================================================================
  Compass
-=========
+================================================================================
 
 `Compass <http://compass-style.org/>`_ is a popular CSS framework built on top of Sass. To use it, simply ``@import`` the file shown in the `Compass documentation <http://compass-style.org/reference/compass/>`_ at the top of your ``.scss`` file. For example:
 
@@ -170,9 +213,10 @@ This is compiled to:
 
 **Tip:** It is possible to use ``@import 'compass';`` as a short-hand, **but** this is noticably slower than importing only the specific features required.
 
------------------------
+
+----------------------------------------
  Compass configuration
------------------------
+----------------------------------------
 
 You may need to be aware of the following configuration options that Awe uses:
 
@@ -186,13 +230,13 @@ You may need to be aware of the following configuration options that Awe uses:
 .. _inline-font-files(): http://compass-style.org/reference/compass/helpers/inline-data/#inline-font-files
 
 
-=========
+================================================================================
  Sprites
-=========
+================================================================================
 
 Compass has the ability to take several small icons and combine them into a single image, then use that as a sprite in your CSS.
 
-To do this, first create a directory inside ``src/_sprites/`` with the name of the sprite - e.g. ``src/_sprites/navbar/``. Inside that directory create a PNG image for each icon. You can also have variants ending with ``_hover``, ``_active`` and ``_target`` which map to ``:hover``, ``:active`` and ``:target`` in the CSS. So, for example, you may have a directory structure like this::
+To do this, first create a directory inside ``src/_sprites/`` with the name of the sprite -- e.g. ``src/_sprites/navbar/``. Inside that directory create a PNG image for each icon. You can also have variants ending with ``_hover``, ``_active`` and ``_target`` which map to ``:hover``, ``:active`` and ``:target`` in the CSS. So, for example, you may have a directory structure like this::
 
     src/
     ├── _sprites/
@@ -233,9 +277,10 @@ And the following classes will appear in the output file, ready for you to use i
     .navbar-save         { ... }
     .navbar-save:hover   { ... }
 
--------------------
+
+----------------------------------------
  Advanced spriting
--------------------
+----------------------------------------
 
 If you require more control over the classes that are generated, there are several other ways to create them. For example:
 
@@ -266,9 +311,11 @@ For more details, please see the Compass `spriting documentation`_, `options`_ a
     **Note:** The Compass documentation uses ``images/`` as the base directory, whereas Awe uses ``_sprites/`` (or ``img/``).
 
 
-=================
+.. _combined-directories:
+
+================================================================================
  Combining files
-=================
+================================================================================
 
 Awe can automatically combine multiple CSS/JavaScript files into a single file, allowing you to split the source files up neatly while reducing the number of downloads for end users.
 
@@ -292,11 +339,13 @@ Simple as that!
 **Note:** It is best to avoid mixing subdirectories and files, as some programs display all subdirectories first which may be confusing. If you do mix them, it's best to number them all to make it clear what order they are loaded in (e.g. ``1-subdirectory/``, ``2-file.js``, ``3-another-directory/``).
 
 
-==============
- Import files
-==============
+.. _yaml-import:
 
-Another way to combine multiple files is to create an import file - this is a YAML file with the extension ``.css.yaml`` or ``.js.yaml`` containing a list of files to import. This is mostly useful for importing vendor files::
+================================================================================
+ Import files
+================================================================================
+
+Another way to combine multiple files is to create an import file -- this is a YAML file with the extension ``.css.yaml`` or ``.js.yaml`` containing a list of files to import. This is mostly useful for importing vendor files::
 
     src/
     └── vendor.js.yaml
@@ -325,17 +374,18 @@ To import files from Bower (`see below <#using-bower>`_), simply prefix the file
     - bower: jquery-ui/ui/jquery-ui.js
 
 
-=============
- Using Bower
-=============
+================================================================================
+ Bower support
+================================================================================
 
 `Bower <http://bower.io/>`_ is a package manager for third-party assets. It makes it easier to install and upgrade frontend dependencies such as jQuery and Bootstrap.
 
----------------------
- Installing packages
----------------------
 
-Install the packages you need using Bower as normal - for example:
+----------------------------------------
+ Installing packages
+----------------------------------------
+
+Install the packages you need using Bower as normal -- for example:
 
 .. code-block:: bash
 
@@ -346,23 +396,28 @@ This will create ``bower_components/`` directory in the project root (same direc
 
 For more details, please see the `Bower documentation <http://bower.io/>`_.
 
-------------------------
+
+----------------------------------------
  Update the config file
-------------------------
+----------------------------------------
 
 .. code-block:: yaml
+    :emphasize-lines: 6
 
     ASSETS:
 
-        theme:
+        default:
+            src:          www/wp-content/themes/mytheme/src/
+            dest:         www/wp-content/themes/mytheme/build/
+            bower:        bower_components/
+            autoprefixer: off
+            sourcemaps:   on
+            warning file: on
 
-            src:   www/wp-content/themes/mytheme/src/
-            dest:  www/wp-content/themes/mytheme/build/
-            bower: bower_components/
 
----------------------------
+----------------------------------------
  Import the files you need
----------------------------
+----------------------------------------
 
 Create a ``.js.yaml`` or ``.css.yaml`` `import file <#import-files>`_ (e.g. ``src/jquery.js.yaml``), for example:
 
@@ -372,9 +427,10 @@ Create a ``.js.yaml`` or ``.css.yaml`` `import file <#import-files>`_ (e.g. ``sr
 
 This will be compiled to ``build/jquery.js``.
 
--------------------------------------
+
+----------------------------------------
  Combining Bower and non-Bower files
--------------------------------------
+----------------------------------------
 
 You can easily combine Bower files with custom files, as described above. For example::
 
@@ -397,3 +453,84 @@ Will result in::
 (``->`` indicates a symlink.)
 
 The URLs from ``jquery-ui.css`` (now in ``app.css``) will automatically be rewritten to ``url(_bower/jquery-ui/themes/smoothness/<filename>)``.
+
+
+================================================================================
+ Sourcemaps
+================================================================================
+
+The recommended config has sourcemaps enabled so you can see the original source files (instead of the compiled version) in the brower's web developer tools. If you want to disable them for any reason you can do so:
+
+.. code-block:: yaml
+    :emphasize-lines: 8
+
+    ASSETS:
+
+        default:
+            src:          www/wp-content/themes/mytheme/src/
+            dest:         www/wp-content/themes/mytheme/build/
+            bower:        off
+            autoprefixer: off
+            sourcemaps:   off
+            warning file: on
+
+
+================================================================================
+ Warning file
+================================================================================
+
+The recommended config has the ``warning file`` enabled -- this makes Awe output a file called ``_DO_NOT_EDIT.txt`` in the build directory to remind users not to edit them directly. You can turn this off if you don't want it for any reason:
+
+.. code-block:: yaml
+    :emphasize-lines: 9
+
+    ASSETS:
+
+        default:
+            src:          www/wp-content/themes/mytheme/src/
+            dest:         www/wp-content/themes/mytheme/build/
+            bower:        off
+            autoprefixer: off
+            sourcemaps:   on
+            warning file: off
+
+
+================================================================================
+ Multiple asset groups
+================================================================================
+
+To compile multiple directories, simply add another group with a different name:
+
+.. code-block:: yaml
+    :emphasize-lines: 3, 11
+
+    ASSETS:
+
+        theme:
+            src:          www/wp-content/themes/mytheme/src/
+            dest:         www/wp-content/themes/mytheme/build/
+            bower:        off
+            autoprefixer: off
+            sourcemaps:   on
+            warning file: on
+
+        plugin:
+            src:          www/wp-content/plugins/myplugin/src/
+            dest:         www/wp-content/plugins/myplugin/build/
+            bower:        off
+            autoprefixer: off
+            sourcemaps:   on
+            warning file: on
+
+Reasons to do this include:
+
+- Multiple themes/plugins in a single project
+- Different config settings for different assets
+- Speed up ``watch`` builds by only rebuilding one directory at a time
+
+The group name must be alphanumeric (``[a-zA-Z0-9]+``).
+
+.. admonition:: Future Plans
+   :class: note
+
+   The group name is not currently used anywhere, but in the future it may be possible to build individual directories (e.g. ``awe build theme``).

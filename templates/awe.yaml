@@ -2,11 +2,10 @@
 
 ASSETS:
 
-    theme:
-
+    default:
         src:          www/wp-content/themes/mytheme/src/
         dest:         www/wp-content/themes/mytheme/build/
         bower:        bower_components/
-        autoprefixer: true
-        sourcemaps:   true
-        warning file: true
+        autoprefixer: on
+        sourcemaps:   on
+        warning file: on
