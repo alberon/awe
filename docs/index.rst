@@ -1,5 +1,5 @@
 ################################################################################
- Awe --- Alberon Web Environment
+ Awe --- Alberon Web Engine
 ################################################################################
 
 .. Link to the online documentation
@@ -10,11 +10,15 @@
 
       `Read the documentation online >> <http://awe.alberon.co.uk/>`_
 
-.. Table of Contents
+
+================================================================================
+ Table of Contents
+================================================================================
+
 .. toctree::
    :maxdepth: 2
 
-   overview
+   introduction
    installation
    config
    assets
@@ -24,3 +28,5 @@
    design
    contributing
    license
+   View on GitHub <https://github.com/alberon/awe>
+   View on npm <https://www.npmjs.org/package/awe>
