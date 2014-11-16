@@ -40,7 +40,7 @@ class AssetGroup
       @bowerLink = path.join(@destPath, '_bower')
       @bowerSrc  = path.join(@rootPath, @bower)
 
-    if config['warning file']
+    if config.warningfile
       @warningFile = path.join(@destPath, '_DO_NOT_EDIT.txt')
     else
       @warningFile = false

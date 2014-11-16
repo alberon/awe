@@ -7,5 +7,3 @@ ASSETS:
         dest:         www/wp-content/themes/mytheme/build/
         bower:        bower_components/
         autoprefixer: on
-        sourcemaps:   on
-        warning file: on

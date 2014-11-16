@@ -26,12 +26,12 @@ build = ({root, files, config, warnings, errors, tests}) ->
   (done) ->
     # Default config settings
     config = _.defaults {}, config,
-      src:            'src/'
-      dest:           'build/'
-      bower:          false
-      autoprefixer:   false
-      sourcemaps:     false
-      'warning file': false
+      src:          'src/'
+      dest:         'build/'
+      bower:        false
+      autoprefixer: false
+      sourcemaps:   false
+      warningfile:  false
 
     # Check all the listed files exist - this is partly to double-check the
     # directory structure, and partly a way to document it
@@ -937,7 +937,7 @@ describe 'AssetGroup.build()', ->
   it 'should create _DO_NOT_EDIT.txt in the build directory', build
     root: "#{fixtures}/build-warning-file"
     config:
-      'warning file': true
+      warningfile: true
     files: [
       'src/_source'
     ]

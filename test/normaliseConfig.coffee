@@ -109,26 +109,6 @@ describe 'normaliseConfig()', ->
           dest: false
 
 
-  # autoprefixer
-  it 'should set default value for autoprefixer', ->
-    normaliseConfig config =
-      ASSETS:
-        test:
-          src:  'assets/src/'
-          dest: 'assets/build/'
-
-    expect(config.ASSETS.test.autoprefixer).to.be.false
-
-    normaliseConfig config =
-      ASSETS:
-        test:
-          src:          'assets/src/'
-          dest:         'assets/build/'
-          autoprefixer: true
-
-    expect(config.ASSETS.test.autoprefixer).to.be.true
-
-
   # bower
   it 'should set default value for bower', ->
     normaliseConfig config =
@@ -149,41 +129,21 @@ describe 'normaliseConfig()', ->
     expect(config.ASSETS.test.bower).to.equal 'bower_components/'
 
 
-  # sourcemaps
-  it 'should set default value for sourcemaps', ->
+  # autoprefixer
+  it 'should set default value for autoprefixer', ->
     normaliseConfig config =
       ASSETS:
         test:
           src:  'assets/src/'
           dest: 'assets/build/'
 
-    expect(config.ASSETS.test.sourcemaps).to.be.false
+    expect(config.ASSETS.test.autoprefixer).to.be.false
 
     normaliseConfig config =
       ASSETS:
         test:
-          src:        'assets/src/'
-          dest:       'assets/build/'
-          sourcemaps: true
+          src:          'assets/src/'
+          dest:         'assets/build/'
+          autoprefixer: true
 
-    expect(config.ASSETS.test.sourcemaps).to.be.true
-
-
-  # warning file
-  it 'should set default value for warning file', ->
-    normaliseConfig config =
-      ASSETS:
-        test:
-          src:  'assets/src/'
-          dest: 'assets/build/'
-
-    expect(config.ASSETS.test['warning file']).to.be.false
-
-    normaliseConfig config =
-      ASSETS:
-        test:
-          src:            'assets/src/'
-          dest:           'assets/build/'
-          'warning file': true
-
-    expect(config.ASSETS.test['warning file']).to.be.true
+    expect(config.ASSETS.test.autoprefixer).to.be.true

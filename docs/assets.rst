@@ -38,8 +38,6 @@ Next, add the following to the ``awe.yaml`` configuration file, replacing the pa
             dest:         www/wp-content/themes/mytheme/build/
             bower:        off
             autoprefixer: off
-            sourcemaps:   on
-            warning file: on
 
 .. warning::
 
@@ -122,8 +120,6 @@ However, read on to see what Awe can do!
             dest:         www/wp-content/themes/mytheme/build/
             bower:        off
             autoprefixer: on
-            sourcemaps:   on
-            warning file: on
 
 For more details about how it works, and how to selectively disable it, see the `Autoprefixer documentation <https://github.com/postcss/autoprefixer#readme>`_.
 
@@ -411,8 +407,6 @@ For more details, please see the `Bower documentation <http://bower.io/>`_.
             dest:         www/wp-content/themes/mytheme/build/
             bower:        bower_components/
             autoprefixer: off
-            sourcemaps:   on
-            warning file: on
 
 
 ----------------------------------------
@@ -456,46 +450,6 @@ The URLs from ``jquery-ui.css`` (now in ``app.css``) will automatically be rewri
 
 
 ================================================================================
- Sourcemaps
-================================================================================
-
-The recommended config has sourcemaps enabled so you can see the original source files (instead of the compiled version) in the brower's web developer tools. If you want to disable them for any reason you can do so:
-
-.. code-block:: yaml
-    :emphasize-lines: 8
-
-    ASSETS:
-
-        default:
-            src:          www/wp-content/themes/mytheme/src/
-            dest:         www/wp-content/themes/mytheme/build/
-            bower:        off
-            autoprefixer: off
-            sourcemaps:   off
-            warning file: on
-
-
-================================================================================
- Warning file
-================================================================================
-
-The recommended config has the ``warning file`` enabled -- this makes Awe output a file called ``_DO_NOT_EDIT.txt`` in the build directory to remind users not to edit them directly. You can turn this off if you don't want it for any reason:
-
-.. code-block:: yaml
-    :emphasize-lines: 9
-
-    ASSETS:
-
-        default:
-            src:          www/wp-content/themes/mytheme/src/
-            dest:         www/wp-content/themes/mytheme/build/
-            bower:        off
-            autoprefixer: off
-            sourcemaps:   on
-            warning file: off
-
-
-================================================================================
  Multiple asset groups
 ================================================================================
 
@@ -511,16 +465,12 @@ To compile multiple directories, simply add another group with a different name:
             dest:         www/wp-content/themes/mytheme/build/
             bower:        off
             autoprefixer: off
-            sourcemaps:   on
-            warning file: on
 
         plugin:
             src:          www/wp-content/plugins/myplugin/src/
             dest:         www/wp-content/plugins/myplugin/build/
             bower:        off
-            autoprefixer: off
-            sourcemaps:   on
-            warning file: on
+            autoprefixer: on
 
 Reasons to do this include:
 

@@ -62,8 +62,6 @@ These commands can only be run from a directory containing an ``awe.yaml`` confi
             dest:         path/to/build/    # required
             bower:        bower_components/ # optional (default: off)
             autoprefixer: on                # optional (default: off)
-            sourcemaps:   on                # optional (default: off)
-            warning file: on                # optional (default: off)
 
         anothergroup:                       # optional
             # ...
@@ -97,14 +95,14 @@ These commands can only be run from a directory containing an ``awe.yaml`` confi
     ├── _vars.scss             │                            Ignored (starts with _)
     │                          │
     ├── combined.css/          ├── combined.css             Combined (ends with .css)
-    │   ├── 1.css              │                            Relative URLs are rewritten
+    │   ├── 1.css              ├── combined.css.map         Source maps are generated for all files
     │   ├── 2.scss             │
     │   └── 3-subdirectory/    │
     │       ├── A.css          │
     │       └── B.scss         │
     │                          │
     ├── combined.js/           ├── combined.js              Combined (ends with .js)
-    │   ├── 1.js               │
+    │   ├── 1.js               ├── combined.js.map
     │   ├── 2.coffee           │
     │   └── 3-subdirectory/    │
     │       ├── A.js           │
@@ -115,8 +113,10 @@ These commands can only be run from a directory containing an ``awe.yaml`` confi
     │                          │
     ├── sample1.css            ├── sample1.css              CSS file is copied
     ├── sample2.scss           ├── sample2.css              Sass file is compiled
+    │                          ├── sample2.css.map
     ├── sample3.js             ├── sample3.js               JavaScript file is copied
     ├── sample4.coffee         ├── sample4.js               CoffeeScript file is compiled
+    │                          ├── sample4.js.map
     │                          │
     ├── subdirectory/          ├── subdirectory/            Directory structure is preserved
     │   ├── A.css              │   ├── A.css
@@ -125,7 +125,10 @@ These commands can only be run from a directory containing an ``awe.yaml`` confi
     │   └── D.coffee           │   └── D.js
     │                          │
     ├── vendor.css.yaml        ├── vendor.css               YAML import file (.css.yaml)
-    └── vendor.js.yaml         └── vendor.js                YAML import file (.js.yaml)
+    │                          ├── vendor.css.map
+    │                          │
+    └── vendor.js.yaml         ├── vendor.js                YAML import file (.js.yaml)
+                               └── vendor.js.map
 
 ================================================================================
  YAML import files

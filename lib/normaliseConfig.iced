@@ -114,12 +114,15 @@ parseAssets = (setting, config) ->
 
 
 parseAssetGroup = (setting, config) ->
-  allowedSettings(setting, config, ['src', 'dest', 'autoprefixer', 'bower', 'sourcemaps', 'warning file'])
+  allowedSettings(setting, config, ['src', 'dest', 'autoprefixer', 'bower'])
 
   requiredSetting(setting, config, 'src', 'string')
   requiredSetting(setting, config, 'dest', 'string')
 
   optionalSetting(setting, config, 'autoprefixer', 'boolean', false)
   optionalSetting(setting, config, 'bower', ['string', false], false)
-  optionalSetting(setting, config, 'sourcemaps', 'boolean', false)
-  optionalSetting(setting, config, 'warning file', 'boolean', false)
+
+  # Forced settings - may be made editable in the future, but for now they are
+  # only used to speed up unit testing
+  config.sourcemaps  = true
+  config.warningfile = true
