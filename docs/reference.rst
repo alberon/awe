@@ -127,7 +127,7 @@ These commands can only be run from a directory containing an ``awe.yaml`` confi
     ├── vendor.css.yaml        ├── vendor.css               YAML import file (.css.yaml)
     └── vendor.js.yaml         └── vendor.js                YAML import file (.js.yaml)
 
-.. tip::
+.. note::
 
     It will also generate source maps -- e.g. ``combined.css.map`` -- but these are not shown for simplicity.
 

@@ -16,26 +16,35 @@
     </style>
 
 
+.. ================================================================================
+..  :future:`Upcoming release`
+.. ================================================================================
+
 ================================================================================
- :future:`Upcoming release`
+ v0.1.0_ :date:`(16 Nov 2014)`
 ================================================================================
 
-- Changed config file format
-- Add source maps
-- Add support for YAML import files
-- Remove support for URL rewriting when following symlinks (too confusing, especially over Samba where you can't tell whether a file is a symlink)
-- Add support for Autoprefixer
-- Validate config file format
-- Support custom Bower path
+.. _v0.1.0: https://github.com/alberon/awe/tree/v0.1.0
+
+*First beta version:*
+
+- Major rewrite to improve maintainability
+- Switch to Read The Docs (Sphinx) for documentation and rewrote a lot of it
+- Change config file format (**note:** existing config files will need updating)
+- Added source maps
+- Added Autoprefixer
+- Added YAML import files
+- Removed URL rewriting when following symlinks (too confusing)
+- Added config file validation (to help catch errors)
+- Added support for custom Bower path
 - Improved error handling/reporting
-- Switched to Read The Docs (Sphinx) for documentation
 
 
 ================================================================================
  v0.0.5_ :date:`(7 Sep 2014)`
 ================================================================================
 
-.. _v0.0.5: https://github.com/davejamesmiller/awe/tree/v0.0.5
+.. _v0.0.5: https://github.com/alberon/awe/tree/v0.0.5
 
 - Don't attempt to rewrite URLs inside CSS comments
 - Prevent ``awe watch`` crashing when multiple files are changed at once (by debouncing and queuing)
@@ -46,7 +55,7 @@
  v0.0.4_ :date:`(4 Aug 2014)`
 ================================================================================
 
-.. _v0.0.4: https://github.com/davejamesmiller/awe/tree/v0.0.4
+.. _v0.0.4: https://github.com/alberon/awe/tree/v0.0.4
 
 - Add more info to ``package.json`` to display on the `npm website <https://www.npmjs.org/package/awe>`_
 
@@ -55,7 +64,7 @@
  v0.0.3_ :date:`(4 Aug 2014)`
 ================================================================================
 
-.. _v0.0.3: https://github.com/davejamesmiller/awe/tree/v0.0.3
+.. _v0.0.3: https://github.com/alberon/awe/tree/v0.0.3
 
 - Bug fix - ``rimraf`` was in ``devDependencies`` not ``dependencies``
 
@@ -64,7 +73,9 @@
  v0.0.2_ :date:`(4 Aug 2014)`
 ================================================================================
 
-.. _v0.0.2: https://github.com/davejamesmiller/awe/tree/v0.0.2
+.. _v0.0.2: https://github.com/alberon/awe/tree/v0.0.2
+
+*First alpha version:*
 
 - Compile ``.scss`` and ``.coffee`` files
 - Combine ``.js`` and ``.css`` directories to a single output file
@@ -76,9 +87,7 @@
 
 
 ================================================================================
- v0.0.1_ :date:`(17 May 2014)`
+ v0.0.1 :date:`(17 May 2014)`
 ================================================================================
-
-.. _v0.0.1: https://github.com/davejamesmiller/awe/tree/v0.0.1
 
 - Proof of concept / placeholder to register the name on `npm <https://www.npmjs.org/package/awe>`_

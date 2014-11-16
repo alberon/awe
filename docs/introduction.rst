@@ -32,7 +32,7 @@ In the future it will also handle **deployment** to remote live/staging servers,
 
 - Simple YAML configuration (no need to set up lots of separate plugins!)
 - Detailed documentation
-- Unit tests to ensure backwards-compatibility
+- Unit tests to ensure backwards compatibility
 
 
 .. admonition:: Future Plans

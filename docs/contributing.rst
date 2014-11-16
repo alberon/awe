@@ -254,7 +254,7 @@ In each case the compiled JavaScript code is written to ``lib-build/``, and you 
  Unit tests
 ================================================================================
 
-Please ensure that every important function and bug fix has corresponding unit tests, to ensure backwards-compatibility.
+Please ensure that every important function and bug fix has corresponding unit tests, to ensure backwards compatibility.
 
 The unit tests are in ``test/``. They are written in regular `CoffeeScript <http://www.coffeescript.org/>`_.
 
