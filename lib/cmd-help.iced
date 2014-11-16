@@ -7,20 +7,44 @@ spawn  = require('child_process').spawn
 
 exports.run = (command, cb) ->
 
-  console.log(chalk.bold('Usage:') + ' awe ' + chalk.underline('command') + ' [args]')
-  console.log('')
-  console.log(chalk.bold.underline('Global commands'))
-  console.log('')
-  console.log('  help        Display help')
-  console.log('  init        Create awe.yaml in the current directory')
-  console.log('  version     Display Awe version')
-  console.log('')
-  console.log(chalk.bold.underline('Project commands'))
-  console.log('')
-  console.log('  build (b)   Compile assets')
-  console.log('  watch (w)   Watch for changes and automatically recompile assets')
-  console.log('')
-  console.log(chalk.bold.underline('See also'))
-  console.log('')
-  # TODO: Check if it was install from Git or npm - if Git, display the branch name or commit id?
-  console.log('  Documentation: ' + chalk.underline('https://github.com/davejamesmiller/awe/blob/v' + pkg.version + '/README.md'))
+  b = chalk.bold
+  u = chalk.underline
+  bu = chalk.bold.underline
+
+  # Commands with no arguments
+  # TODO: Separate help pages for each with more detail about what they do...
+  if command.args[0] in ['build', 'help', 'init', 'version', 'watch']
+
+    console.log """
+      #{b 'SYNOPSIS'}
+
+         awe #{u command.args[0]}
+
+      #{b 'SEE ALSO'}
+
+         Documentation: #{u 'http://awe.alberon.co.uk/'}
+    """
+
+  # Display list of all commands
+  else
+
+    console.log """
+      #{b 'SYNOPSIS'}
+
+         awe [#{b '-h'}|#{b '--help'}] #{u 'command'} [#{u 'args'}]
+
+      #{b 'GLOBAL COMMANDS'}
+
+         #{u 'help'}        Display help
+         #{u 'init'}        Create awe.yaml in the current directory
+         #{u 'version'}     Display Awe version
+
+      #{b 'PROJECT COMMANDS'}
+
+         #{u 'build'} (#{u 'b'})   Compile assets
+         #{u 'watch'} (#{u 'w'})   Watch for changes and automatically recompile assets
+
+      #{b 'SEE ALSO'}
+
+         Documentation: #{u 'http://awe.alberon.co.uk/'}
+    """
