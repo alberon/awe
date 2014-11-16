@@ -3,17 +3,10 @@
 ################################################################################
 
 .. role:: date
-    :class: changelogdate
+    :class: changelog-date
 
 .. role:: future
-    :class: changelogfuture
-
-.. raw:: html
-
-    <style>
-    .changelogdate { font-size: 70%; }
-    .changelogfuture { color: #b65a5a; }
-    </style>
+    :class: changelog-future
 
 
 .. ================================================================================

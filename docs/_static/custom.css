@@ -1,0 +1,19 @@
+/* Make sections stand out more */
+h2 {
+    border-top: 1px solid #ccc;
+    padding-top: 20px;
+}
+
+h1 + .section > h2:first-child {
+    border-top: none;
+    padding-top: 0;
+}
+
+/* Changelog styles */
+.changelog-date {
+    font-size: 70%;
+}
+
+.changelog-future {
+    color: #b65a5a;
+}

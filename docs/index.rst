@@ -11,10 +11,7 @@
         `Read the documentation online >> <http://awe.alberon.co.uk/>`_
 
 
-================================================================================
- Table of Contents
-================================================================================
-
+.. Table of contents
 .. toctree::
     :maxdepth: 2
 

@@ -21,10 +21,11 @@ module.exports = (grunt) ->
 
     # Delete files
     clean:
-      docs:    'docs-html/'
-      lib:     'lib-build/'
-      man:     'man-build/'
-      pdfdocs: 'docs-pdf/'
+      docs:      'docs-html/'
+      docsCache: 'docs-html/.buildinfo'
+      lib:       'lib-build/'
+      man:       'man-build/'
+      pdfdocs:   'docs-pdf/'
 
     # Compile CoffeeScript files
     coffee:
@@ -94,9 +95,15 @@ module.exports = (grunt) ->
 
       # Build docs/
       docs:
-        files: 'docs/*'
-        # Skip clean:docs because I have issues with Chrome not refreshing properly
+        files: 'docs/*.*'
+        # Skip clean:docs because I have issues with Chrome not refreshing
+        # properly if I happen to refresh too fast and get a Not Found page -
+        # for some reason after that I can't see the new version
         tasks: ['clear', 'shell:docs']
+
+      docsAssets:
+        files: 'docs/_static/*.*'
+        tasks: ['clear', 'clean:docsCache', 'shell:docs']
 
       # Build lib-build/
       lib:

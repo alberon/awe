@@ -279,11 +279,14 @@ texinfo_documents = [
 # Default to plain text blocks
 highlight_language = 'none'
 
-# Local version?
-local = os.environ.get('READTHEDOCS', None) != 'True'
+# Custom CSS
+html_static_path = ['_static']
+
+def setup(app):
+   app.add_stylesheet('custom.css')
 
 # Only when run locally (not on Read The Docs):
-if local:
+if os.environ.get('READTHEDOCS', None) != 'True':
 
     # Read The Docs theme
     # http://read-the-docs.readthedocs.org/en/latest/theme.html
