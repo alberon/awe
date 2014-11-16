@@ -563,6 +563,21 @@ describe 'AssetGroup.build()', ->
       """
 
 
+  it 'should rewrite relative URLs to outside files', build
+    root: "#{fixtures}/build-rewrite-outside"
+    files: [
+      'sample.gif'
+      'target.css'
+      'src/outside.css.yaml'
+    ]
+    tests: ->
+      expect("#{fixtures}/build-rewrite-outside/build/outside.css").to.have.content """
+        body {
+          background: url(../sample.gif);
+        }\n
+      """
+
+
   it 'should rewrite relative URLs in YAML-imported CSS files', build
     root: "#{fixtures}/build-rewrite-yaml"
     config:

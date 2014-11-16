@@ -28,20 +28,7 @@ class UrlRewriter
       @bowerSrc  = false
       @bowerDest = false
 
-    # Make sure the parameters are valid, e.g. no symlinks to outside files
-    if @srcFile.indexOf(@srcDir) == 0
-      # OK
-    else if @bowerSrc and @srcFile.indexOf(@bowerSrc) == 0
-      # OK
-    else
-      # Not OK
-      if @bowerSrc
-        bowerMsg = " or Bower directory '#{@bowerSrc}'"
-      else
-        bowerMsg = ''
-
-      throw new Error("UrlRewriter: Source file '#{@srcFile}' is not in source directory '#{@srcDir}'" + bowerMsg)
-
+    # Make sure destination file is valid
     if @destFile.indexOf(@destDir) != 0
       throw new Error("UrlRewriter: Destination file '#{@destFile}' is not in destination directory '#{@destDir}'")
 

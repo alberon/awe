@@ -36,13 +36,6 @@ describe 'UrlRewriter', ->
     expect(rewrite(uri)).to.equal uri
 
 
-  it 'should throw an error if the src. file is outside the src. directory', ->
-    params =
-      srcFile: path.join(fixtures, 'outside.css')
-
-    expect(-> create(params)).to.throw /not in source directory/
-
-
   it 'should throw an error if the dest. file is outside the dest. directory', ->
     params =
       destFile: path.join(fixtures, 'outside.css')
@@ -67,6 +60,13 @@ describe 'UrlRewriter', ->
 
   it 'should rewrite paths pointing outside the source directory', ->
     expect(rewrite('../outside.gif')).to.equal '../../outside.gif'
+
+
+  it 'should rewrite paths from files outside the source directory', ->
+    params =
+      srcFile: path.join(fixtures, 'outside.css')
+
+    expect(rewrite('outside.gif', params)).to.equal '../../outside.gif'
 
 
   it 'should throw an error if the target file is not found', ->
