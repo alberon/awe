@@ -2,6 +2,8 @@
  Installation
 ################################################################################
 
+.. highlight:: bash
+
 .. only:: html
 
     .. contents::
@@ -23,12 +25,12 @@
  Linux
 ----------------------------------------
 
-Awe is developed and tested on Linux. It should run on Mac OS X too, but it hasn't been tested. It won't work on Windows because it uses symlinks.
+Awe is developed and tested on Linux. It should run on Mac OS X too, but it hasn't been tested. It probably won't work on Windows (at least not 100%) because it uses symlinks.
 
 .. admonition:: Future Plans
     :class: note
 
-    I could add Windows support if there is demand for it, but this would add complexity (e.g. symlinks to ``bower_components/`` would not be possible) and some features may not be possible (e.g. deployment via SSH).
+    I could add Windows support if there is demand for it, but this would add some complexity (e.g. symlinks to ``bower_components/`` would not be possible so the files would need to be copied instead).
 
 
 ----------------------------------------
@@ -37,9 +39,7 @@ Awe is developed and tested on Linux. It should run on Mac OS X too, but it hasn
 
 `Node.js <https://nodejs.org/>`_ and `npm <https://www.npmjs.org/>`_ must be installed. Awe is tested on Node.js 0.10, and may not work on older versions.
 
-To check they're installed, run:
-
-.. code-block:: bash
+To check they're installed, run::
 
     $ node --version
     $ npm --version
@@ -48,9 +48,7 @@ To check they're installed, run:
 Installing Node.js on Debian
 ............................
 
-On Debian Wheezy, Node.js is only available in `Backports <http://backports.debian.org/>`_, but you will need to add that as a source:
-
-.. code-block:: bash
+On Debian Wheezy, Node.js is only available in `Backports <http://backports.debian.org/>`_, but you will need to add that as a source::
 
     $ sudo vim /etc/apt/sources.list
 
@@ -58,9 +56,7 @@ Add this line::
 
     deb     http://ftp.uk.debian.org/debian/ wheezy-backports main contrib non-free
 
-Then run the following to install it:
-
-.. code-block:: bash
+Then run the following to install it::
 
     $ sudo apt-get update
     $ sudo apt-get install curl nodejs nodejs-legacy
@@ -75,9 +71,7 @@ You must also have `Ruby <https://www.ruby-lang.org/>`_ and `Bundler <http://bun
 
 Since Awe is installed system-wide, they also need to be installed system-wide - i.e. not using `RVM <https://rvm.io/>`_ or `rbenv <https://github.com/sstephenson/rbenv>`_.
 
-To check they're installed, run:
-
-.. code-block:: bash
+To check they're installed, run::
 
     $ ruby --version
     $ bundle --version
@@ -88,7 +82,7 @@ To check they're installed, run:
 Installing Ruby on Debian
 .........................
 
-.. code-block:: bash
+::
 
     $ sudo apt-get install ruby ruby-dev
     $ sudo gem install bundler
@@ -98,15 +92,11 @@ Installing Ruby on Debian
  Bower (optional)
 ----------------------------------------
 
-You may also install `Bower <http://bower.io/>`_ for managing third-party assets:
-
-.. code-block:: bash
+You may also install `Bower <http://bower.io/>`_ for managing third-party assets::
 
     sudo npm install -g bower
 
-To check it's installed, run:
-
-.. code-block:: bash
+To check it's installed, run::
 
     $ bower --version
 
@@ -115,17 +105,13 @@ To check it's installed, run:
  Installing
 ================================================================================
 
-Simply install Awe using npm:
-
-.. code-block:: bash
+Simply install Awe using npm::
 
     $ sudo npm install -g awe
 
 This will install the Awe package globally, including the ``awe`` executable, and also download the Node.js and Ruby dependencies.
 
-To check it's installed, run:
-
-.. code-block:: bash
+To check it's installed, run::
 
     $ awe --version
 
@@ -134,9 +120,7 @@ To check it's installed, run:
  Installing a specific version
 ----------------------------------------
 
-To install a specific version, use the ``awe@<version>`` syntax of npm, for example:
-
-.. code-block:: bash
+To install a specific version, use the ``awe@<version>`` syntax of npm, for example::
 
     $ sudo npm install -g awe@1.0.0
 
@@ -154,7 +138,7 @@ Because Awe is installed globally, you only need to upgrade it once per machine,
  Checking for updates
 ----------------------------------------
 
-.. code-block:: bash
+::
 
     $ npm outdated -g awe
 
@@ -172,7 +156,7 @@ If there is a newer version, the currently installed version and latest version 
  Upgrading to the latest version
 ----------------------------------------
 
-.. code-block:: bash
+::
 
     $ sudo npm update -g awe
 
@@ -181,9 +165,7 @@ If there is a newer version, the currently installed version and latest version 
  Upgrading to a specific version
 ----------------------------------------
 
-To upgrade (or downgrade) to a specific version, use ``install`` instead:
-
-.. code-block:: bash
+To upgrade (or downgrade) to a specific version, use ``install`` instead::
 
     $ sudo npm install -g awe@1.0.0
 
@@ -192,9 +174,7 @@ To upgrade (or downgrade) to a specific version, use ``install`` instead:
  Uninstalling
 ================================================================================
 
-To remove Awe from your machine, simply uninstall it with npm:
-
-.. code-block:: bash
+To remove Awe from your machine, simply uninstall it with npm::
 
     $ sudo npm uninstall -g awe
 

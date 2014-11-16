@@ -40,7 +40,7 @@ In addition, you will need:
 
 To check if it's installed::
 
-    grunt --version
+    $ grunt --version
 
 To install it::
 
@@ -64,7 +64,7 @@ To check if they're installed, run::
 Installing Python & pip on Debian
 .................................
 
-.. code-block:: bash
+::
 
     $ sudo apt-get install python-pip
 
@@ -72,7 +72,7 @@ Installing Python & pip on Debian
 Installing virtualenvwrapper on Debian
 ......................................
 
-.. code-block:: bash
+::
 
     $ sudo pip install virtualenvwrapper
     $ source /usr/local/bin/virtualenvwrapper_lazy.sh
@@ -87,7 +87,7 @@ You should also add this code to your ``.bashrc`` file to load it automatically 
 Creating a virtual environment
 ..............................
 
-.. code-block:: bash
+::
 
     $ mkvirtualenv awe
 
@@ -99,7 +99,7 @@ Then in future sessions you can switch back to that environment before running `
 Installing Sphinx
 .................
 
-.. code-block:: bash
+::
 
     $ pip install -r requirements.txt
 
@@ -120,7 +120,7 @@ To build the PDF documentation, you will also need LaTeX installed. To check::
 Installing LaTeX on Debian
 ..........................
 
-.. code-block:: bash
+::
 
     $ sudo apt-get install texlive-full
 
@@ -139,9 +139,7 @@ Installing LaTeX on Debian
 
 Obtain a copy of the Awe source code, if you haven't already. If you are planning to make changes, it is easiest to `fork the Awe repository on GitHub <https://github.com/alberon/awe/fork>`_ first -- then use your own username in place of ``alberon`` below.
 
-You can install Awe into any location, but ``~/awe/`` would be a logical choice and is used below.
-
-.. code-block:: bash
+You can install Awe into any location, but ``~/awe/`` would be a logical choice and is used below. ::
 
     $ cd
     $ git clone git@github.com:alberon/awe.git
@@ -151,7 +149,7 @@ You can install Awe into any location, but ``~/awe/`` would be a logical choice 
  Install dependencies
 ----------------------------------------
 
-.. code-block:: bash
+::
 
     $ cd awe
     $ npm install
@@ -178,7 +176,7 @@ If you would like to run ``awe`` directly, instead of using the full path, you c
 a. For yourself only
 ....................
 
-.. code-block:: bash
+::
 
     $ export PATH="$HOME/awe/bin:$PATH"
 
@@ -188,9 +186,7 @@ You can make this change permanent by adding it your ``.bashrc`` file.
 b. System-wide
 ..............
 
-Alternatively you can install it system-wide using npm. This has the advantage of allowing you to test the manual page (``man awe``) as well, but it's best to avoid this method on a multi-user system as it will replace any other versions that are installed.
-
-.. code-block:: bash
+Alternatively you can install it system-wide using npm. This has the advantage of allowing you to test the manual page (``man awe``) as well, but it's best to avoid this method on a multi-user system as it will replace any other versions that are installed. ::
 
     $ sudo npm uninstall -g awe  # Remove currently installed version, if any
     $ sudo npm link
@@ -211,7 +207,7 @@ To remove it later::
  Upgrading Awe from Git
 ----------------------------------------
 
-.. code-block:: bash
+::
 
     $ cd ~/awe
     $ git pull
@@ -222,9 +218,7 @@ To remove it later::
  Uninstalling
 ----------------------------------------
 
-If you have made it the system-wide default version, remove it as shown above -- then simply delete the source directory.
-
-.. code-block:: bash
+If you have made it the system-wide default version, remove it as shown above -- then simply delete the source directory::
 
     $ cd
     $ sudo npm uninstall -g awe

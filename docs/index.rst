@@ -28,5 +28,5 @@
     design
     contributing
     license
-    View on GitHub <https://github.com/alberon/awe>
-    View on npm <https://www.npmjs.org/package/awe>
+    Awe on GitHub <https://github.com/alberon/awe>
+    Awe on npm <https://www.npmjs.org/package/awe>

@@ -47,6 +47,8 @@ These commands can only be run from a directory containing an ``awe.yaml`` confi
     $ awe w
 
 
+.. _reference-config:
+
 ================================================================================
  Configuration file (``awe.yaml``)
 ================================================================================

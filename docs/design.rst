@@ -12,7 +12,7 @@
  Introduction
 ================================================================================
 
-A lot of time and effort has gone into making Awe, including a lot of back-and-forth about the best way to build it. Here I document some of the many design decisions, both as a reminder for myself and to explain the thinking behind it to others.
+A lot of time and effort has gone into making Awe, including a lot of back-and-forth about the best way to build it. Here I document some of the design decisions, both as a reminder for myself and to explain the thinking behind it to others.
 
 
 ================================================================================
@@ -41,6 +41,10 @@ Before building Awe I tried using `Grunt <http://gruntjs.com/>`_. This required 
 ================================================================================
 
 Because Awe is installed system-wide, backwards-compatibility is especially important. So we have plenty of unit tests to ensure nothing breaks.
+
+.. note::
+
+    "Backwards-compatible" doesn't mean completely identical build output -- for example, adding source maps meant adding extra comments to the build files, but they are still backwards-compatible.
 
 
 ================================================================================

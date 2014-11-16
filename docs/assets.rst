@@ -16,7 +16,7 @@
  Create your source directory
 ----------------------------------------
 
-First, create a directory for your source files. Let's say you're making a WordPress theme - you would create a subdirectory named ``src/`` in your theme as follows:
+First, create a directory for your source files. Let's say you're making a `WordPress <https://wordpress.org/>`_ theme - you would create a subdirectory named ``src/`` in your theme as follows:
 
 .. code-block:: bash
 
@@ -27,7 +27,7 @@ First, create a directory for your source files. Let's say you're making a WordP
  Configuration
 ----------------------------------------
 
-Next, add the following to the ``awe.yaml`` configuration file, replacing the paths as necessary:
+Next, add the following to the ``awe.yaml`` :doc:`configuration file <config>`, replacing the paths as necessary:
 
 .. code-block:: yaml
 
@@ -41,21 +41,21 @@ Next, add the following to the ``awe.yaml`` configuration file, replacing the pa
 
 .. warning::
 
-    The ``build/`` directory **should not** be an existing directory -- anything inside will be deleted.
+    The ``build/`` directory **should not** be an existing directory -- anything inside it will be deleted.
 
 .. tip::
 
-    The ``src/`` directory can be outside the document root if you prefer. The suggested directory layout for Laravel 5 is:
+    The ``src/`` directory can be outside the document root if you prefer. e.g. The recommended directory layout for `Laravel <http://laravel.com/>`_ 5 is:
 
     .. code-block:: yaml
 
         ASSETS:
 
             default:
-                src:          resources/assets/
+                src:          resources/assets/    # app/assets/ in Laravel 4
                 dest:         public/assets/
 
-    And for Laravel 4, use ``app/assets/`` as the source directory.
+    Be aware that the original source code will still be made public (in the source maps), so this is not a way to hide it.
 
 
 ----------------------------------------
@@ -104,11 +104,13 @@ Since there are no special files in the list above, you will get exactly the sam
 However, read on to see what Awe can do!
 
 
+.. _autoprefixer:
+
 ================================================================================
  Autoprefixer
 ================================================================================
 
-`Autoprefixer <https://github.com/postcss/autoprefixer>`_ automatically adds vendor prefixes (``-webkit-``, ``-moz-``, etc.) to your CSS files. Simply enable it in the config:
+`Autoprefixer <https://github.com/postcss/autoprefixer>`__ automatically adds vendor prefixes (``-webkit-``, ``-moz-``, etc.) to your CSS files. Simply enable it in the config:
 
 .. code-block:: yaml
     :emphasize-lines: 7
@@ -146,6 +148,8 @@ Would result in this output::
 
     It will also generate source maps -- ``sample.js.map`` and ``subdirectory/A.js.map`` -- but these are not shown for simplicity.
 
+For more details see the `CoffeeScript documentation <http://coffeescript.org/>`_.
+
 
 ================================================================================
  Sass
@@ -165,12 +169,18 @@ Would result in this output::
     └── subdirectory/
         └── A.css
 
+For more details see the `Sass documentation <http://sass-lang.com/guide>`_.
 
-----------------------------------------
+.. note::
+
+    Only the *SCSS* format is supported by Awe, not the original *Sass* indented format (i.e. ``.sass`` files), because it's easier for people used to regular CSS to pick up.
+
+
+================================================================================
  Ignored files (partials)
-----------------------------------------
+================================================================================
 
-Sass has the ability to ``@import`` other files (`partials <http://sass-lang.com/guide#topic-4>`_). Typically you do not want these to be compiled into their own CSS files. Awe ignores *all* files and directories that start with an underscore (``_``), so all you need to do is follow this convention. For example::
+Awe ignores all files and directories that start with an underscore (``_``). In Sass this is used to ``@import`` `partials <http://sass-lang.com/guide#topic-4>`_ -- for example, this directory structure::
 
     src/
     ├── _partials/
@@ -183,7 +193,9 @@ Will result in this output::
     build/
     └── styles.css
 
-**Note:** This also applies to other file types -- use an underscore for any files and directories you want Awe to ignore.
+.. note::
+
+    Although this is mostly used for Sass partials, Awe will ignore **any** file or directory that starts with an underscore.
 
 
 ================================================================================
@@ -194,40 +206,45 @@ Will result in this output::
 
 .. code-block:: scss
 
-    @import 'compass/css3/border-radius';
+    @import 'compass/typography/links/unstyled-link';
 
-    .sample {
-        @include border-radius(4px);
+    .footer a {
+        @include unstyled-link;
     }
 
 This is compiled to:
 
 .. code-block:: css
 
-    .sample {
-        -webkit-border-radius: 4px;
-        -moz-border-radius: 4px;
-        -ms-border-radius: 4px;
-        border-radius: 4px;
+    .footer a {
+        color: inherit;
+        text-decoration: inherit;
+        cursor: inherit;
     }
 
-**Tip:** It is possible to use ``@import 'compass';`` as a short-hand, **but** this is noticably slower than importing only the specific features required.
+    .footer a:active, .footer a:focus {
+        outline: none;
+    }
 
+.. tip::
 
-----------------------------------------
- Compass configuration
-----------------------------------------
+    While it is possible to use ``@import 'compass';`` as a short-hand, this is noticably slower to build than importing only the specific features required.
 
-You may need to be aware of the following configuration options that Awe uses:
+.. tip::
 
-- ``images_path = 'src/img/'`` (used by `image-url()`_, `inline-image()`_ and related functions)
-- ``fonts_path = 'src/fonts/'`` (used by `font-url()`_, `inline-font-files()`_ and related functions)
-- ``sprite_load_path = ['src/img/', 'src/_sprites/']`` (used for `sprite generation <#sprites>`_)
+    Many of the Compass mixins simply add `vendor prefixes for CSS3 <http://compass-style.org/reference/compass/css3/>`_. Instead of using these, I recommend enabling `autoprefixer`_.
 
-.. _image-url():         http://compass-style.org/reference/compass/helpers/urls/#image-url
-.. _inline-image():      http://compass-style.org/reference/compass/helpers/inline-data/#inline-image
-.. _font-url():          http://compass-style.org/reference/compass/helpers/urls/#font-url
-.. _inline-font-files(): http://compass-style.org/reference/compass/helpers/inline-data/#inline-font-files
+.. note::
+
+    You may need to be aware of the following `Compass configuration options <http://compass-style.org/help/documentation/configuration-reference/>`_ that Awe uses:
+
+    .. code-block:: ruby
+
+        images_path      = 'src/img/'                     # used by image-url(), inline-image(), etc.
+        fonts_path       = 'src/fonts/'                   # used by font-url(), inline-font-files(), etc.
+        sprite_load_path = ['src/img/', 'src/_sprites/']  # used for sprite generation (see below)
+
+    This means images should be kept in a folder called ``img/``, font files in ``fonts/`` and sprites in ``_sprites/``.
 
 
 ================================================================================
@@ -306,9 +323,9 @@ For more details, please see the Compass `spriting documentation`_, `options`_ a
 .. _options:                http://compass-style.org/help/tutorials/spriting/customization-options/
 .. _mixins:                 http://compass-style.org/reference/compass/utilities/sprites/base/
 
-.. highlights::
+.. note::
 
-    **Note:** The Compass documentation uses ``images/`` as the base directory, whereas Awe uses ``_sprites/`` (or ``img/``).
+    The Compass documentation uses ``images/`` as the base directory, whereas Awe recommends using ``_sprites/``. You can also put them in the ``img/`` directory if you prefer, but in that case the source images will be copied to the build directory as well.
 
 
 .. _combined-directories:
@@ -336,7 +353,13 @@ First the ``.scss`` files will be compiled to CSS, then all 4 files will be comb
 
 Simple as that!
 
-**Note:** It is best to avoid mixing subdirectories and files, as some programs display all subdirectories first which may be confusing. If you do mix them, it's best to number them all to make it clear what order they are loaded in (e.g. ``1-subdirectory/``, ``2-file.js``, ``3-another-directory/``).
+.. caution::
+
+    It is best to avoid mixing subdirectories and files, as some programs display all subdirectories first which may be confusing:
+
+    - ``subdirectory/`` (2)
+    - ``file.css`` (1)
+    - ``vendor.css`` (3)
 
 
 .. _yaml-import:
@@ -382,24 +405,75 @@ To import files from Bower (`see below <#using-bower>`_), simply prefix the file
 
 
 ----------------------------------------
- Installing packages
+ Create bower.json
 ----------------------------------------
 
-Install the packages you need using Bower as normal -- for example:
+Make sure you have a ``bower.json`` file -- if not, run this to create one:
 
 .. code-block:: bash
 
     $ cd /path/to/repo
-    $ bower install jquery#1.x
+    $ echo '{"name":"app","private":true}' > bower.json
 
-This will create ``bower_components/`` directory in the project root (same directory as ``awe.yaml``) containing the package and any dependencies.
+.. admonition:: Future Plans
+    :class: note
 
-For more details, please see the `Bower documentation <http://bower.io/>`_.
+    I plan to add a command to generate this file, e.g. ``awe init bower``, because ``bower init`` asks far more questions than are necessary!
+
+
+----------------------------------------
+ Find packages
+----------------------------------------
+
+To find a package on Bower, run:
+
+.. code-block:: bash
+
+    $ bower search <name>
+
+Or use the `online package search <http://bower.io/search/>`_.
+
+
+----------------------------------------
+ Install the packages you want
+----------------------------------------
+
+To install a package, run this:
+
+.. code-block:: bash
+
+    $ bower install --save <name>
+
+Sometimes you may need to specify a version number -- e.g. jQuery will default to the 2.x branch which does not support IE8:
+
+.. code-block:: bash
+
+    $ bower install --save jquery#1.x
+
+This will create a ``bower_components/`` directory in the project root (same directory as ``awe.yaml``) containing the package and any dependencies.
+
+.. tip::
+
+    If the package you want is not registered with Bower, you can install it from another source:
+
+    .. code-block:: bash
+
+        $ bower install --save user/repo                        # From GitHub
+        $ bower install --save http://example.com/script.js     # From a URL
+        $ bower install --save http://example.com/package.zip   # From a zip
+
+    For more details, please see the `Bower install documentation <http://bower.io/docs/api/#install>`_.
+
+.. note::
+
+    The installed packages should be checked into the Git repository, not ignored, to ensure the same version is installed on the live site. This advice may change in the future when `bower.lock <https://github.com/bower/bower/pull/1592>`_ is implemented (and/or ``awe deploy`` is ready).
 
 
 ----------------------------------------
  Update the config file
 ----------------------------------------
+
+Update ``awe.yaml`` with the path to the Bower components directory:
 
 .. code-block:: yaml
     :emphasize-lines: 6
@@ -424,6 +498,14 @@ Create a ``.js.yaml`` or ``.css.yaml`` `import file <#import-files>`_ (e.g. ``sr
     - bower: jquery/jquery.js
 
 This will be compiled to ``build/jquery.js``.
+
+.. note::
+
+    An alternative is to load the file you need directly in your HTML, using the ``_bower/`` symlink that is created:
+
+    .. code-block:: html
+
+        <script src="/assets/_bower/jquery/jquery.min.js"></script>
 
 
 ----------------------------------------
@@ -453,11 +535,30 @@ Will result in::
 The URLs from ``jquery-ui.css`` (now in ``app.css``) will automatically be rewritten to ``url(_bower/jquery-ui/themes/smoothness/<filename>)``.
 
 
+----------------------------------------
+ Updating packages
+----------------------------------------
+
+To check for outdated dependencies:
+
+.. code-block:: bash
+
+    $ bower list
+
+To update them, first update ``bower.json`` if necessary (if you have specified a particular version to use), then run:
+
+.. code-block:: bash
+
+    $ bower update
+
+For more details, please see the `Bower documentation <http://bower.io/docs/api/>`_.
+
+
 ================================================================================
  Multiple asset groups
 ================================================================================
 
-To compile multiple directories, simply add another group with a different name:
+To compile assets in multiple directories, simply add another group with a different name:
 
 .. code-block:: yaml
     :emphasize-lines: 3, 11
