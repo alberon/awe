@@ -19,6 +19,7 @@
     installation
     config
     assets
+    integration
     reference
     cache
     changelog

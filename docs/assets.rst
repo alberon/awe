@@ -45,7 +45,7 @@ Next, add the following to the ``awe.yaml`` :doc:`configuration file <config>`, 
 
 .. tip::
 
-    The ``src/`` directory can be outside the document root if you prefer. e.g. The recommended directory layout for `Laravel <http://laravel.com/>`_ 5 is:
+    The ``src/`` directory can be outside the document root if you prefer. e.g. The recommended configuration for `Laravel <http://laravel.com/>`_ 5 is:
 
     .. code-block:: yaml
 
