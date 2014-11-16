@@ -79,6 +79,8 @@ These commands can only be run from a directory containing an ``awe.yaml`` confi
     ─────────────────────────  ───────────────────────────  ───────────────────────────────────────
     src/                       build/
     │                          │
+    │                          ├── _DO_NOT_EDIT.txt         Warning file (automatically generated)
+    │                          │
     │                          ├── _bower/                  Symlink to bower_components/ directory
     │                          │
     │                          ├── _generated/              Compass─generated files (e.g. sprites)
