@@ -14,11 +14,11 @@
  Introduction
 ================================================================================
 
-To submit a simple documentation change, simply `edit the appropriate file on GitHub <https://github.com/alberon/awe/tree/master/docs>`_.
+To submit a simple documentation change, simply `edit the appropriate file on GitHub <https://github.com/alberon/awe/tree/master/docs>`_. (There's even an Edit link in the top-right corner of each page!)
 
-.. note::
+.. warning::
 
-    Not all markup is supported by GitHub -- e.g. ``:ref:`` and ``::doc::`` -- so the preview may not be exactly what appears in the online documentation. If you're making substantial changes, clone the repository and follow the :ref:`instructions below <documentation-build>` to test it first.
+    Not all markup is supported by GitHub -- e.g. ``:ref:`` and ``:doc:`` -- so the preview may not be exactly what appears in the online documentation. Don't let that put you off making changes, but if you're making substantial changes it would be better to clone the repository and :ref:`test it offline <documentation-build>` first.
 
 If you want to submit a bug fix, the information below should help you to get started. Push your changes to a new branch on GitHub, then open a `pull request <https://github.com/alberon/awe/pulls>`_.
 
