@@ -2,7 +2,7 @@
  License
 ################################################################################
 
-The MIT License (MIT)
+`The MIT License (MIT) <http://choosealicense.com/licenses/mit/>`_
 
 **Copyright © 2014 Dave James Miller**
 
