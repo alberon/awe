@@ -1,7 +1,7 @@
 /* Make sections stand out more */
 h2 {
-    border-top: 1px solid #ccc;
-    padding-top: 20px;
+    border-top: 1px solid #e1e4e5;
+    padding-top: 24px;
 }
 
 h1 + .section > h2:first-child {
