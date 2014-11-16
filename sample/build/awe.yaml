@@ -4,19 +4,19 @@ ASSETS:
 
     test1:
 
-        src: src1/
-        dest: build/1/
+        src:          src1/
+        dest:         build/1/
+        bower:        bower_components/
         autoprefixer: true
 
     test2:
 
         # Deliberately removed the trailing / here
-        src: src2
-        dest: build/2
-        bower: false
+        src:          src2
+        dest:         build/2
 
     test3:
 
-        src: src3/
-        dest: build/3/
-        bower: bower_custom/
+        src:          src3/
+        dest:         build/3/
+        bower:        bower_custom/
