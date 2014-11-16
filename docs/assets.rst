@@ -142,6 +142,10 @@ Would result in this output::
     └── subdirectory/
         └── A.js
 
+.. tip::
+
+    It will also generate source maps -- ``sample.js.map`` and ``subdirectory/A.js.map`` -- but these are not shown for simplicity.
+
 
 ================================================================================
  Sass

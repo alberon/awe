@@ -95,14 +95,14 @@ These commands can only be run from a directory containing an ``awe.yaml`` confi
     ├── _vars.scss             │                            Ignored (starts with _)
     │                          │
     ├── combined.css/          ├── combined.css             Combined (ends with .css)
-    │   ├── 1.css              ├── combined.css.map         Source maps are generated for all files
+    │   ├── 1.css              │
     │   ├── 2.scss             │
     │   └── 3-subdirectory/    │
     │       ├── A.css          │
     │       └── B.scss         │
     │                          │
     ├── combined.js/           ├── combined.js              Combined (ends with .js)
-    │   ├── 1.js               ├── combined.js.map
+    │   ├── 1.js               │
     │   ├── 2.coffee           │
     │   └── 3-subdirectory/    │
     │       ├── A.js           │
@@ -113,10 +113,8 @@ These commands can only be run from a directory containing an ``awe.yaml`` confi
     │                          │
     ├── sample1.css            ├── sample1.css              CSS file is copied
     ├── sample2.scss           ├── sample2.css              Sass file is compiled
-    │                          ├── sample2.css.map
     ├── sample3.js             ├── sample3.js               JavaScript file is copied
     ├── sample4.coffee         ├── sample4.js               CoffeeScript file is compiled
-    │                          ├── sample4.js.map
     │                          │
     ├── subdirectory/          ├── subdirectory/            Directory structure is preserved
     │   ├── A.css              │   ├── A.css
@@ -125,10 +123,12 @@ These commands can only be run from a directory containing an ``awe.yaml`` confi
     │   └── D.coffee           │   └── D.js
     │                          │
     ├── vendor.css.yaml        ├── vendor.css               YAML import file (.css.yaml)
-    │                          ├── vendor.css.map
-    │                          │
-    └── vendor.js.yaml         ├── vendor.js                YAML import file (.js.yaml)
-                               └── vendor.js.map
+    └── vendor.js.yaml         └── vendor.js                YAML import file (.js.yaml)
+
+.. tip::
+
+    It will also generate source maps -- e.g. ``combined.css.map`` -- but these are not shown for simplicity.
+
 
 ================================================================================
  YAML import files
