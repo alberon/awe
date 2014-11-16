@@ -5,7 +5,7 @@
 .. only:: html
 
     .. contents::
-       :local:
+        :local:
 
 
 ================================================================================
@@ -31,9 +31,9 @@ Unlike `Grunt <http://gruntjs.com/>`_, `Gulp <http://gulpjs.com/>`_ and others, 
 Before building Awe I tried using `Grunt <http://gruntjs.com/>`_. This required me to install Grunt and all the plugins I was using in each project, upgrade each project separately when new versions were released, and keep the Gruntfiles in sync so every project had the latest features & fixes as I added them. This was tedious enough with 3 projects -- if it were expanded to all 25+ ongoing projects it would be a nightmare. So Awe is designed to be installed (and upgraded) only once, system-wide.
 
 .. admonition:: Future Plans
-   :class: note
+    :class: note
 
-   CoffeeScript, Compass, etc. are also installed system-wide, so every project must use the same version. In the future this could be changed to allow specific versions to be required for each project, and Awe would install/upgrade them for each project automatically (in the `.awe/` directory).
+    CoffeeScript, Compass, etc. are also installed system-wide, so every project must use the same version. In the future this could be changed to allow specific versions to be required for each project, and Awe would install/upgrade them for each project automatically (in the `.awe/` directory).
 
 
 ================================================================================
@@ -71,9 +71,9 @@ Many systems allow configuration files to be written in code (e.g. `Gruntfile.js
 If any extra functionality is required, it should be added to Awe itself, not added through custom project-specific code. This ensures it can be reused in other projects.
 
 .. admonition:: Future Plans
-   :class: note
+    :class: note
 
-   I would like to add hooks that can be called at certain points (on build, on deploy, etc.) when custom functionality is truely needed. These would most likely be external scripts (which can be written in any language) rather than Node.js functions.
+    I would like to add hooks that can be called at certain points (on build, on deploy, etc.) when custom functionality is truely needed. These would most likely be external scripts (which can be written in any language) rather than Node.js functions.
 
 
 ================================================================================
@@ -118,9 +118,9 @@ This is to avoid confusing the user when they try to add a second entry to the f
 Awe doesn't support the shorthand Sass syntax (`.sass` files), Less or several other languages purely because we (Alberon) don't currently use them. If we do decide to use them, we can add support for them in the future.
 
 .. admonition:: Future Plans
-   :class: note
+    :class: note
 
-   I would consider switching to a plugin-based architecture, more like Grunt, as long as Awe installed and upgraded them automatically in response to config options -- i.e. it would not require the user to run ``npm install`` manually.
+    I would consider switching to a plugin-based architecture, more like Grunt, as long as Awe installed and upgraded them automatically in response to config options -- i.e. it would not require the user to run ``npm install`` manually.
 
 
 ================================================================================
@@ -180,9 +180,9 @@ Another option would be to build an application frontend that runs in the browse
 ================================================================================
 
 .. admonition:: Future Plans
-   :class: note
+    :class: note
 
-   Deployment is not yet available, but is planned for a future release.
+    Deployment is not yet available, but is planned for a future release.
 
 I considered splitting asset building and deployment into two separate applications, but:
 

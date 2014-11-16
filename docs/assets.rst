@@ -4,8 +4,8 @@
 
 .. only:: html
 
-    .. contents::
-       :local:
+  .. contents::
+    :local:
 
 
 ================================================================================
@@ -485,6 +485,6 @@ Reasons to do this include:
 The group name must be alphanumeric (``[a-zA-Z0-9]+``).
 
 .. admonition:: Future Plans
-   :class: note
+    :class: note
 
-   The group name is not currently used anywhere, but in the future it may be possible to build individual directories (e.g. ``awe build theme``).
+    The group name is not currently used anywhere, but in the future it may be possible to build individual directories (e.g. ``awe build theme``).

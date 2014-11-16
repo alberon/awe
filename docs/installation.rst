@@ -5,12 +5,12 @@
 .. only:: html
 
     .. contents::
-       :local:
+        :local:
 
 .. admonition:: Alberon Note
-   :class: note wy-alert-success
+    :class: note wy-alert-success
 
-   If you are using Jericho (Alberon's shared development server), Awe is already installed and you can skip to :doc:`config`.
+    If you are using Jericho (Alberon's shared development server), Awe is already installed and you can skip to :doc:`config`.
 
 
 .. _requirements:
@@ -26,9 +26,9 @@
 Awe is developed and tested on Linux. It should run on Mac OS X too, but it hasn't been tested. It won't work on Windows because it uses symlinks.
 
 .. admonition:: Future Plans
-   :class: note
+    :class: note
 
-   I could add Windows support if there is demand for it, but this would add complexity (e.g. symlinks to ``bower_components/`` would not be possible) and some features may not be possible (e.g. deployment via SSH).
+    I could add Windows support if there is demand for it, but this would add complexity (e.g. symlinks to ``bower_components/`` would not be possible) and some features may not be possible (e.g. deployment via SSH).
 
 
 ----------------------------------------

@@ -5,10 +5,10 @@
 .. Link to the online documentation
 .. only:: local and html
 
-   .. admonition:: Local Documentation
-      :class: warning
+    .. admonition:: Local Documentation
+        :class: warning
 
-      `Read the documentation online >> <http://awe.alberon.co.uk/>`_
+        `Read the documentation online >> <http://awe.alberon.co.uk/>`_
 
 
 ================================================================================
@@ -16,17 +16,17 @@
 ================================================================================
 
 .. toctree::
-   :maxdepth: 2
+    :maxdepth: 2
 
-   introduction
-   installation
-   config
-   assets
-   reference
-   cache
-   changelog
-   design
-   contributing
-   license
-   View on GitHub <https://github.com/alberon/awe>
-   View on npm <https://www.npmjs.org/package/awe>
+    introduction
+    installation
+    config
+    assets
+    reference
+    cache
+    changelog
+    design
+    contributing
+    license
+    View on GitHub <https://github.com/alberon/awe>
+    View on npm <https://www.npmjs.org/package/awe>

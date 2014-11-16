@@ -36,17 +36,17 @@ In the future it will also handle **deployment** to remote live/staging servers,
 
 
 .. admonition:: Future Plans
-   :class: note
+    :class: note
 
-   I plan to add the following features in the future:
+    I plan to add the following features in the future:
 
-   - Minify JavaScript & CSS files
-   - Optimise images
-   - `Automatically reload <http://livereload.com/>`_ your web browser when assets are rebuilt
-   - `Growl <http://www.growlforwindows.com/gfw/>`_ notifications when there are build errors
-   - Deploy to remote (live/staging) servers
-   - Automatically switch config settings for different servers, inclusing development sites
-   - Download/upload data (databases and files) from/to remote sites (for testing or initial deployment)
+    - Minify JavaScript & CSS files
+    - Optimise images
+    - `Automatically reload <http://livereload.com/>`_ your web browser when assets are rebuilt
+    - `Growl <http://www.growlforwindows.com/gfw/>`_ notifications when there are build errors
+    - Deploy to remote (live/staging) servers
+    - Automatically switch config settings for different servers, inclusing development sites
+    - Download/upload data (databases and files) from/to remote sites (for testing or initial deployment)
 
 
 ================================================================================
