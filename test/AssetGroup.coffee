@@ -507,7 +507,6 @@ describe 'AssetGroup.build()', ->
     ]
     warnings: 1
     tests: ->
-      expect("#{fixtures}/build-bower-missing/build/_bower").not.to.be.a.symlink()
       expect("#{fixtures}/build-bower-missing/build/_bower").not.to.be.a.path()
 
 
@@ -519,7 +518,6 @@ describe 'AssetGroup.build()', ->
       'src/_source'
     ]
     tests: ->
-      expect("#{fixtures}/build-bower-disabled/build/_bower").not.to.be.a.symlink()
       expect("#{fixtures}/build-bower-disabled/build/_bower").not.to.be.a.path()
 
 
