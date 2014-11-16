@@ -451,3 +451,8 @@ To save the modified versions::
 ----------------------------------------
 
 - Run ``sudo npm update -g awe`` to upgrade Awe on your own machine(s)
+
+.. admonition:: Alberon Note
+    :class: note wy-alert-success
+
+    Remember to upgrade Awe on Jericho.
