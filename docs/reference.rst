@@ -62,8 +62,8 @@ These commands can only be run from a directory containing an ``awe.yaml`` confi
         groupname:                          # required (a-z, 0-9 only)
             src:          path/to/src/      # required
             dest:         path/to/build/    # required
-            bower:        bower_components/ # optional (default: off)
-            autoprefixer: on                # optional (default: off)
+            bower:        bower_components/ # optional (default: false)
+            autoprefixer: true              # optional (default: false)
 
         anothergroup:                       # optional
             # ...

@@ -36,8 +36,8 @@ Next, add the following to the ``awe.yaml`` :doc:`configuration file <config>`, 
         default:
             src:          www/wp-content/themes/mytheme/src/
             dest:         www/wp-content/themes/mytheme/build/
-            bower:        off
-            autoprefixer: off
+            bower:        false
+            autoprefixer: false
 
 .. warning::
 
@@ -120,8 +120,8 @@ However, read on to see what Awe can do!
         default:
             src:          www/wp-content/themes/mytheme/src/
             dest:         www/wp-content/themes/mytheme/build/
-            bower:        off
-            autoprefixer: on
+            bower:        false
+            autoprefixer: true
 
 For more details about how it works, and how to selectively disable it, see the `Autoprefixer documentation <https://github.com/postcss/autoprefixer#readme>`_.
 
@@ -484,7 +484,7 @@ Update ``awe.yaml`` with the path to the Bower components directory:
             src:          www/wp-content/themes/mytheme/src/
             dest:         www/wp-content/themes/mytheme/build/
             bower:        bower_components/
-            autoprefixer: off
+            autoprefixer: false
 
 
 ----------------------------------------
@@ -568,14 +568,14 @@ To compile assets in multiple directories, simply add another group with a diffe
         theme:
             src:          www/wp-content/themes/mytheme/src/
             dest:         www/wp-content/themes/mytheme/build/
-            bower:        off
-            autoprefixer: off
+            bower:        false
+            autoprefixer: false
 
         plugin:
             src:          www/wp-content/plugins/myplugin/src/
             dest:         www/wp-content/plugins/myplugin/build/
-            bower:        off
-            autoprefixer: on
+            bower:        false
+            autoprefixer: true
 
 Reasons to do this include:
 

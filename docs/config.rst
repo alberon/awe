@@ -42,8 +42,8 @@ The file is in `YAML <http://yaml.org/>`_ format. This is similar in purpose to 
         default:
             src:        www/wp-content/themes/mytheme/src/
             dest:       www/wp-content/themes/mytheme/build/
-            bower:      off
-            sourcemaps: on
+            bower:      false
+            sourcemaps: true
 
 Note how indentation is used to determine the structure, similar to Python and CoffeeScript, and strings do not need to be quoted. It also supports real comments, unlike JSON.
 
