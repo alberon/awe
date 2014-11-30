@@ -364,6 +364,43 @@ For other classes see the `Wyrm documentation <http://wyrmsass.org/section-2.htm
 
 
 ================================================================================
+ Screencasts
+================================================================================
+
+The screencasts are created with and hosted by `Showterm <http://showterm.io/>`_.
+
+To install it::
+
+    $ sudo gem install showterm
+
+Resize the screen to 93x31 lines so the recording fits in the documentation. With `tmux` you can split the window in both directions and use this command::
+
+    $ tmux resize-pane -x 93 -y 31
+
+Otherwise resize the window manually and check with this command::
+
+    $ echo $COLUMNS x $LINES
+    93 x 31
+
+Then run Showterm::
+
+    $ showterm
+
+When done, exit the shell (`Ctrl-D`), wait for it to upload, and copy the ID from the URL -- but replace it with the HTTPS link in the code, for example:
+
+.. code-block:: rest
+
+    .. only:: html
+
+        .. admonition:: Preview
+            :class: note wy-alert-neutral
+
+            .. raw:: html
+
+                <iframe src="https://showterm.herokuapp.com/1a1a1a1a1a1a1a1a1a1a1" width="100%" height="507" style="border: 1px solid #bbb;"></iframe>
+
+
+================================================================================
  Updating dependencies
 ================================================================================
 

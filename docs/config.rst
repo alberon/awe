@@ -21,6 +21,15 @@ Each project requires a single config file, ``awe.yaml``, in the root directory.
 
 Then simply open ``awe.yaml`` in your preferred text editor to customise it as needed.
 
+.. only:: html
+
+    .. admonition:: Preview
+        :class: note wy-alert-neutral
+
+        .. raw:: html
+
+            <iframe src="https://showterm.herokuapp.com/85bb3394ba2acc08a0a44" width="100%" height="507" style="border: 1px solid #bbb;"></iframe>
+
 .. tip::
 
     If you prefer you can create a config file by hand, or copy one from another project -- but I recommend using ``awe init`` to ensure you're starting with the latest recommended settings.
