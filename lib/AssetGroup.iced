@@ -312,7 +312,8 @@ class AssetGroup
       http_generated_images_path = '/AWEDESTROOTPATH/_generated'
       http_javascripts_path      = '/AWEDESTROOTPATH/_generated'
 
-      # Disable cache busting URLs (e.g. sample.gif?123456) - we'll handle that too
+      # Disable cache busting URLs (e.g. sample.gif?123456) - it makes unit
+      # testing harder! One day I'll add cache busting URLs in a PostCSS filter
       asset_cache_buster :none
 
       # Disable line number comments - use sourcemaps instead
