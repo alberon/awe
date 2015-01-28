@@ -128,6 +128,18 @@ class AssetGroup
     data.content = data.content.replace(/[\r\n]*\/\*# sourceMappingURL=[^ ]+ \*\/[\r\n]*$/, '\n')
 
 
+  _parseSourceMap: (sourcemap) =>
+    if typeof sourcemap is 'string'
+      sourcemap = JSON.parse(sourcemap)
+
+    # Ignore files with no mappings work around "Invalid mapping" and
+    # "Unsupported previous source map format" errors
+    if !sourcemap || !sourcemap.mappings
+      return null
+
+    return sourcemap
+
+
   _inlineSourceMapContent: (data, cb) =>
     sourceToContent = (file, cb) =>
       await fs.readFile(path.join(@srcPath, file), 'utf8', errTo(cb, defer content))
@@ -264,7 +276,7 @@ class AssetGroup
       return cb()
 
     data.content = result.js
-    data.sourcemap = JSON.parse(result.v3SourceMap)
+    data.sourcemap = @_parseSourceMap(result.v3SourceMap)
     data.action = 'compiled'
 
     cb(null, data)
@@ -359,13 +371,14 @@ class AssetGroup
         fs.readFile("#{outputFile}.map", 'utf8', errTo(cb, defer sourcemap))
 
     if @sourcemaps
-      data.sourcemap = JSON.parse(sourcemap)
+      data.sourcemap = @_parseSourceMap(sourcemap)
 
       # Make the sources relative to the source directory - we'll change them
       # to be relative to the final destination file later
-      for source, k in data.sourcemap.sources
-        source = path.resolve(path.dirname(outputFile), source)
-        data.sourcemap.sources[k] = path.relative(@srcPath, source)
+      if data.sourcemap
+        for source, k in data.sourcemap.sources
+          source = path.resolve(path.dirname(outputFile), source)
+          data.sourcemap.sources[k] = path.relative(@srcPath, source)
 
       @_removeSourceMapComment(data)
 
@@ -506,13 +519,10 @@ class AssetGroup
     count = 0
 
     for data in datas
-      # Ignore files with only "\n" to work around a bug where concat-with-
-      # sourcemaps crashes with "Invalid mapping" error
-      if data && data.content && data.content != "\n"
-        concat.add(data.src, data.content, data.sourcemap)
-        count += data.count
+      concat.add(data.src, data.content, data.sourcemap)
+      count += data.count
 
-    sourcemap = JSON.parse(concat.sourceMap)
+    sourcemap = @_parseSourceMap(concat.sourceMap)
 
     # Convert absolute paths to relative
     if sourcemap

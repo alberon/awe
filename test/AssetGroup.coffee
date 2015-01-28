@@ -896,7 +896,7 @@ describe 'AssetGroup.build()', ->
       """
 
 
-  it 'should support sourcemaps for empty files', build
+  it 'should support sourcemaps for empty CSS files', build
     # This is because concat-with-sourcemaps crashes on empty CSS files -
     # probably an incompatibility with PostCSS since JS files are fine
     root: "#{fixtures}/build-sourcemap-combine-empty"
@@ -907,16 +907,45 @@ describe 'AssetGroup.build()', ->
     ]
     tests: ->
       expect("#{fixtures}/build-sourcemap-combine-empty/build/dir.css").to.have.content """
-
-        /*# sourceMappingURL=dir.css.map */\n
+        \n\n/*# sourceMappingURL=dir.css.map */\n
       """
       expect("#{fixtures}/build-sourcemap-combine-empty/build/dir.css.map").to.have.content """
+        {
+          "version": 3,
+          "sources": [
+            "dir.css/empty.css"
+          ],
+          "names": [],
+          "mappings": "AAAA;AACA",
+          "file": "dir.css",
+          "sourceRoot": "../src",
+          "sourcesContent": [
+            ""
+          ]
+        }
+      """
+
+
+  it 'should support sourcemaps for empty Sass files', build
+    root: "#{fixtures}/build-sourcemap-empty-sass"
+    config:
+      sourcemaps: true
+    files: [
+      'src/empty.scss'
+    ]
+    tests: ->
+      expect("#{fixtures}/build-sourcemap-empty-sass/build/empty.css").to.have.content """
+        \n\n/*# sourceMappingURL=empty.css.map */\n
+      """
+      # Note: Compass doesn't generate a sourcemap for an empty file, so the
+      # sources list here is empty rather than showing an empty file
+      expect("#{fixtures}/build-sourcemap-empty-sass/build/empty.css.map").to.have.content """
         {
           "version": 3,
           "sources": [],
           "names": [],
           "mappings": "",
-          "file": "dir.css",
+          "file": "empty.css",
           "sourceRoot": "../src",
           "sourcesContent": []
         }
