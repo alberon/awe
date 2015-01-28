@@ -15,10 +15,10 @@
 
 
 ================================================================================
- v0.1.2_ :date:`(28 Jan 2015)`
+ v1.0.0_ :date:`(28 Jan 2015)`
 ================================================================================
 
-.. _v0.1.2: https://github.com/alberon/awe/tree/v0.1.2
+.. _v1.0.0: https://github.com/alberon/awe/tree/v1.0.0
 
 - Fix "Unsupported previous source map format" crash when a ``.scss`` file is blank and sourcemaps are enabled
 
