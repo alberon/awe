@@ -303,6 +303,20 @@ describe 'AssetGroup.build()', ->
       expect("#{fixtures}/build-combine-other/build/combine.other/sample.txt").to.be.a.file()
 
 
+  it 'should not combine the content non-CSS files in a CSS directory', build
+    root: "#{fixtures}/build-combine-invalid"
+    files: [
+      'src/combine.css/styles.css'
+      'src/combine.css/ignore.txt'
+    ]
+    tests: ->
+      expect("#{fixtures}/build-combine-invalid/build/combine.css").to.have.content """
+        body {
+          color: red;
+        }\n
+      """
+
+
   #----------------------------------------
   # YAML imports
   #----------------------------------------
