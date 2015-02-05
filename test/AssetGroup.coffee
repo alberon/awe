@@ -186,16 +186,18 @@ describe 'AssetGroup.build()', ->
     root: "#{fixtures}/build-error-sass"
     files: [
       'src/invalid.scss'
+      'src/combined.css/invalid.scss'
     ]
-    errors: 1
+    errors: 2
 
 
   it 'should handle errors in CoffeeScript files', build
     root: "#{fixtures}/build-error-coffeescript"
     files: [
       'src/invalid.coffee'
+      'src/combined.js/invalid.coffee'
     ]
-    errors: 1
+    errors: 2
 
 
   #----------------------------------------

@@ -519,10 +519,13 @@ class AssetGroup
     count = 0
 
     for data in datas
-      # Skip non-text files (TODO: Make this smarter - warn instead)
-      if data.content
-        concat.add(data.src, data.content, data.sourcemap)
-      count += data.count
+      # Skip files with compile errors
+      if data
+        # Skip non-text files (TODO: Make this smarter - warn instead about non-
+        # text files inside a combined directory instead)
+        if data.content
+          concat.add(data.src, data.content, data.sourcemap)
+        count += data.count
 
     sourcemap = @_parseSourceMap(concat.sourceMap)
 

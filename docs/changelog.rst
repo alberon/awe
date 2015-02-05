@@ -15,14 +15,24 @@
 
 
 ================================================================================
+ v1.0.2_ :date:`(5 Feb 2015)`
+================================================================================
+
+.. _v1.0.2: https://github.com/alberon/awe/tree/v1.0.2
+
+- Fix "Uncaught TypeError: Cannot read property 'content' of undefined" crash when an invalid Sass file is inside a CSS directory
+
+
+================================================================================
  v1.0.1_ :date:`(30 Jan 2015)`
 ================================================================================
 
 .. _v1.0.1: https://github.com/alberon/awe/tree/v1.0.1
 
-- Fix "Uncaught TypeError: Cannot call method 'split' of undefined" crash when non-CSS file is inside CSS directory
+- Fix "Uncaught TypeError: Cannot call method 'split' of undefined" crash when a non-CSS file is inside a CSS directory
 
 
+================================================================================
  v1.0.0_ :date:`(28 Jan 2015)`
 ================================================================================
 
