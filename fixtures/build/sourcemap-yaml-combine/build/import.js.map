@@ -1,0 +1,19 @@
+{
+  "version": 3,
+  "sources": [
+    "_1.js",
+    "_23.js/2.js",
+    "_23.js/3.js",
+    "_4.js"
+  ],
+  "names": [],
+  "mappings": "AAAA;AACA;ACDA;AACA;AACA;ACFA;AACA;AACA;AACA;ACHA;AACA;AACA;AACA;AACA",
+  "file": "import.js",
+  "sourceRoot": "../src",
+  "sourcesContent": [
+    "console.log('File 1');\n",
+    "// This is just to move it down a line\nconsole.log('File 2');\n",
+    "// This is just to move it down 2 lines\n// This is just to move it down 2 lines\nconsole.log('File 3');\n",
+    "// This is just to move it down 3 lines\n// This is just to move it down 3 lines\n// This is just to move it down 3 lines\nconsole.log('File 4');\n"
+  ]
+}

@@ -1,4 +1,0 @@
-# 4 space indents in ReST because that's what we want for most code examples
-# And the same for Python because it's the standard
-[*]
-indent_size = 4

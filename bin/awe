@@ -1,2 +1,17 @@
-#!/usr/bin/env node
-require('../lib-build/awe');
+#!/usr/bin/env php
+<?php
+require_once __DIR__ . '/../bootstrap/autoload.php';
+
+// Remove 'php' from the start of the command in 'ps', 'top', etc.
+// e.g. 'php /usr/bin/awe help abc' becomes 'awe help abc'
+$name = $argv;
+$name[0] = basename($name[0]);
+@cli_set_process_title(implode(' ', $name));
+
+// Run the application
+$app    = new Alberon\Awe\App;
+$cli    = $app->make('Alberon\Awe\CLI');
+$status = $cli->run(array_slice($argv, 1));
+
+// Exit with the given status code
+exit($status);

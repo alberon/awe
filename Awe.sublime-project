@@ -10,7 +10,6 @@
         "docs-html",
         "docs-pdf",
         "fixtures/*/build",
-        "lib-build",
         "man-build",
         "node_modules/.bin",
         "ruby_bundle"

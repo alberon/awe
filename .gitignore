@@ -1,24 +1,20 @@
-# Compiled JavaScript (run `grunt build` or `grunt lib`)
-/lib-build/
-
-# Compiled man pages (run `grunt build` or `grunt man`)
-/man-build/
-
-# Compiled documentation (run `grunt build` or `grunt docs` for HTML; `grunt pdfdocs` for PDF)
+# Compiled documentation
 /docs-html/
 /docs-pdf/
+/man-build/
 
-# Output from test scripts (run `grunt test`) and sample builds
-/fixtures/*/build/
-/sample/*/build/
+# Output from test scripts and sample builds
+/fixtures/**/build/
+/sample/**/build/
 
-# Ruby & Node packages
-/.bundle/
+# Packages
 /node_modules/
 /ruby_bundle/
+/vendor/
+
+# Other package manager files
+/.bundle/
+npm-debug.log
 
 # Sublime Text workspace
 /*.sublime-workspace
-
-# npm debug log
-npm-debug.log

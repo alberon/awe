@@ -1,0 +1,13 @@
+{
+  "version": 3,
+  "sources": [
+    "dir.css/empty.css"
+  ],
+  "names": [],
+  "mappings": "AAAA;AACA",
+  "file": "dir.css",
+  "sourceRoot": "../src",
+  "sourcesContent": [
+    ""
+  ]
+}

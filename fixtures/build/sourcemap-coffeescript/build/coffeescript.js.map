@@ -1,0 +1,13 @@
+{
+  "version": 3,
+  "file": "coffeescript.js",
+  "sourceRoot": "../src",
+  "sources": [
+    "coffeescript.coffee"
+  ],
+  "names": [],
+  "mappings": "AAAA;AAAA,EAAA,OAAO,CAAC,GAAR,CAAY,gBAAZ,CAAA,CAAA;;AAAA,EACA,OAAO,CAAC,GAAR,CAAY,gBAAZ,CADA,CAAA;;AAAA,EAEA,OAAO,CAAC,GAAR,CAAY,gBAAZ,CAFA,CAAA;AAAA",
+  "sourcesContent": [
+    "console.log 'CoffeeScript 1'\nconsole.log 'CoffeeScript 2'\nconsole.log 'CoffeeScript 3'\n"
+  ]
+}
