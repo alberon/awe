@@ -4,6 +4,6 @@
 
 $autoloader = require_once __DIR__ . '/bootstrap/autoload.php';
 
-$app = new Alberon\Awe\App;
+$awe = new Alberon\Awe\App;
 
-Psy\Shell::debug(compact('autoloader', 'app'), $app);
+Psy\Shell::debug(compact('autoloader', 'awe'), $awe);

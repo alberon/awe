@@ -13,109 +13,111 @@ class ArgsParserTest extends TestCase
 
     protected function expectMake($class, $args)
     {
-        $this->app->shouldReceive('make')->with($class, [$args])->once();
+        $this->app->shouldReceive('make')->with($class, [$args])->once()->andReturn('ok');
     }
 
-    public function testCommands()
+    public function testCommandsReturnsAssociativeArrayOfCommandsMappedToClasses()
     {
         $commands = $this->argsParser->commands();
 
-        $this->assertSame($commands['build'], 'Alberon\Awe\Commands\Build');
-        $this->assertSame($commands['watch'], 'Alberon\Awe\Commands\Watch');
+        $this->assertInternalType('array', $commands);
+        $this->assertSame($commands['build'], 'Alberon\Awe\BuildCommand');
+        $this->assertSame($commands['watch'], 'Alberon\Awe\WatchCommand');
     }
 
-    public function testSynonyms()
+    public function testSynonymsReturnsAssociativeArrayOfSynonymsMappedToCommands()
     {
         $synonyms = $this->argsParser->synonyms();
 
+        $this->assertInternalType('array', $synonyms);
         $this->assertSame($synonyms['b'], 'build');
         $this->assertSame($synonyms['w'], 'watch');
     }
 
-    public function testParse()
+    public function testParseCommandNameReturnsCommandObject()
     {
-        $this->expectMake('Alberon\Awe\Commands\Build', []);
+        $this->expectMake('Alberon\Awe\BuildCommand', []);
 
-        $this->argsParser->parse(['build']);
+        $this->assertSame('ok', $this->argsParser->parse(['build']));
     }
 
-    public function testParseWithParameters()
+    public function testParseWithParametersReturnsCommandObjectWithParameters()
     {
-        $this->expectMake('Alberon\Awe\Commands\Build', ['-h', 'a', 'b', '--', 'c']);
+        $this->expectMake('Alberon\Awe\BuildCommand', ['-h', 'a', 'b', '--', 'c']);
 
-        $this->argsParser->parse(['build', '-h', 'a', 'b', '--', 'c']);
+        $this->assertSame('ok', $this->argsParser->parse(['build', '-h', 'a', 'b', '--', 'c']));
     }
 
-    public function testParseSynonyms()
+    public function testParseSynonymReturnsCommandObject()
     {
-        $this->expectMake('Alberon\Awe\Commands\Build', ['b', 'c']);
+        $this->expectMake('Alberon\Awe\BuildCommand', ['b', 'c']);
 
-        $this->argsParser->parse(['b', 'b', 'c']);
+        $this->assertSame('ok', $this->argsParser->parse(['b', 'b', 'c']));
     }
 
-    public function testVersionOption()
+    public function testParseVersionOptionReturnsVersionCommand()
     {
-        $this->expectMake('Alberon\Awe\Commands\Version', []);
+        $this->expectMake('Alberon\Awe\VersionCommand', []);
 
-        $this->argsParser->parse(['--version']);
+        $this->assertSame('ok', $this->argsParser->parse(['--version']));
     }
 
-    public function testVersionShorthand()
+    public function testParseShorthandVersionOptionReturnsVersionCommand()
     {
-        $this->expectMake('Alberon\Awe\Commands\Version', []);
+        $this->expectMake('Alberon\Awe\VersionCommand', []);
 
-        $this->argsParser->parse(['-v']);
+        $this->assertSame('ok', $this->argsParser->parse(['-v']));
     }
 
-    public function testHelpOption()
+    public function testParseHelpOptionReturnsHelpCommand()
     {
-        $this->expectMake('Alberon\Awe\Commands\Help', []);
+        $this->expectMake('Alberon\Awe\HelpCommand', []);
 
-        $this->argsParser->parse(['--help']);
+        $this->assertSame('ok', $this->argsParser->parse(['--help']));
     }
 
-    public function testHelpShorthand()
+    public function testParseShorthandHelpOptionReturnsHelpCommand()
     {
-        $this->expectMake('Alberon\Awe\Commands\Help', []);
+        $this->expectMake('Alberon\Awe\HelpCommand', []);
 
-        $this->argsParser->parse(['-h']);
+        $this->assertSame('ok', $this->argsParser->parse(['-h']));
     }
 
-    public function testHelpAfterCommand()
+    public function testParseHelpOptionAfterCommandReturnsHelpCommand()
     {
-        $this->expectMake('Alberon\Awe\Commands\Help', ['build']);
+        $this->expectMake('Alberon\Awe\HelpCommand', ['build']);
 
-        $this->argsParser->parse(['build', '--help']);
+        $this->assertSame('ok', $this->argsParser->parse(['build', '--help']));
     }
 
-    public function testHelpShorthandAfterCommand()
+    public function testParseShorthandHelpOptionAfterCommandReturnsHelpCommand()
     {
-        $this->expectMake('Alberon\Awe\Commands\Help', ['build']);
+        $this->expectMake('Alberon\Awe\HelpCommand', ['build']);
 
-        $this->argsParser->parse(['build', '-h']);
+        $this->assertSame('ok', $this->argsParser->parse(['build', '-h']));
     }
 
-    public function testNoParametersDisplaysHelp()
+    public function testParseWithNoParametersReturnsHelpCommand()
     {
-        $this->expectMake('Alberon\Awe\Commands\Help', []);
+        $this->expectMake('Alberon\Awe\HelpCommand', []);
 
-        $this->argsParser->parse([]);
+        $this->assertSame('ok', $this->argsParser->parse([]));
     }
 
     /**
      * @expectedException Alberon\Awe\InvalidParameterException
      * @expectedExceptionMessage Unknown global parameter '--invalidparameter'
      */
-    public function testUnknownParameterException()
+    public function testParseUnknownParameterThrowsException()
     {
-        $this->argsParser->parse(['--invalidparameter', 'build']);
+        $this->assertSame('ok', $this->argsParser->parse(['--invalidparameter', 'build']));
     }
 
     /**
      * @expectedException Alberon\Awe\InvalidParameterException
      * @expectedExceptionMessage Unknown command 'invalidcommand'
      */
-    public function testUnknownCommandException()
+    public function testParseUnknownCommandThrowsException()
     {
         $this->argsParser->parse(['invalidcommand']);
     }

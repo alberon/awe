@@ -1,8 +1,6 @@
 <?php
 namespace Alberon\Awe;
 
-use Alberon\Awe\Stream\StdErr;
-
 class CLI
 {
     protected $argsParser;
@@ -19,13 +17,20 @@ class CLI
             $return = $this->argsParser->parse($args)->run();
         } catch (InvalidParameterException $e) {
             $this->stderr->writeln('<error>' . $this->stderr->escape($e->getMessage()) . '</error>');
-            return 1;
+            $return = false;
         }
 
-        if (is_int($return) || ctype_digit($return))
-            return (int) $return;
-        elseif (is_bool($return))
-            return $return ? 0 : 1;
+        return $this->normaliseReturnValue($return);
+    }
+
+    // Public to allow for unit testing
+    // TODO: Find a better way...
+    public function normaliseReturnValue($value)
+    {
+        if (is_int($value) || ctype_digit($value))
+            return (int) $value;
+        elseif (is_bool($value))
+            return $value ? 0 : 1;
         else
             return 1;
     }

@@ -7,12 +7,11 @@ class ConfigTest extends TestCase
     {
         parent::setUp();
 
-        $this->app              = new Alberon\Awe\App;
         $this->configNormaliser = m::mock('Alberon\Awe\ConfigNormaliser');
         $this->config           = $this->app->make('Alberon\Awe\Config', ['normaliser' => $this->configNormaliser]);
     }
 
-    public function testLoadConfig()
+    public function testLoadMethodReadsYamlFileAndCallsNormalise()
     {
         $data = [
             'ASSETS' => [
@@ -25,7 +24,7 @@ class ConfigTest extends TestCase
 
         $this->configNormaliser->shouldReceive('normalise')->with($data)->once()->andReturn('normalised');
 
-        $config = $this->config->load(dirname(dirname(__DIR__)) . '/fixtures/config-test');
+        $config = $this->config->load("{$this->fixtures}/config-test");
 
         $this->assertSame('normalised', $config);
     }

@@ -13,11 +13,11 @@ namespace Alberon\Awe;
 class ArgsParser
 {
     protected $commands = [
-        'build'   => 'Alberon\Awe\Commands\Build',
-        'help'    => 'Alberon\Awe\Commands\Help',
-        'init'    => 'Alberon\Awe\Commands\Init',
-        'watch'   => 'Alberon\Awe\Commands\Watch',
-        'version' => 'Alberon\Awe\Commands\Version',
+        'build'   => 'Alberon\Awe\BuildCommand',
+        'help'    => 'Alberon\Awe\HelpCommand',
+        'init'    => 'Alberon\Awe\InitCommand',
+        'watch'   => 'Alberon\Awe\WatchCommand',
+        'version' => 'Alberon\Awe\VersionCommand',
     ];
 
     protected $synonyms = [
@@ -93,6 +93,6 @@ class ArgsParser
 
     protected function make($command, $params)
     {
-        return $this->app->make($this->commands[$command], ['params' => $params]);
+        return $this->app->make($this->commands[$command], [$params]);
     }
 }
