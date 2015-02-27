@@ -8,7 +8,6 @@ class AssetGroup
     // tmp.setGracefulCleanup()
 
     // bundlePath  = path.resolve(__dirname, '..', 'ruby_bundle')
-    // compassPath = path.resolve(__dirname, '..', 'ruby_bundle', 'bin', 'compass')
 
     protected $app;
     protected $autoprefixer;
@@ -36,13 +35,13 @@ class AssetGroup
         $this->sourcemaps   = $config['sourcemaps'];
 
         // Normalise paths
-        $this->srcPath  = $this->rootPath . '/' . rtrim($config['src'], '/\\');
-        $this->destPath = $this->rootPath . '/' . rtrim($config['dest'], '/\\');
+        $this->srcPath  = $this->rootPath . DIRECTORY_SEPARATOR . rtrim($config['src'], '/\\');
+        $this->destPath = $this->rootPath . DIRECTORY_SEPARATOR . rtrim($config['dest'], '/\\');
 
         // Generated paths
         if ($this->bower) {
-            $this->bowerLink = $this->destPath . '/_bower';
-            $this->bowerSrc  = $this->rootPath . '/' . $this->bower;
+            $this->bowerLink = $this->destPath . DIRECTORY_SEPARATOR . '_bower';
+            $this->bowerSrc  = $this->rootPath . DIRECTORY_SEPARATOR . $this->bower;
         }
 
         if ($config['warningfile'])
@@ -95,8 +94,10 @@ class AssetGroup
         //           source: path.relative(@destPath, @srcPath)
         //         @_write(dest: path.join(@warningFile), stream: stream, action: 'generated', defer())
 
-        //       # Create cache directory
-        //       cacheDir.prepare(@rootPath, errTo(cb, defer @cachePath))
+        // Create cache directory
+        $this->cachePath = $this->rootPath . DIRECTORY_SEPARATOR . '.awe';
+        if (!is_dir($this->cachePath))
+            mkdir($this->cachePath);
 
         //       # Determine the real path of the root - needed to detect loops
         //       fs.realpath(@srcPath, errTo(cb, defer srcRealPath))
@@ -129,17 +130,20 @@ class AssetGroup
     //     # the very end)
     //     data.content = data.content.replace(/[\r\n]*\/\*# sourceMappingURL=[^ ]+ \*\/[\r\n]*$/, '\n')
 
+    protected function parseSourceMap($sourcemap)
+    {
+        return json_decode($sourcemap);
 
-    //   _parseSourceMap: (sourcemap) =>
-    //     if typeof sourcemap is 'string'
-    //       sourcemap = JSON.parse(sourcemap)
+        // if typeof sourcemap is 'string'
+        //   sourcemap = JSON.parse(sourcemap)
 
-    //     # Ignore files with no mappings work around "Invalid mapping" and
-    //     # "Unsupported previous source map format" errors
-    //     if !sourcemap || !sourcemap.mappings
-    //       return null
+        // # Ignore files with no mappings work around "Invalid mapping" and
+        // # "Unsupported previous source map format" errors
+        // if !sourcemap || !sourcemap.mappings
+        //   return null
 
-    //     return sourcemap
+        // return sourcemap
+    }
 
 
     //   _inlineSourceMapContent: (data, cb) =>
@@ -197,13 +201,17 @@ class AssetGroup
         }
     }
 
-    // _buildDirectory: (src, dest, cb) =>
-    //   if src[-4..].toLowerCase() == '.css' || src[-3..].toLowerCase() == '.js'
-    //     await @_compileDirectory(src, dest, errTo(cb, defer data))
-    //     @_write(data, cb)
+    protected function buildDirectory($src, $dest)
+    {
+        $file = strtolower($src);
 
-    //   else
-    //     @_buildRegularDirectory(src, dest, cb)
+        if (substr($file, -4) === '.css' || substr($file, -3) === '.js') {
+            $data = $this->compileDirectory($src, $dest);
+            $this->write($data);
+        } else {
+            $this->buildRegularDirectory($src, $dest);
+        }
+    }
 
     protected function readDirectory($dir)
     {
@@ -235,8 +243,8 @@ class AssetGroup
             if ($file[0] === '_')
                 continue;
 
-            $srcFile  = $src . '/' . $file;
-            $destFile = $dest . '/' . $file;
+            $srcFile  = $src . DIRECTORY_SEPARATOR . $file;
+            $destFile = $dest . DIRECTORY_SEPARATOR . $file;
 
             $this->buildFileOrDirectory($srcFile, $destFile);
         }
@@ -252,183 +260,189 @@ class AssetGroup
         ];
     }
 
-    //   _compileCoffeeScript: (src, dest, cb) =>
-    //     await @_getFile(src, dest, errTo(cb, defer data))
+    protected function compileCoffeeScript($src, $dest)
+    {
+        $script       = dirname(__DIR__) . '/node/compile-coffeescript.coffee';
+        $relativeSrc  = $this->relpath($this->srcPath, $src);
+        $destFilename = basename($dest);
 
-    //     try
-    //       result = coffee.compile(data.content,
-    //         sourceMap:     true
-    //         sourceFiles:   [path.relative(@srcPath, src)]
-    //         generatedFile: path.basename(dest)
-    //       )
-    //     catch e
-    //       file = path.relative(@rootPath, src)
-    //       output.error(file, null, e.toString().replace('[stdin]:', ''))
-    //       return cb()
+        $exe  = dirname(__DIR__) . '/node_modules/.bin/coffee';
+        $args = [$script, $relativeSrc, $destFilename];
 
-    //     data.content = result.js
-    //     data.sourcemap = @_parseSourceMap(result.v3SourceMap)
-    //     data.action = 'compiled'
+        $compiler = $this->app->make('Alberon\Awe\ProcOpen3', [$exe, $args]);
+        $compiler->redirectStandardInFromFile($src, 'r');
+        $compiler->execute();
 
-    //     cb(null, data)
+        if ($error = stream_get_contents($compiler->getStandardError()))
+            throw new Exception($error);
 
+        $content   = stream_get_contents($compiler->getStandardOut());
+        $sourcemap = stream_get_contents($compiler->getFD3());
+
+        $compiler->close();
+
+        return [
+            'content'   => $content,
+            'count'     => 1,
+            'action'    => 'compiled',
+            'sourcemap' => $this->parseSourceMap($sourcemap),
+            'dest'      => $dest,
+        ];
+    }
 
     //   _getCss: (src, dest, cb) =>
     //     await @_getFile(src, dest, errTo(cb, defer data))
     //     @_rewriteCss(data, src, dest)
     //     cb(null, data)
 
+    protected function compileSass($src, $dest)
+    {
+        // Create a temp directory for the output
+        $tmpDir = $this->tempdir();
 
-    //   _compileSass: (src, dest, cb) =>
+        // Create a config file for Compass
+        // (Compass doesn't let us specify all options using the CLI, so we have to
+        // generate a config file instead. We could use `sass --compass` instead for
+        // some of them, but that doesn't support all the options either.)
+        $configFile = $this->tempfile();
+        $sourcemap = $this->sourcemaps ? 'true' : 'false';
 
-    //     # Create a temp directory for the output
-    //     await tmp.dir(unsafeCleanup: true, errTo(cb, defer tmpDir))
+        $compassConfig = "
+            project_path = '{$this->rootPath}'
+            cache_path   = '{$this->cachePath}/sass-cache'
+            output_style = :expanded
 
-    //     # Create a config file for Compass
-    //     # (Compass doesn't let us specify all options using the CLI, so we have to
-    //     # generate a config file instead. We could use `sass --compass` instead for
-    //     # some of them, but that doesn't support all the options either.)
-    //     await tmp.file(errTo(cb, defer configFilename, configFd))
+            # Input files
+            sass_path        =  '{$this->srcPath}'
+            images_path      =  '{$this->srcPath}/img'
+            fonts_path       =  '{$this->srcPath}/fonts'
+            sprite_load_path << '{$this->srcPath}/_sprites'
 
-    //     compassConfig = """
-    //       project_path = '#{@rootPath}'
-    //       cache_path   = '#{path.join(@cachePath, 'sass-cache')}'
-    //       output_style = :expanded
+            # Output to a temp directory so we can catch any generated files too
+            css_path              = '{$tmpDir}'
+            generated_images_path = '{$tmpDir}/_generated'
+            javascripts_path      = '{$tmpDir}/_generated' # Rarely used but might as well
 
-    //       # Input files
-    //       sass_path        =  '#{@srcPath}'
-    //       images_path      =  '#{@srcPath}/img'
-    //       fonts_path       =  '#{@srcPath}/fonts'
-    //       sprite_load_path << '#{@srcPath}/_sprites'
+            # Output a placeholder for URLs - we will rewrite them into relative paths later
+            # (Can't use 'relative_assets' because it generates paths like '../../../tmp/tmp-123/img')
+            http_path                  = '/AWEDESTROOTPATH'
+            http_stylesheets_path      = '/AWEDESTROOTPATH'
+            http_images_path           = '/AWEDESTROOTPATH/img'
+            http_fonts_path            = '/AWEDESTROOTPATH/fonts'
+            http_generated_images_path = '/AWEDESTROOTPATH/_generated'
+            http_javascripts_path      = '/AWEDESTROOTPATH/_generated'
 
-    //       # Output to a temp directory so we can catch any generated files too
-    //       css_path              = '#{tmpDir}'
-    //       generated_images_path = '#{tmpDir}/_generated'
-    //       javascripts_path      = '#{tmpDir}/_generated' # Rarely used but might as well
+            # Disable cache busting URLs (e.g. sample.gif?123456) - it makes unit
+            # testing harder! One day I'll add cache busting URLs in a PostCSS filter
+            asset_cache_buster :none
 
-    //       # Output a placeholder for URLs - we will rewrite them into relative paths later
-    //       # (Can't use 'relative_assets' because it generates paths like '../../../tmp/tmp-123/img')
-    //       http_path                  = '/AWEDESTROOTPATH'
-    //       http_stylesheets_path      = '/AWEDESTROOTPATH'
-    //       http_images_path           = '/AWEDESTROOTPATH/img'
-    //       http_fonts_path            = '/AWEDESTROOTPATH/fonts'
-    //       http_generated_images_path = '/AWEDESTROOTPATH/_generated'
-    //       http_javascripts_path      = '/AWEDESTROOTPATH/_generated'
+            # Disable line number comments - use sourcemaps instead
+            line_comments = false
+            sourcemap = {$sourcemap}
+        ";
 
-    //       # Disable cache busting URLs (e.g. sample.gif?123456) - it makes unit
-    //       # testing harder! One day I'll add cache busting URLs in a PostCSS filter
-    //       asset_cache_buster :none
+        $this->file->put($configFile, $compassConfig);
 
-    //       # Disable line number comments - use sourcemaps instead
-    //       line_comments = false
-    //       sourcemap = #{if @sourcemaps then 'true' else 'false'}
-    //     """
+        // Compile the file using Compass
+        $exe = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'ruby_bundle' . DIRECTORY_SEPARATOR . 'bin' . DIRECTORY_SEPARATOR . 'compass';
+        $args = ['compile', '--trace', '--config', $configFile, $src];
 
-    //     await fs.write(configFd, new Buffer(compassConfig), 0, compassConfig.length, null, errTo(cb, defer()))
+        $compiler = $this->app->make('fool\executor\ProcOpen', [$exe, $args]);
+        $compiler->execute();
 
-    //     await fs.close(configFd, errTo(cb, defer()))
+        fclose($compiler->getStandardIn());
 
-    //     # Compile the file using Compass
-    //     args = ['compile', '--trace', '--config', configFilename, src]
+        if ($error = stream_get_contents($compiler->getStandardError())) {
+            $error = preg_replace('/\n?\s*Use --trace for backtrace./', $error);
+            // $message = chalk.bold.red("SASS/COMPASS ERROR") + chalk.bold.black(" (#{code})") + "\n#{result}"
+            // $file = path.relative(@rootPath, src)
+            throw new Exception($error);
+        }
 
-    //     result = ''
-    //     bundle = spawn(compassPath, args)
-    //     bundle.stdout.on 'data', (data) => result += data
-    //     bundle.stderr.on 'data', (data) => result += data
-    //     await bundle.on 'close', defer code
+        $content = stream_get_contents($compiler->getStandardOut());
 
-    //     if code != 0
-    //       result = result.replace(/\n?\s*Use --trace for backtrace./, '')
-    //       message = chalk.bold.red("SASS/COMPASS ERROR") + chalk.bold.black(" (#{code})") + "\n#{result}"
-    //       file = path.relative(@rootPath, src)
-    //       output.error(file, null, message)
-    //       return cb()
+        $compiler->close();
 
-    //     await
-    //       # Copy any extra files that were generated
-    //       @_copyGeneratedDirectory(
-    //         path.join(tmpDir, '_generated'),
-    //         path.join(@destPath, '_generated')
-    //         errTo(cb, defer())
-    //       )
+        // Copy any extra files that were generated
+        $this->copyGeneratedDirectory(
+            $tmpDir         . DIRECTORY_SEPARATOR . '_generated',
+            $this->destPath . DIRECTORY_SEPARATOR . '_generated'
+        );
 
-    //       # Get the content from the CSS file
-    //       pathFromRoot = path.relative(@srcPath, path.dirname(src)) || '.'
-    //       outputFile = path.join(tmpDir, pathFromRoot, path.basename(src).replace(/\.scss$/, '.css'))
-    //       @_getFile(outputFile, dest, errTo(cb, defer data))
+        // Get the content from the CSS file
+        $pathFromRoot = substr($src, strlen($this->srcPath) + 1);
+        $outputFile = $tmpDir . DIRECTORY_SEPARATOR . substr($pathFromRoot, 0, -5) . '.css';
+        $data = $this->getFile($outputFile, $dest);
 
-    //       # Get the content from the source map
-    //       if @sourcemaps
-    //         fs.readFile("#{outputFile}.map", 'utf8', errTo(cb, defer sourcemap))
+        // Get the content from the source map
+        if ($this->sourcemaps) {
+            $data['sourcemap'] = $this->parseSourceMap(file_get_contents("$outputFile.map"));
 
-    //     if @sourcemaps
-    //       data.sourcemap = @_parseSourceMap(sourcemap)
+            // Make the sources relative to the source directory - we'll change
+            // them to be relative to the final destination file later
+            // for source, k in data.sourcemap.sources
+            //   source = path.resolve(path.dirname(outputFile), source)
+            //   data.sourcemap.sources[k] = path.relative(@srcPath, source)
 
-    //       # Make the sources relative to the source directory - we'll change them
-    //       # to be relative to the final destination file later
-    //       if data.sourcemap
-    //         for source, k in data.sourcemap.sources
-    //           source = path.resolve(path.dirname(outputFile), source)
-    //           data.sourcemap.sources[k] = path.relative(@srcPath, source)
+            // @_removeSourceMapComment(data)
+        }
 
-    //       @_removeSourceMapComment(data)
+        // Rewrite the URLs in the CSS
+        // @_rewriteCss(data, src, dest)
 
-    //     # Rewrite the URLs in the CSS
-    //     @_rewriteCss(data, src, dest)
+        $data['action'] = 'compiled';
 
-    //     data.action = 'compiled'
+        return $data;
+    }
 
-    //     # Run the callback
-    //     cb(null, data)
+    protected function copyGeneratedFileOrDirectory($src, $dest)
+    {
+        if (is_dir($src))
+            $this->copyGeneratedDirectory($src, $dest);
+        else
+            $this->copyGeneratedFile($src, $dest);
+    }
 
+    protected function copyGeneratedFile($src, $dest)
+    {
+        $data = $this->getFile($src, $dest);
+        $data['action'] = 'generated';
+        $this->write($data);
+    }
 
-    //   _copyGeneratedFileOrDirectory: (src, dest, file, cb) =>
-    //     return cb() if file[0...1] == '_'
+    protected function copyGeneratedDirectory($src, $dest)
+    {
+        if (!is_dir($src))
+            return;
 
-    //     srcFile = path.join(src, file)
-    //     destFile = path.join(dest, file)
+        // Get a list of files
+        $files = $this->readDirectory($src);
 
-    //     await fs.stat(srcFile, errTo(cb, defer stat))
+        // Create destination directory
+        mkdir($dest, 0777, true);
 
-    //     if stat.isDirectory()
-    //       @_copyGeneratedDirectory(srcFile, destFile, cb)
-    //     else
-    //       @_copyGeneratedFile(srcFile, destFile, cb)
-
-
-    //   _copyGeneratedFile: (src, dest, cb) =>
-    //     await @_getFile(src, dest, errTo(cb, defer data))
-    //     data.action = 'generated'
-    //     @_write(data, cb)
-
-
-    //   _copyGeneratedDirectory: (src, dest, cb) =>
-
-    //     # Get a list of files
-    //     await fs.readdir(src, defer(err, files))
-
-    //     if err && err.code == 'ENOENT'
-    //       # Source directory doesn't exist, so there's nothing to do
-    //       return cb()
-    //     else if err
-    //       return cb(err)
-
-    //     # Create destination directory
-    //     await mkdirp(dest, errTo(cb, defer()))
-
-    //     # Copy the files
-    //     async.each(files, _.partial(@_copyGeneratedFileOrDirectory, src, dest), cb)
-
+        // Copy the files
+        foreach ($files as $file) {
+            $this->copyGeneratedFileOrDirectory(
+                $src  . DIRECTORY_SEPARATOR . $file,
+                $dest . DIRECTORY_SEPARATOR . $file
+            );
+        }
+    }
 
     protected function compileFile($src, $dest)
     {
-        // # Compile CoffeeScript
-        // if src[-7..].toLowerCase() == '.coffee'
-        //   @_compileCoffeeScript(src, dest.replace(/\.coffee$/i, '.js'), cb)
+        // Compile CoffeeScript
+        if (strtolower(substr($src, -7)) === '.coffee') {
+            $dest = substr($dest, 0, -7) . '.js';
+            return $this->compileCoffeeScript($src, $dest);
+        }
 
-        // # Compile Sass
-        // else if src[-5..].toLowerCase() == '.scss'
-        //   @_compileSass(src, dest.replace(/\.scss$/i, '.css'), cb)
+        // Compile Sass
+        elseif (strtolower(substr($src, -5)) === '.scss') {
+            $dest = substr($dest, 0, -5) . '.css';
+            return $this->compileSass($src, $dest);
+        }
 
         // # Import files listed in a YAML file
         // else if src[-9..].toLowerCase() == '.css.yaml' || src[-8..].toLowerCase() == '.js.yaml'
@@ -438,13 +452,8 @@ class AssetGroup
         // else if src[-4..].toLowerCase() == '.css'
         //   @_getCss(src, dest, cb)
 
-        // # Copy JavaScript as a string
-        // else if src[-3..].toLowerCase() == '.js'
+        // Copy all other files unchanged
         return $this->getFile($src, $dest);
-
-        // # Copy other files in binary mode (side-effect: they are ignored when in a .js or .css directory)
-        // else
-        //   @_getFile(src, dest, cb)
     }
 
 
@@ -498,64 +507,70 @@ class AssetGroup
     //       data.sourcemap = result.map.toJSON()
     //       @_removeSourceMapComment(data)
 
+    protected function compileMultipleFiles($files, $dest)
+    {
+        $content = '';
+        $count   = 0;
 
-    //   _compileMultipleFiles: (files, dest, cb) =>
-    //     compile = (file, cb) =>
-    //       await @_compileFileOrDirectory(file, dest, errTo(cb, defer data))
-    //       data.src = file if data
-    //       cb(null, data)
+        foreach ($files as $file) {
+            $data = $this->compileFileOrDirectory($file, $dest);
 
-    //     # Can't use async.each because they must be concatenated in order
-    //     await async.map(files, compile, errTo(cb, defer datas))
+            // Skip files with compile errors
+            if (!$data)
+                continue;
 
-    //     concat = new Concat(true, path.basename(dest), '\n');
-    //     count = 0
+            // TODO: Any need for this?
+            // $data['src'] = $file;
 
-    //     for data in datas
-    //       # Skip files with compile errors
-    //       if data
-    //         # Skip non-text files (TODO: Make this smarter - warn instead about non-
-    //         # text files inside a combined directory instead)
-    //         if data.content
-    //           concat.add(data.src, data.content, data.sourcemap)
-    //         count += data.count
+            // TODO: Skip files of a different type (and warn the user)
+            // TODO: Concat with sourcemap
 
-    //     sourcemap = @_parseSourceMap(concat.sourceMap)
+            $content .= $data['content'] . "\n";
+            $count   += $data['count'];
+        }
 
-    //     # Convert absolute paths to relative
-    //     if sourcemap
-    //       for source, k in sourcemap.sources
-    //         # It may already be relative (I'm not sure under what circumstances but
-    //         # it happens in the unit tests), in which case we can either try to work
-    //         # out whether it's absolute or not, or we can convert it to always be
-    //         # absolute first - I've chosen the latter. Node.js 0.11 will add
-    //         # path.isAbsolute() which will make the former easier in the future.
-    //         source = path.resolve(@srcPath, source)
-    //         # And now we can convert it from absolute to relative
-    //         sourcemap.sources[k] = path.relative(@srcPath, source)
+        // sourcemap = @_parseSourceMap(concat.sourceMap)
 
-    //     cb(null, content: concat.content, sourcemap: sourcemap, count: count, action: 'compiled', dest: dest)
+        // # Convert absolute paths to relative
+        // if sourcemap
+        //   for source, k in sourcemap.sources
+        //     # It may already be relative (I'm not sure under what circumstances but
+        //     # it happens in the unit tests), in which case we can either try to work
+        //     # out whether it's absolute or not, or we can convert it to always be
+        //     # absolute first - I've chosen the latter. Node.js 0.11 will add
+        //     # path.isAbsolute() which will make the former easier in the future.
+        //     source = path.resolve(@srcPath, source)
+        //     # And now we can convert it from absolute to relative
+        //     sourcemap.sources[k] = path.relative(@srcPath, source)
 
+        return [
+            'content'   => $content,
+            'sourcemap' => null, // TODO
+            'count'     => $count,
+            'action'    => 'compiled',
+            'dest'      => $dest,
+        ];
+    }
 
-    //   _compileFileOrDirectory: (src, dest, cb) =>
-    //     await fs.stat(src, errTo(cb, defer stat))
+    public function compileFileOrDirectory($src, $dest)
+    {
+        if (is_dir($src))
+            return $this->compileDirectory($src, $dest);
+        else
+            return $this->compileFile($src, $dest);
+    }
 
-    //     if stat.isDirectory()
-    //       @_compileDirectory(src, dest, cb)
-    //     else
-    //       @_compileFile(src, dest, cb)
+    protected function compileDirectory($src, $dest)
+    {
+        $files = [];
 
+        foreach ($this->readDirectory($src) as $file) {
+            if ($file[0] !== '_')
+                $files[] = $src . DIRECTORY_SEPARATOR . $file;
+        }
 
-    //   _compileDirectory: (src, dest, cb) =>
-    //     await @_readDirectory(src, errTo(cb, defer files))
-
-    //     # Remove files starting with _
-    //     files = files.filter (file) -> file[0...1] != '_'
-
-    //     # Convert to absolute paths
-    //     files = files.map (file) -> path.join(src, file)
-
-    //     @_compileMultipleFiles(files, dest, cb)
+        return $this->compileMultipleFiles($files, $dest);
+    }
 
 
     //   _compileYamlImports: (yamlFile, dest, cb) =>
@@ -573,5 +588,62 @@ class AssetGroup
     //       cb(err)
 
 
-    // module.exports = AssetGroup
+    /**
+     * Find the relative file system path between two file system paths
+     *
+     * Source: https://gist.github.com/ohaal/2936041
+     *
+     * @param  string  $frompath  Path to start from
+     * @param  string  $topath    Path we want to end up in
+     *
+     * @return string             Path leading from $frompath to $topath
+     */
+    protected function relpath( $frompath, $topath ) {
+        $from = explode( DIRECTORY_SEPARATOR, $frompath ); // Folders/File
+        $to = explode( DIRECTORY_SEPARATOR, $topath ); // Folders/File
+        $relpath = '';
+
+        $i = 0;
+        // Find how far the path is the same
+        while ( isset($from[$i]) && isset($to[$i]) ) {
+            if ( $from[$i] != $to[$i] ) break;
+            $i++;
+        }
+        $j = count( $from ) - 1;
+        // Add '..' until the path is the same
+        while ( $i <= $j ) {
+            if ( !empty($from[$j]) ) $relpath .= '..'.DIRECTORY_SEPARATOR;
+            $j--;
+        }
+        // Go to folder from where it starts differing
+        while ( isset($to[$i]) ) {
+            if ( !empty($to[$i]) ) $relpath .= $to[$i].DIRECTORY_SEPARATOR;
+            $i++;
+        }
+
+        // Strip last separator
+        return substr($relpath, 0, -1);
+    }
+
+    /**
+     * Create a temporary directory
+     *
+     * Based on http://php.net/manual/en/function.tempnam.php#61436
+     */
+    protected function tempdir($mode=0700)
+    {
+        $dir = rtrim(sys_get_temp_dir(), '/\\');
+
+        do
+        {
+            $path = $dir . DIRECTORY_SEPARATOR . 'awe-' . str_pad(mt_rand(0, 9999999999), 10, 0, STR_PAD_RIGHT);
+        } while (!@mkdir($path, $mode));
+
+        return $path;
+    }
+
+    protected function tempfile()
+    {
+        return tempnam(sys_get_temp_dir(), 'awe-');
+    }
 }

@@ -57,67 +57,49 @@ class BuildTest extends TestCase
 
     public function testCopiesStaticTextFilesUnchanged()
     {
-        $root = "{$this->fixtures}/build/copy";
+        $this->build($root = "{$this->fixtures}/build/copy");
 
-        $this->build($root);
-
-        $this->assertFileEquals("$root/expected/javascript.js", "$root/build/javascript.js");
-        $this->assertFileEquals("$root/expected/stylesheet.css", "$root/build/stylesheet.css");
-        $this->assertFileEquals("$root/expected/unknown.file", "$root/build/unknown.file");
+        $this->assertFileEquals("$root/src/javascript.js", "$root/build/javascript.js");
+        $this->assertFileEquals("$root/src/stylesheet.css", "$root/build/stylesheet.css");
+        $this->assertFileEquals("$root/src/unknown.file", "$root/build/unknown.file");
     }
 
-    // it 'should copy images', build
-    //   root: "#{fixtures}/build/copy-images"
-    //   files: [
-    //     'src/sample.gif'
-    //   ]
-    //   tests: ->
-    //     # Using hex encoding because it's the easiest way to compare two files
-    //     # This test is necessary because the file must be copied in binary mode not UTF-8 else it is corrupted
-    //     data1 = 'Hex encoding: ' + fs.readFileSync("#{fixtures}/build/copy-images/build/sample.gif", encoding: 'hex')
-    //     data2 = 'Hex encoding: ' + fs.readFileSync("#{fixtures}/build/copy-images/src/sample.gif", encoding: 'hex')
-    //     expect(data1).to.equal(data2)
+    public function testCopiesImagesUnchanged()
+    {
+        $this->build($root = "{$this->fixtures}/build/copy-images");
 
+        $this->assertFileEquals("$root/src/sample.gif", "$root/build/sample.gif");
+    }
 
-    // it 'should compile CoffeeScript files', build
-    //   root: "#{fixtures}/build/coffeescript"
-    //   files: [
-    //     'src/coffeescript.coffee'
-    //   ]
-    //   tests: ->
-    //     expect("#{fixtures}/build/coffeescript/build/coffeescript.js").to.have.content """
-    //       (function() {
-    //         console.log('CoffeeScript');
+    public function testCompilesCoffeescriptFiles()
+    {
+        $this->build($root = "{$this->fixtures}/build/coffeescript");
 
-    //       }).call(this);\n
-    //     """
+        $this->assertFileNotExists("$root/build/coffeescript.coffee");
+        $this->assertFileEquals("$root/expected/coffeescript.js", "$root/build/coffeescript.js");
+    }
 
+    public function testCompilesScssFiles()
+    {
+        $this->build($root = "{$this->fixtures}/build/sass");
 
-    // it 'should compile Sass files', build
-    //   root: "#{fixtures}/build/sass"
-    //   files: [
-    //     'src/sass.scss'
-    //   ]
-    //   tests: ->
-    //     expect("#{fixtures}/build/sass/build/sass.css").to.have.content """
-    //       .main-red, .also-red {
-    //         color: red;
-    //       }\n
-    //     """
+        $this->assertFileNotExists("$root/build/sass.scss");
+        $this->assertFileEquals("$root/expected/sass.css", "$root/build/sass.css");
+    }
 
+    public function testSkipsFilesStartingWithAnUnderscore()
+    {
+        $this->build($root = "{$this->fixtures}/build/underscores");
 
-    // it 'should skip files starting with an underscore', build
-    //   root: "#{fixtures}/build/underscores"
-    //   files: [
-    //     'src/_ignored.coffee'
-    //     'src/_vars.scss'
-    //   ]
-    //   tests: ->
-    //     expect("#{fixtures}/build/underscores/_ignored.coffee").not.to.be.a.path()
-    //     expect("#{fixtures}/build/underscores/_ignored.js").not.to.be.a.path()
-    //     expect("#{fixtures}/build/underscores/_vars.scss").not.to.be.a.path()
-    //     expect("#{fixtures}/build/underscores/_vars.css").not.to.be.a.path()
-
+        $this->assertFileNotExists("$root/build/_ignored.coffee");
+        $this->assertFileNotExists("$root/build/_ignored.js");
+        $this->assertFileNotExists("$root/build/_vars.scss");
+        $this->assertFileNotExists("$root/build/_vars.css");
+        $this->assertFileNotExists("$root/build/_file.txt");
+        $this->assertFileNotExists("$root/build/file.txt");
+        $this->assertFileNotExists("$root/build/_dir");
+        $this->assertFileNotExists("$root/build/dir");
+    }
 
     // it 'should display a warning when CSS is invalid', build
     //   root: "#{fixtures}/build/css-invalid"
@@ -127,9 +109,9 @@ class BuildTest extends TestCase
     //   warnings: 1
 
 
-    // #----------------------------------------
-    // # Error handling
-    // #----------------------------------------
+    /*--------------------------------------
+     Error handling
+    --------------------------------------*/
 
     // it 'should show an error if src/ does not exist', build
     //   root: "#{fixtures}/build/error-src"
@@ -154,124 +136,66 @@ class BuildTest extends TestCase
     //   errors: 2
 
 
-    // #----------------------------------------
-    // # Compass
-    // #----------------------------------------
+    /*--------------------------------------
+     Compass
+    --------------------------------------*/
 
-    // it 'should use relative paths for Compass URL helpers', build
-    //   root: "#{fixtures}/build/compass-urls"
-    //   files: [
-    //     'src/subdir/urls.scss'
-    //   ]
-    //   tests: ->
-    //     expect("#{fixtures}/build/compass-urls/build/subdir/urls.css").to.have.content """
-    //       .imageUrl {
-    //         background: url('../img/sample.gif');
-    //       }
+    // public function testUsesRelativePathsForCompassUrlHelpers()
+    // {
+    //     $this->build($root = "{$this->fixtures}/build/compass-urls");
 
-    //       @font-face {
-    //         font-family: myfont;
-    //         src: url('../fonts/myfont.woff');
-    //       }\n
-    //     """
+    //     $this->assertFileEquals("$root/expected/subdir/urls.css", "$root/build/subdir/urls.css");
+    // }
 
+    public function testSupportsTheCompassInlineImageHelper()
+    {
+        $this->build($root = "{$this->fixtures}/build/compass-inline");
 
-    // it 'should support the Compass inline-image() helper', build
-    //   root: "#{fixtures}/build/compass-inline"
-    //   files: [
-    //     'src/img/_blank.gif'
-    //     'src/inline.scss'
-    //   ]
-    //   tests: ->
-    //     expect("#{fixtures}/build/compass-inline/build/inline.css").to.have.content """
-    //       .inlineImage {
-    //         background: url('data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAQAIBRAA7');
-    //       }\n
-    //     """
+        $this->assertFileEquals("$root/expected/inline.css", "$root/build/inline.css");
+    }
 
+    // public function testSupportsCompassSprites()
+    // {
+    //     $this->build($root = "{$this->fixtures}/build/compass-sprites");
 
-    // it 'should support Compass sprites', build
-    //   root: "#{fixtures}/build/compass-sprites"
-    //   files: [
-    //     'src/_sprites/icons/icon1.png'
-    //     'src/_sprites/icons/icon2.png'
-    //     'src/sprite.scss'
-    //   ]
-    //   tests: ->
-    //     # CSS file content must match
-    //     content = fs.readFileSync("#{fixtures}/build/compass-sprites/build/sprite.css", 'utf8')
-    //     expect(content).to.match /\.icons-sprite, \.icons-icon1, \.icons-icon2 {/
-    //     expect(content).to.match /background-image: url\('_generated\/icons-[^']+\.png'\);/
+    //     $this->assertFileEquals("$root/expected/sprite.css", "$root/build/sprite.css");
 
-    //     # Generated sprite must exist
-    //     sprite = content.match(/background-image: url\('_generated\/(icons-[^']+\.png)'\);/)[1]
-    //     expect("#{fixtures}/build/compass-sprites/build/_generated/#{sprite}").to.be.a.file()
-
+    //     preg_match("/background-image: url\('_generated\/(icons-[^']+\.png)'\);/)", file_get_contents("$root/build/sprite.css"), $matches);
+    //     $this->assertFileExists("$root/build/_generated/" . $matches[1]);
+    // }
 
     // #----------------------------------------
     // # Combine directories
     // #----------------------------------------
 
-    // it 'should combine the content of *.js/ directories', build
-    //   root: "#{fixtures}/build/combine-js"
-    //   files: [
-    //     'src/combine.js/_ignored.coffee'
-    //     'src/combine.js/1.js'
-    //     'src/combine.js/2-subdir/2.coffee'
-    //   ]
-    //   tests: ->
-    //     expect("#{fixtures}/build/combine-js/build/combine.js").to.have.content """
-    //       f1();
+    public function testCombinesTheContentOfJsDirectories()
+    {
+        $this->build($root = "{$this->fixtures}/build/combine-js");
 
-    //       (function() {
-    //         f2();
+        $this->assertFileEquals("$root/expected/combine.js", "$root/build/combine.js");
+    }
 
-    //       }).call(this);\n
-    //     """
+    public function testCombinesTheContentOfCssDirectories()
+    {
+        $this->build($root = "{$this->fixtures}/build/combine-css");
 
+        $this->assertFileEquals("$root/expected/combine.css", "$root/build/combine.css");
+    }
 
-    // it 'should combine the content of *.css/ directories', build
-    //   root: "#{fixtures}/build/combine-css"
-    //   files: [
-    //     'src/combine.css/_vars.scss'
-    //     'src/combine.css/1.css'
-    //     'src/combine.css/2-subdir/2.scss'
-    //   ]
-    //   tests: ->
-    //     expect("#{fixtures}/build/combine-css/build/combine.css").to.have.content """
-    //       .css {
-    //         color: red;
-    //       }
+    public function testDoesntCombineTheContentOfOtherDirectories()
+    {
+        $this->build($root = "{$this->fixtures}/build/combine-other");
 
-    //       .scss, .also-scss {
-    //         color: green;
-    //       }\n
-    //     """
+        $this->assertTrue(is_dir("$root/build/combine.other"), "Expected '$root/build/combine.other' to be a directory");
+        $this->assertFileExists("$root/build/combine.other/sample.txt");
+    }
 
+    // public function testDoesntCombineTheContentOfNonCssFilesInACssDirectory()
+    // {
+    //     $this->build($root = "{$this->fixtures}/build/combine-invalid");
 
-    // it 'should not combine the content of *.other/ directories', build
-    //   root: "#{fixtures}/build/combine-other"
-    //   files: [
-    //     'src/combine.other/sample.txt'
-    //   ]
-    //   tests: ->
-    //     expect("#{fixtures}/build/combine-other/build/combine.other").to.be.a.directory()
-    //     expect("#{fixtures}/build/combine-other/build/combine.other/sample.txt").to.be.a.file()
-
-
-    // it 'should not combine the content non-CSS files in a CSS directory', build
-    //   root: "#{fixtures}/build/combine-invalid"
-    //   files: [
-    //     'src/combine.css/styles.css'
-    //     'src/combine.css/ignore.txt'
-    //   ]
-    //   tests: ->
-    //     expect("#{fixtures}/build/combine-invalid/build/combine.css").to.have.content """
-    //       body {
-    //         color: red;
-    //       }\n
-    //     """
-
+    //     $this->assertFileEquals("$root/expected/combine.css", "$root/build/combine.css");
+    // }
 
     // #----------------------------------------
     // # YAML imports

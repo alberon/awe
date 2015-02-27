@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "34e00e4764619a816b30ac3cd6752316",
+    "hash": "30a19ee8915e080f421a0c1ffa751eb1",
     "packages": [
         {
             "name": "danielstjules/stringy",
@@ -128,6 +128,55 @@
                 "string"
             ],
             "time": "2014-12-20 21:24:13"
+        },
+        {
+            "name": "fool/executor",
+            "version": "1.3.0",
+            "source": {
+                "type": "git",
+                "url": "https://bitbucket.org/fool/executor.git",
+                "reference": "8f5c6f959a088948fce11b5d460744225f606211"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://bitbucket.org/fool/executor/get/8f5c6f959a088948fce11b5d460744225f606211.zip",
+                "reference": "8f5c6f959a088948fce11b5d460744225f606211",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.4.0"
+            },
+            "require-dev": {
+                "aura/autoload": "2.0.0-beta1",
+                "phpunit/phpunit": "4.1.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "fool\\executor\\": "src\\fool\\executor"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "Apache-2.0"
+            ],
+            "authors": [
+                {
+                    "name": "Jordan Sterling",
+                    "email": "jordan@jordansterling.com",
+                    "homepage": "https://bitbucket.org/fool"
+                }
+            ],
+            "description": "Safe command execution wrapper to prevent command injection",
+            "homepage": "https://bitbucket.org/fool/executor",
+            "keywords": [
+                "command execution",
+                "command injection",
+                "exec",
+                "execution",
+                "security"
+            ],
+            "time": "2014-06-12 01:59:40"
         },
         {
             "name": "illuminate/container",
