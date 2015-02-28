@@ -1,9 +1,17 @@
 <?php
 
 use Alberon\Awe\Filesystem;
+use Mockery as m;
 
 class BuildTest extends TestCase
 {
+    protected function setUp()
+    {
+        parent::setUp();
+
+        $this->output = m::mock('Alberon\Awe\BuildOutput');
+    }
+
     protected function build($root, $config = [])
     {
         // Default config settings
@@ -17,39 +25,14 @@ class BuildTest extends TestCase
             'warningfile'           => false,
         ], $config);
 
-        // # Check all the listed files exist - this is partly to double-check the
-        // # directory structure, and partly a way to document it
-        // if files
-        //   for file in files
-        //     expect("#{root}/#{file}").to.be.a.path('TEST SETUP ERROR')
-
         // Clear the cache and build directories
         $file = new Filesystem;
         $file->deleteDirectory("$root/.awe");
         $file->deleteDirectory("$root/" . $config['dest']);
 
-        // # Disable output
-        // output.disable()
-
-        // # Insert a blank line to separate build output from the previous test (if the line above is commented out for testing)
-        // output.line()
-        // output.building()
-
-        // # Start counting warnings & errors
-        // output.resetCounters()
-
         // Build it
-        $assetGroup = $this->app->make('Alberon\Awe\AssetGroup', [$root, $config]);
+        $assetGroup = $this->app->make('Alberon\Awe\AssetGroup', [$root, $config, 'output' => $this->output]);
         $assetGroup->build();
-
-        // (new AssetGroup(root, config)).build (err, result) ->
-        //   # Insert another blank line to separate build output from the test results
-        //   output.finished()
-        //   output.line()
-
-        //     # Check for error/warning messages
-        //     expect(output.counters.error || 0).to.equal(errors || 0, "Expected #{errors || 0} error(s)")
-        //     expect(output.counters.warning || 0).to.equal(warnings || 0, "Expected #{warnings || 0} warning(s)")
     }
 
     /*--------------------------------------
@@ -58,6 +41,11 @@ class BuildTest extends TestCase
 
     public function testCopiesStaticTextFilesUnchanged()
     {
+        $this->output->shouldReceive('created')->once()->with('build/');
+        $this->output->shouldReceive('copied')->once()->with('build/javascript.js', '');
+        $this->output->shouldReceive('copied')->once()->with('build/stylesheet.css', '');
+        $this->output->shouldReceive('copied')->once()->with('build/unknown.file', '');
+
         $this->build($root = "{$this->fixtures}/build/copy");
 
         $this->assertFileEquals("$root/src/javascript.js", "$root/build/javascript.js");
@@ -67,6 +55,9 @@ class BuildTest extends TestCase
 
     public function testCopiesImagesUnchanged()
     {
+        $this->output->shouldReceive('created')->once()->with('build/');
+        $this->output->shouldReceive('copied')->once()->with('build/sample.gif', '');
+
         $this->build($root = "{$this->fixtures}/build/copy-images");
 
         $this->assertFileEquals("$root/src/sample.gif", "$root/build/sample.gif");
@@ -74,6 +65,9 @@ class BuildTest extends TestCase
 
     public function testCompilesCoffeescriptFiles()
     {
+        $this->output->shouldReceive('created')->once()->with('build/');
+        $this->output->shouldReceive('compiled')->once()->with('build/coffeescript.js', '');
+
         $this->build($root = "{$this->fixtures}/build/coffeescript");
 
         $this->assertFileNotExists("$root/build/coffeescript.coffee");
@@ -82,6 +76,9 @@ class BuildTest extends TestCase
 
     public function testCompilesScssFiles()
     {
+        $this->output->shouldReceive('created')->once()->with('build/');
+        $this->output->shouldReceive('compiled')->once()->with('build/sass.css', '');
+
         $this->build($root = "{$this->fixtures}/build/sass");
 
         $this->assertFileNotExists("$root/build/sass.scss");
@@ -90,6 +87,8 @@ class BuildTest extends TestCase
 
     public function testSkipsFilesStartingWithAnUnderscore()
     {
+        $this->output->shouldReceive('created')->once()->with('build/');
+
         $this->build($root = "{$this->fixtures}/build/underscores");
 
         $this->assertFileNotExists("$root/build/_ignored.coffee");
@@ -102,6 +101,19 @@ class BuildTest extends TestCase
         $this->assertFileNotExists("$root/build/dir");
     }
 
+    /*--------------------------------------
+     Error handling
+    --------------------------------------*/
+
+    public function testShowsAnErrorIfSourceDirectoryDoesNotExist()
+    {
+        $this->output->shouldReceive('error')->once()->with('src/', null, "Source directory doesn't exist");
+
+        $this->build($root = "{$this->fixtures}/build/error-src-missing");
+
+        $this->assertFileNotExists("$root/build");
+    }
+
     // it 'should display a warning when CSS is invalid', build
     //   root: "#{fixtures}/build/css-invalid"
     //   files: [
@@ -109,33 +121,31 @@ class BuildTest extends TestCase
     //   ]
     //   warnings: 1
 
+    public function testShowsAnErrorIfAnScssFileIsInvalid()
+    {
+        $this->output->shouldReceive('created')->once()->with('build/');
+        $this->output->shouldReceive('error')->once()->with('src/invalid.scss', null, '#SASS/COMPASS ERROR.*(1).*Invalid CSS#s');
+        $this->output->shouldReceive('error')->once()->with('src/combined.css/invalid.scss', null, '#SASS/COMPASS ERROR.*(1).*Invalid CSS#s');
+        $this->output->shouldReceive('compiled'); // src/combined.css is still created
 
-    /*--------------------------------------
-     Error handling
-    --------------------------------------*/
+        $this->build($root = "{$this->fixtures}/build/error-sass");
 
-    // it 'should show an error if src/ does not exist', build
-    //   root: "#{fixtures}/build/error-src"
-    //   errors: 1
+        $this->assertFileNotExists("$root/build/invalid.css");
+        $this->assertFileEquals("$root/expected/combined.css", "$root/build/combined.css");
+    }
 
+    public function testShowsAnErrorIfACoffeescriptFileIsInvalid()
+    {
+        $this->output->shouldReceive('created')->once()->with('build/');
+        $this->output->shouldReceive('error')->once()->with('src/invalid.coffee', null, '#COFFEESCRIPT ERROR.*unexpected \(#s');
+        $this->output->shouldReceive('error')->once()->with('src/combined.js/invalid.coffee', null, '#COFFEESCRIPT ERROR.*unexpected \(#s');
+        $this->output->shouldReceive('compiled'); // src/combined.js is still created
 
-    // it 'should handle errors in Sass files', build
-    //   root: "#{fixtures}/build/error-sass"
-    //   files: [
-    //     'src/invalid.scss'
-    //     'src/combined.css/invalid.scss'
-    //   ]
-    //   errors: 2
+        $this->build($root = "{$this->fixtures}/build/error-coffeescript");
 
-
-    // it 'should handle errors in CoffeeScript files', build
-    //   root: "#{fixtures}/build/error-coffeescript"
-    //   files: [
-    //     'src/invalid.coffee'
-    //     'src/combined.js/invalid.coffee'
-    //   ]
-    //   errors: 2
-
+        $this->assertFileNotExists("$root/build/invalid.coffee");
+        $this->assertFileEquals("$root/expected/combined.js", "$root/build/combined.js");
+    }
 
     /*--------------------------------------
      Compass
@@ -143,6 +153,8 @@ class BuildTest extends TestCase
 
     // public function testUsesRelativePathsForCompassUrlHelpers()
     // {
+    //     $this->output->shouldReceive('created')->once()->with('build/');
+
     //     $this->build($root = "{$this->fixtures}/build/compass-urls");
 
     //     $this->assertFileEquals("$root/expected/subdir/urls.css", "$root/build/subdir/urls.css");
@@ -150,6 +162,9 @@ class BuildTest extends TestCase
 
     public function testSupportsTheCompassInlineImageHelper()
     {
+        $this->output->shouldReceive('created')->once()->with('build/');
+        $this->output->shouldReceive('compiled')->once()->with('build/inline.css', '');
+
         $this->build($root = "{$this->fixtures}/build/compass-inline");
 
         $this->assertFileEquals("$root/expected/inline.css", "$root/build/inline.css");
@@ -157,6 +172,8 @@ class BuildTest extends TestCase
 
     // public function testSupportsCompassSprites()
     // {
+    //     $this->output->shouldReceive('created')->once()->with('build/');
+
     //     $this->build($root = "{$this->fixtures}/build/compass-sprites");
 
     //     $this->assertFileEquals("$root/expected/sprite.css", "$root/build/sprite.css");
@@ -165,12 +182,15 @@ class BuildTest extends TestCase
     //     $this->assertFileExists("$root/build/_generated/" . $matches[1]);
     // }
 
-    // #----------------------------------------
-    // # Combine directories
-    // #----------------------------------------
+    /*--------------------------------------
+     Combine directories
+    --------------------------------------*/
 
     public function testCombinesTheContentOfJsDirectories()
     {
+        $this->output->shouldReceive('created')->once()->with('build/');
+        $this->output->shouldReceive('compiled')->once()->with('build/combine.js', '(2 files)');
+
         $this->build($root = "{$this->fixtures}/build/combine-js");
 
         $this->assertFileEquals("$root/expected/combine.js", "$root/build/combine.js");
@@ -178,29 +198,37 @@ class BuildTest extends TestCase
 
     public function testCombinesTheContentOfCssDirectories()
     {
+        $this->output->shouldReceive('created')->once()->with('build/');
+        $this->output->shouldReceive('compiled')->once()->with('build/combine.css', '(2 files)');
+
         $this->build($root = "{$this->fixtures}/build/combine-css");
 
         $this->assertFileEquals("$root/expected/combine.css", "$root/build/combine.css");
     }
 
-    public function testDoesntCombineTheContentOfOtherDirectories()
+    public function testDoesNotCombineTheContentOfOtherDirectories()
     {
+        $this->output->shouldReceive('created')->once()->with('build/');
+        $this->output->shouldReceive('copied');
+
         $this->build($root = "{$this->fixtures}/build/combine-other");
 
         $this->assertTrue(is_dir("$root/build/combine.other"), "Expected '$root/build/combine.other' to be a directory");
         $this->assertFileExists("$root/build/combine.other/sample.txt");
     }
 
-    // public function testDoesntCombineTheContentOfNonCssFilesInACssDirectory()
+    // public function testDoesNotCombineTheContentOfNonCssFilesInACssDirectory()
     // {
+    //     $this->output->shouldReceive('created')->once()->with('build/');
+
     //     $this->build($root = "{$this->fixtures}/build/combine-invalid");
 
     //     $this->assertFileEquals("$root/expected/combine.css", "$root/build/combine.css");
     // }
 
-    // #----------------------------------------
-    // # YAML imports
-    // #----------------------------------------
+    /*--------------------------------------
+     YAML imports
+    --------------------------------------*/
 
     // it 'should import JavaScript/CoffeeScript files listed in a .js.yaml file', build
     //   root: "#{fixtures}/build/yaml-js"
@@ -324,9 +352,9 @@ class BuildTest extends TestCase
     //   errors: 1
 
 
-    // #----------------------------------------
-    // # Autoprefixer
-    // #----------------------------------------
+    /*--------------------------------------
+     Autoprefixer
+    --------------------------------------*/
 
     // it 'should add cross-browser prefixes to .css files when Autoprefixer is enabled', build
     //   root: "#{fixtures}/build/autoprefixer-css"
@@ -380,6 +408,8 @@ class BuildTest extends TestCase
 
     public function testCreatesASymlinkToBowerDirectory()
     {
+        $this->output->shouldReceive('created')->once()->with('build/');
+
         $this->build($root = "{$this->fixtures}/build/bower-symlink", ['bower' => 'bower_components/']);
 
         $this->assertFileExists("$root/build/_bower");
@@ -388,16 +418,20 @@ class BuildTest extends TestCase
         $this->assertFileExists("$root/build/_bower/bower.txt");
     }
 
-    public function testShowsAWarningAndDoesntCreateASymlinkIfBowerDirectoryDoesNotExist()
+    public function testShowsAWarningAndDoesNotCreateASymlinkIfBowerDirectoryDoesNotExist()
     {
+        $this->output->shouldReceive('created')->once()->with('build/');
+
         $this->build($root = "{$this->fixtures}/build/bower-missing", ['bower' => 'bower_components/']);
 
         // warnings: 1
         $this->assertFileNotExists("$root/build/_bower");
     }
 
-    public function testDoesntCreateASymlinkIfBowerOptionIsFalse()
+    public function testDoesNotCreateASymlinkIfBowerOptionIsFalse()
     {
+        $this->output->shouldReceive('created')->once()->with('build/');
+
         $this->build($root = "{$this->fixtures}/build/bower-disabled", ['bower' => false]);
 
         $this->assertFileNotExists("$root/build/_bower");
@@ -499,8 +533,11 @@ class BuildTest extends TestCase
      Source maps
     --------------------------------------*/
 
-    public function testDoesntCreateMapFileIfSourceMapsAreDisabled()
+    public function testDoesNotCreateMapFileIfSourceMapsAreDisabled()
     {
+        $this->output->shouldReceive('created')->once()->with('build/');
+        $this->output->shouldReceive('compiled');
+
         $this->build($root = "{$this->fixtures}/build/sourcemap-disabled", ['sourcemaps' => false]);
 
         $this->assertFileExists("$root/build/coffeescript.js");
@@ -509,6 +546,9 @@ class BuildTest extends TestCase
 
     public function testCreatesSourceMapsForCoffeescript()
     {
+        $this->output->shouldReceive('created')->once()->with('build/');
+        $this->output->shouldReceive('compiled');
+
         $this->build($root = "{$this->fixtures}/build/sourcemap-coffeescript", ['sourcemaps' => true]);
 
         $this->assertFileEquals("$root/expected/coffeescript.js", "$root/build/coffeescript.js");
@@ -556,6 +596,9 @@ class BuildTest extends TestCase
 
     public function testCreatesSourceMapsForScssFiles()
     {
+        $this->output->shouldReceive('created')->once()->with('build/');
+        $this->output->shouldReceive('compiled');
+
         $this->build($root = "{$this->fixtures}/build/sourcemap-sass", ['sourcemaps' => true]);
 
         $this->assertFileEquals("$root/expected/sass.css", "$root/build/sass.css");
@@ -564,6 +607,8 @@ class BuildTest extends TestCase
 
     // public function testCreatesSourceMapsForScssFilesWithSprites()
     // {
+    //     $this->output->shouldReceive('created')->once()->with('build/');
+
     //     $this->build($root = "{$this->fixtures}/build/sourcemap-compass-sprites", ['sourcemaps' => true]);
 
     //     $this->assertFileEquals("$root/expected/sprite.css", "$root/build/sprite.css");
@@ -733,6 +778,9 @@ class BuildTest extends TestCase
 
     public function testCreatesSourceMapForEmptyScssFile()
     {
+        $this->output->shouldReceive('created')->once()->with('build/');
+        $this->output->shouldReceive('compiled');
+
         $this->build($root = "{$this->fixtures}/build/sourcemap-empty-sass", ['sourcemaps' => true]);
 
         $this->assertFileEquals("$root/expected/empty.css", "$root/build/empty.css");
@@ -745,6 +793,9 @@ class BuildTest extends TestCase
 
     public function testPutsCacheFilesInHiddenDirectoryAndCreatesGitignoreFile()
     {
+        $this->output->shouldReceive('created')->once()->with('build/');
+        $this->output->shouldReceive('compiled');
+
         $this->build($root = "{$this->fixtures}/build/cache");
 
         $this->assertFileExists("$root/.awe");
@@ -752,17 +803,11 @@ class BuildTest extends TestCase
         $this->assertFileEquals("$root/expected/.gitignore", "$root/.awe/.gitignore");
     }
 
-    // it "should display an error and not create the build directory if the source directory doesn't exist", build
-    //   root: "#{fixtures}/build/src-missing"
-    //   files: [
-    //     '.gitkeep'
-    //   ]
-    //   errors: 1
-    //   tests: ->
-    //     expect("#{fixtures}/build/src-missing/build").not.to.be.a.path()
-
     public function testCreatesAFileWarningUsersNotToEditFilesInTheBuildDirectory()
     {
+        $this->output->shouldReceive('created')->once()->with('build/');
+        $this->output->shouldReceive('generated');
+
         $this->build($root = "{$this->fixtures}/build/warning-file", ['warningfile' => true]);
 
         $this->assertFileEquals("$root/expected/_DO_NOT_EDIT.txt", "$root/build/_DO_NOT_EDIT.txt");

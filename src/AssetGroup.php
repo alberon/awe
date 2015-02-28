@@ -8,24 +8,27 @@ class AssetGroup
     // tmp.setGracefulCleanup()
 
     protected $app;
+    protected $file;
+    protected $output;
+
     protected $autoprefixer;
     protected $bower;
     protected $bowerLink;
     protected $bowerSrc;
     protected $bundlePath;
     protected $destPath;
-    protected $file;
     protected $prettyPrintSourcemaps;
     protected $rootPath;
     protected $sourcemaps;
     protected $srcPath;
     protected $warningFile;
 
-    public function __construct($rootPath, $config, App $app, Filesystem $file)
+    public function __construct($rootPath, $config, App $app, Filesystem $file, BuildOutput $output)
     {
         // Dependencies
-        $this->app  = $app;
-        $this->file = $file;
+        $this->app    = $app;
+        $this->file   = $file;
+        $this->output = $output;
 
         // Data
         $this->rootPath = rtrim($rootPath, '/\\');
@@ -57,8 +60,11 @@ class AssetGroup
     public function build()
     {
         // Check if the source directory exists
-        if (!$this->file->exists($this->srcPath))
-            throw new Exception("Source directory '{$this->srcPath}' doesn't exist");
+        if (!$this->file->exists($this->srcPath)) {
+            $path = $this->relDirPath($this->rootPath, $this->srcPath);
+            $this->output->error($path, null, "Source directory doesn't exist");
+            return;
+        }
 
         // Create cache directory
         $this->cachePath = $this->rootPath . DIRECTORY_SEPARATOR . '.awe';
@@ -73,13 +79,13 @@ class AssetGroup
         $destExists = $this->file->exists($this->destPath);
 
         // Create/empty the destination
-        // file = path.relative(@rootPath, @destPath + '/')
+        $path = $this->relDirPath($this->rootPath, $this->destPath);
         if ($destExists) {
             $this->file->cleanDirectory($this->destPath);
-            // output.emptied(file)
+            $this->output->emptied($path);
         } else {
             $this->file->makeDirectory($this->destPath, 0777, true);
-            // output.created(file)
+            $this->output->created($path);
         }
 
         // Create a symlink to the bower_components directory
@@ -102,6 +108,7 @@ class AssetGroup
 
             $this->write([
                 'content' => $content,
+                'count'   => 1,
                 'action'  => 'generated',
                 'dest'    => $this->warningFile,
             ]);
@@ -200,9 +207,11 @@ class AssetGroup
 
         $this->file->put($data['dest'], $data['content']);
 
-        // if data.action
-        //   file = path.relative(@rootPath, data.dest)
-        //   output(data.action, file, "(#{data.count} files)" if data.count > 1)
+        if ($action = $data['action']) {
+            $path = $this->relPath($this->rootPath, $data['dest']);
+            $notes = ($data['count'] > 1 ? "({$data['count']} files)" : '');
+            $this->output->$action($path, $notes);
+        }
     }
 
     protected function buildFileOrDirectory($src, $dest)
@@ -288,13 +297,18 @@ class AssetGroup
         $compiler->redirectStandardInFromFile($src, 'r');
         $compiler->execute();
 
-        if ($error = stream_get_contents($compiler->getStandardError()))
-            throw new Exception($error);
-
         $content   = stream_get_contents($compiler->getStandardOut());
+        $error     = stream_get_contents($compiler->getStandardError());
         $sourcemap = stream_get_contents($compiler->getFD3());
 
         $compiler->close();
+
+        if ($error) {
+            $message = "<error>COFFEESCRIPT ERROR</error>\n{$error}";
+            $path = $this->relPath($this->rootPath, $src);
+            $this->output->error($path, null, $message);
+            return;
+        }
 
         return [
             'content'   => $content,
@@ -363,18 +377,21 @@ class AssetGroup
         $args = ['compile', '--trace', '--config', $configFile, $src];
 
         $compiler = $this->app->make('fool\executor\ProcOpen', [$exe, $args]);
+        $compiler->redirectStandardErrorToStandardOut();
         $compiler->execute();
 
         fclose($compiler->getStandardIn());
 
-        if ($error = stream_get_contents($compiler->getStandardError())) {
-            $error = preg_replace('/\n?\s*Use --trace for backtrace./', $error);
-            // $message = chalk.bold.red("SASS/COMPASS ERROR") + chalk.bold.black(" (#{code})") + "\n#{result}"
-            // $file = path.relative(@rootPath, src)
-            throw new Exception($error);
-        }
-
         $content = stream_get_contents($compiler->getStandardOut());
+        $code = $compiler->close();
+
+        if ($code > 0) {
+            $error = preg_replace('/\n?\s*Use --trace for backtrace./', '', $content);
+            $message = "<error>SASS/COMPASS ERROR</error> <grey>({$code})</grey>\n{$error}";
+            $path = $this->relPath($this->rootPath, $src);
+            $this->output->error($path, null, $message);
+            return;
+        }
 
         $compiler->close();
 
@@ -639,6 +656,11 @@ class AssetGroup
 
         // Strip last separator
         return substr($relpath, 0, -1);
+    }
+
+    protected function relDirPath($frompath, $topath)
+    {
+        return str_finish($this->relPath($frompath, $topath), DIRECTORY_SEPARATOR);
     }
 
     /**
