@@ -2,9 +2,9 @@
 $red: red;
 
 .main-red {
-  color: $red;
+    color: $red;
 }
 
 .also-red {
-  @extend .main-red;
+    @extend .main-red;
 }

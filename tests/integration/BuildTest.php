@@ -1,6 +1,6 @@
 <?php
 
-use Illuminate\Filesystem\Filesystem;
+use Alberon\Awe\Filesystem;
 
 class BuildTest extends TestCase
 {
@@ -8,12 +8,13 @@ class BuildTest extends TestCase
     {
         // Default config settings
         $config = array_merge([
-            'src'          => 'src/',
-            'dest'         => 'build/',
-            'bower'        => false,
-            'autoprefixer' => false,
-            'sourcemaps'   => false,
-            'warningfile'  => false,
+            'src'                   => 'src/',
+            'dest'                  => 'build/',
+            'bower'                 => false,
+            'autoprefixer'          => false,
+            'sourcemaps'            => false,
+            'prettyPrintSourcemaps' => true,
+            'warningfile'           => false,
         ], $config);
 
         // # Check all the listed files exist - this is partly to double-check the
@@ -373,52 +374,39 @@ class BuildTest extends TestCase
     //       }\n
     //     """
 
+    /*--------------------------------------
+     Bower
+    --------------------------------------*/
 
-    // #----------------------------------------
-    // # Bower
-    // #----------------------------------------
+    public function testCreatesASymlinkToBowerDirectory()
+    {
+        $this->build($root = "{$this->fixtures}/build/bower-symlink", ['bower' => 'bower_components/']);
 
-    // it 'should create a symlink to bower_components/', build
-    //   root: "#{fixtures}/build/bower-symlink"
-    //   config:
-    //     bower: 'bower_components/'
-    //   files: [
-    //     'bower_components/bower.txt'
-    //     'src/_source'
-    //   ]
-    //   tests: ->
-    //     expect("#{fixtures}/build/bower-symlink/build/_bower").to.be.a.symlink()
-    //     expect("#{fixtures}/build/bower-symlink/build/_bower").to.be.a.directory()
-    //     expect("#{fixtures}/build/bower-symlink/build/_bower/bower.txt").to.be.a.file()
+        $this->assertFileExists("$root/build/_bower");
+        $this->assertTrue(is_link("$root/build/_bower"), "Expected '$root/build/_bower' to be a symlink");
+        $this->assertTrue(is_dir("$root/build/_bower"), "Expected '$root/build/_bower' to be a directory");
+        $this->assertFileExists("$root/build/_bower/bower.txt");
+    }
 
+    public function testShowsAWarningAndDoesntCreateASymlinkIfBowerDirectoryDoesNotExist()
+    {
+        $this->build($root = "{$this->fixtures}/build/bower-missing", ['bower' => 'bower_components/']);
 
-    // it 'should show a warning and not create a symlink if the bower target directory does not exist', build
-    //   root: "#{fixtures}/build/bower-missing"
-    //   config:
-    //     bower: 'bower_components/'
-    //   files: [
-    //     'src/_source'
-    //   ]
-    //   warnings: 1
-    //   tests: ->
-    //     expect("#{fixtures}/build/bower-missing/build/_bower").not.to.be.a.path()
+        // warnings: 1
+        $this->assertFileNotExists("$root/build/_bower");
+    }
 
+    public function testDoesntCreateASymlinkIfBowerOptionIsFalse()
+    {
+        $this->build($root = "{$this->fixtures}/build/bower-disabled", ['bower' => false]);
 
-    // it 'should not create a symlink to bower_components/ if set to false', build
-    //   root: "#{fixtures}/build/bower-disabled"
-    //   config:
-    //     bower: false
-    //   files: [
-    //     'src/_source'
-    //   ]
-    //   tests: ->
-    //     expect("#{fixtures}/build/bower-disabled/build/_bower").not.to.be.a.path()
+        $this->assertFileNotExists("$root/build/_bower");
+    }
 
-
-    // #----------------------------------------
-    // # URL rewriting
-    // #----------------------------------------
-    // # For full tests see UrlRewriter.coffee - this just checks they are applied correctly
+    /*--------------------------------------
+     URL rewriting
+    --------------------------------------*/
+    // For full tests see UrlRewriterTest.php - this just checks they are applied correctly
 
     // it 'should rewrite relative URLs in directory-combined CSS files', build
     //   root: "#{fixtures}/build/rewrite-combined"
@@ -507,56 +495,25 @@ class BuildTest extends TestCase
     //     """
 
 
-    // #----------------------------------------
-    // # Source maps
-    // #----------------------------------------
+    /*--------------------------------------
+     Source maps
+    --------------------------------------*/
 
-    // it 'should not create a .map file if sourcemaps are disabled', build
-    //   root: "#{fixtures}/build/sourcemap-disabled"
-    //   files: [
-    //     'src/coffeescript.coffee'
-    //   ]
-    //   tests: ->
-    //     expect("#{fixtures}/build/sourcemap-disabled/build/coffeescript.js").to.be.a.path()
-    //     expect("#{fixtures}/build/sourcemap-disabled/build/coffeescript.js.map").not.to.be.a.path()
+    public function testDoesntCreateMapFileIfSourceMapsAreDisabled()
+    {
+        $this->build($root = "{$this->fixtures}/build/sourcemap-disabled", ['sourcemaps' => false]);
 
+        $this->assertFileExists("$root/build/coffeescript.js");
+        $this->assertFileNotExists("$root/build/coffeescript.js.map");
+    }
 
-    // it 'should create sourcemaps for CoffeeScript', build
-    //   root: "#{fixtures}/build/sourcemap-coffeescript"
-    //   config:
-    //     sourcemaps: true
-    //   files: [
-    //     'src/coffeescript.coffee'
-    //   ]
-    //   tests: ->
-    //     expect("#{fixtures}/build/sourcemap-coffeescript/build/coffeescript.js").to.have.content """
-    //       (function() {
-    //         console.log('CoffeeScript 1');
+    public function testCreatesSourceMapsForCoffeescript()
+    {
+        $this->build($root = "{$this->fixtures}/build/sourcemap-coffeescript", ['sourcemaps' => true]);
 
-    //         console.log('CoffeeScript 2');
-
-    //         console.log('CoffeeScript 3');
-
-    //       }).call(this);
-
-    //       //# sourceMappingURL=coffeescript.js.map\n
-    //     """
-    //     expect("#{fixtures}/build/sourcemap-coffeescript/build/coffeescript.js.map").to.have.content """
-    //       {
-    //         "version": 3,
-    //         "file": "coffeescript.js",
-    //         "sourceRoot": "../src",
-    //         "sources": [
-    //           "coffeescript.coffee"
-    //         ],
-    //         "names": [],
-    //         "mappings": "AAAA;AAAA,EAAA,OAAO,CAAC,GAAR,CAAY,gBAAZ,CAAA,CAAA;;AAAA,EACA,OAAO,CAAC,GAAR,CAAY,gBAAZ,CADA,CAAA;;AAAA,EAEA,OAAO,CAAC,GAAR,CAAY,gBAAZ,CAFA,CAAA;AAAA",
-    //         "sourcesContent": [
-    //           "console.log 'CoffeeScript 1'\\nconsole.log 'CoffeeScript 2'\\nconsole.log 'CoffeeScript 3'\\n"
-    //         ]
-    //       }
-    //     """
-
+        $this->assertFileEquals("$root/expected/coffeescript.js", "$root/build/coffeescript.js");
+        $this->assertFileEquals("$root/expected/coffeescript.js.map", "$root/build/coffeescript.js.map");
+    }
 
     // it 'should create sourcemaps for CSS with Autoprefixer', build
     //   root: "#{fixtures}/build/sourcemap-css-autoprefixer"
@@ -597,66 +554,21 @@ class BuildTest extends TestCase
     //       }
     //     """
 
+    public function testCreatesSourceMapsForScssFiles()
+    {
+        $this->build($root = "{$this->fixtures}/build/sourcemap-sass", ['sourcemaps' => true]);
 
-    // it 'should create sourcemaps for Sass files', build
-    //   root: "#{fixtures}/build/sourcemap-sass"
-    //   config:
-    //     sourcemaps: true
-    //   files: [
-    //     'src/sass.scss'
-    //   ]
-    //   tests: ->
-    //     expect("#{fixtures}/build/sourcemap-sass/build/sass.css").to.have.content """
-    //       .main-red, .also-red {
-    //         color: red;
-    //       }
+        $this->assertFileEquals("$root/expected/sass.css", "$root/build/sass.css");
+        $this->assertFileEquals("$root/expected/sass.css.map", "$root/build/sass.css.map");
+    }
 
-    //       /*# sourceMappingURL=sass.css.map */\n
-    //     """
-    //     expect("#{fixtures}/build/sourcemap-sass/build/sass.css.map").to.have.content """
-    //       {
-    //         "version": 3,
-    //         "sources": [
-    //           "sass.scss"
-    //         ],
-    //         "names": [],
-    //         "mappings": "AAGA;EACE,YAHO;EACR",
-    //         "file": "sass.css",
-    //         "sourceRoot": "../src",
-    //         "sourcesContent": [
-    //           "// This is just to make the line numbers change a bit\\n$red: red;\\n\\n.main-red {\\n  color: $red;\\n}\\n\\n.also-red {\\n  @extend .main-red;\\n}\\n"
-    //         ]
-    //       }
-    //     """
+    // public function testCreatesSourceMapsForScssFilesWithSprites()
+    // {
+    //     $this->build($root = "{$this->fixtures}/build/sourcemap-compass-sprites", ['sourcemaps' => true]);
 
-
-    // it 'should create sourcemaps for Sass files with sprites', build
-    //   root: "#{fixtures}/build/sourcemap-compass-sprites"
-    //   config:
-    //     sourcemaps: true
-    //   files: [
-    //     'src/sprite.scss'
-    //   ]
-    //   tests: ->
-    //     source = path.join(__dirname, '../ruby_bundle/ruby/1.9.1/gems/compass-core-1.0.1/stylesheets/compass/utilities/sprites/_base.scss')
-    //     expect("#{fixtures}/build/sourcemap-compass-sprites/build/sprite.css.map").to.have.content """
-    //       {
-    //         "version": 3,
-    //         "sources": [
-    //           "sprite.scss",
-    //           "_awe/ruby_bundle/ruby/1.9.1/gems/compass-core-1.0.1/stylesheets/compass/utilities/sprites/_base.scss"
-    //         ],
-    //         "names": [],
-    //         "mappings": "AAAA;EACE,2DAA2E;EAC3E,8BAA6B;EAC9B;;ACgFO;EAlEN,0BACiB;EDXlB",
-    //         "file": "sprite.css",
-    //         "sourceRoot": "../src",
-    //         "sourcesContent": [
-    //           "@import 'compass/utilities/sprites';\\n@import 'icons/*.png';\\n@include all-icons-sprites;\\n",
-    //           #{JSON.stringify(fs.readFileSync(source, 'utf8'))}
-    //         ]
-    //       }
-    //     """
-
+    //     $this->assertFileEquals("$root/expected/sprite.css", "$root/build/sprite.css");
+    //     $this->assertFileEquals("$root/expected/sprite.css.map", "$root/build/sprite.css.map");
+    // }
 
     // it 'should create sourcemaps for combined JavaScript directories', build
     //   root: "#{fixtures}/build/sourcemap-combine-js"
@@ -819,46 +731,26 @@ class BuildTest extends TestCase
     //       }
     //     """
 
+    public function testCreatesSourceMapForEmptyScssFile()
+    {
+        $this->build($root = "{$this->fixtures}/build/sourcemap-empty-sass", ['sourcemaps' => true]);
 
-    // it 'should support sourcemaps for empty Sass files', build
-    //   root: "#{fixtures}/build/sourcemap-empty-sass"
-    //   config:
-    //     sourcemaps: true
-    //   files: [
-    //     'src/empty.scss'
-    //   ]
-    //   tests: ->
-    //     expect("#{fixtures}/build/sourcemap-empty-sass/build/empty.css").to.have.content """
-    //       \n\n/*# sourceMappingURL=empty.css.map */\n
-    //     """
-    //     # Note: Compass doesn't generate a sourcemap for an empty file, so the
-    //     # sources list here is empty rather than showing an empty file
-    //     expect("#{fixtures}/build/sourcemap-empty-sass/build/empty.css.map").to.have.content """
-    //       {
-    //         "version": 3,
-    //         "sources": [],
-    //         "names": [],
-    //         "mappings": "",
-    //         "file": "empty.css",
-    //         "sourceRoot": "../src",
-    //         "sourcesContent": []
-    //       }
-    //     """
+        $this->assertFileEquals("$root/expected/empty.css", "$root/build/empty.css");
+        $this->assertFileEquals("$root/expected/empty.css.map", "$root/build/empty.css.map");
+    }
 
+    /*--------------------------------------
+     Miscellaneous
+    --------------------------------------*/
 
-    // #----------------------------------------
-    // # Miscellaneous
-    // #----------------------------------------
+    public function testPutsCacheFilesInHiddenDirectoryAndCreatesGitignoreFile()
+    {
+        $this->build($root = "{$this->fixtures}/build/cache");
 
-    // it 'should put cache files in .awe/ and create a .gitignore file', build
-    //   root: "#{fixtures}/build/cache"
-    //   files: [
-    //     'src/styles.scss'
-    //   ]
-    //   tests: ->
-    //     expect("#{fixtures}/build/cache/.awe/sass-cache").to.be.a.directory()
-    //     expect("#{fixtures}/build/cache/.awe/.gitignore").to.be.a.file()
-
+        $this->assertFileExists("$root/.awe");
+        $this->assertFileExists("$root/.awe/sass-cache");
+        $this->assertFileEquals("$root/expected/.gitignore", "$root/.awe/.gitignore");
+    }
 
     // it "should display an error and not create the build directory if the source directory doesn't exist", build
     //   root: "#{fixtures}/build/src-missing"
@@ -869,29 +761,10 @@ class BuildTest extends TestCase
     //   tests: ->
     //     expect("#{fixtures}/build/src-missing/build").not.to.be.a.path()
 
+    public function testCreatesAFileWarningUsersNotToEditFilesInTheBuildDirectory()
+    {
+        $this->build($root = "{$this->fixtures}/build/warning-file", ['warningfile' => true]);
 
-    // it 'should create _DO_NOT_EDIT.txt in the build directory', build
-    //   root: "#{fixtures}/build/warning-file"
-    //   config:
-    //     warningfile: true
-    //   files: [
-    //     'src/_source'
-    //   ]
-    //   tests: ->
-    //     expect("#{fixtures}/build/warning-file/build/_DO_NOT_EDIT.txt").to.have.content """
-    //       *** WARNING ***
-
-    //       DO NOT EDIT, CREATE OR DELETE ANY FILES IN THIS DIRECTORY
-
-    //       All files in this directory were generated by Awe (http://awe.alberon.co.uk/)
-    //       from the source files in:
-
-    //           ../src
-
-    //       Any changes to this directory will be lost when assets are re-built.
-
-    //       To rebuild files run:
-
-    //           awe build\n
-    //     """
+        $this->assertFileEquals("$root/expected/_DO_NOT_EDIT.txt", "$root/build/_DO_NOT_EDIT.txt");
+    }
 }

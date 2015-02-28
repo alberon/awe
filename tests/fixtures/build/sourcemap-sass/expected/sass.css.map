@@ -1,13 +1,13 @@
 {
-  "version": 3,
-  "sources": [
-    "sass.scss"
-  ],
-  "names": [],
-  "mappings": "AAGA;EACE,YAHO;EACR",
-  "file": "sass.css",
-  "sourceRoot": "../src",
-  "sourcesContent": [
-    "// This is just to make the line numbers change a bit\n$red: red;\n\n.main-red {\n  color: $red;\n}\n\n.also-red {\n  @extend .main-red;\n}\n"
-  ]
+    "version": 3,
+    "mappings": "AAGA,oBAAU;EACN,KAAK,EAHH,GAAG",
+    "sources": [
+        "sass.scss"
+    ],
+    "names": [],
+    "file": "sass.css",
+    "sourceRoot": "../src",
+    "sourcesContent": [
+        "// This is just to make the line numbers change a bit\n$red: red;\n\n.main-red {\n    color: $red;\n}\n\n.also-red {\n    @extend .main-red;\n}\n"
+    ]
 }
