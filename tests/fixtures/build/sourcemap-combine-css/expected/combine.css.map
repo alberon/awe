@@ -1,15 +1,15 @@
 {
-  "version": 3,
-  "sources": [
-    "combine.css/1.css",
-    "combine.css/2-subdir/2.scss"
-  ],
-  "names": [],
-  "mappings": "AAAA;EACE,YAAW;EACZ;;ACDD;EACE,mBAAiB;EAAlB",
-  "file": "combine.css",
-  "sourceRoot": "../src",
-  "sourcesContent": [
-    ".css {\n  color: red;\n}\n",
-    "// This comment is just to change the line numbers\n.scss {\n  font-weight: bold;\n}\n\n.also-scss {\n  @extend .scss;\n}\n"
-  ]
+    "file": "combine.css",
+    "mappings": "AAAA;EACE,YAAW;EACZ;ACDD;EACE,mBAAiB;EAAlB;",
+    "names": [],
+    "sourceRoot": "../src",
+    "sources": [
+        "combine.css/1.css",
+        "combine.css/2-subdir/2.scss"
+    ],
+    "sourcesContent": [
+        ".css {\n  color: red;\n}\n",
+        "// This comment is just to change the line numbers\n.scss {\n  font-weight: bold;\n}\n\n.also-scss {\n  @extend .scss;\n}\n"
+    ],
+    "version": 3
 }

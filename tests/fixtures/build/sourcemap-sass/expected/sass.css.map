@@ -1,13 +1,13 @@
 {
-    "version": 3,
+    "file": "sass.css",
+    "mappings": "AAGA;EACI,YAHK;EACR",
+    "names": [],
+    "sourceRoot": "../src",
     "sources": [
         "sass.scss"
     ],
-    "names": [],
-    "mappings": "AAGA;EACI,YAHK;EACR",
-    "file": "sass.css",
-    "sourceRoot": "../src",
     "sourcesContent": [
         "// This is just to make the line numbers change a bit\n$red: red;\n\n.main-red {\n    color: $red;\n}\n\n.also-red {\n    @extend .main-red;\n}\n"
-    ]
+    ],
+    "version": 3
 }

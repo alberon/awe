@@ -62,8 +62,23 @@ class BuildOutput
         echo "error - $filename - $notes - $message\n";
     }
 
+    public function warning($filename, $notes = '', $message = '')
+    {
+        echo "warning - $filename - $notes - $message\n";
+    }
+
     public function compiled($filename, $notes = '', $message = '')
     {
         echo "compiled - $filename - $notes - $message\n";
+    }
+
+    public function copied($filename, $notes = '', $message = '')
+    {
+        echo "copied - $filename - $notes - $message\n";
+    }
+
+    public function generated($filename, $notes = '', $message = '')
+    {
+        echo "generated - $filename - $notes - $message\n";
     }
 }

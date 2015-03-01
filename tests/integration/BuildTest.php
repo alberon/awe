@@ -9,6 +9,8 @@ class BuildTest extends TestCase
     {
         parent::setUp();
 
+        // Make this a partial so it outputs to the screen if one is missed, to
+        // make it easier to debug (vs. a generic BadMethodCall exception)
         $this->output = m::mock('Alberon\Awe\BuildOutput')->makePartial();
     }
 
@@ -114,19 +116,23 @@ class BuildTest extends TestCase
         $this->assertFileNotExists("$root/build");
     }
 
-    // it 'should display a warning when CSS is invalid', build
-    //   root: "#{fixtures}/build/css-invalid"
-    //   files: [
-    //     'src/invalid.css'
-    //   ]
-    //   warnings: 1
+    public function testShowsAWarningWhenCssIsInvalid()
+    {
+        $this->output->shouldReceive('created')->once()->with('build/');
+        $this->output->shouldReceive('warning')->once()->with('src/invalid.css', null, '/Unclosed block/');
+        $this->output->shouldReceive('copied')->once()->with('build/invalid.css', '');
+
+        $this->build($root = "{$this->fixtures}/build/css-invalid");
+
+        $this->assertFileEquals("$root/src/invalid.css", "$root/build/invalid.css");
+    }
 
     public function testShowsAnErrorIfAnScssFileIsInvalid()
     {
         $this->output->shouldReceive('created')->once()->with('build/');
         $this->output->shouldReceive('error')->once()->with('src/invalid.scss', null, '#SASS/COMPASS ERROR.*(1).*Invalid CSS#s');
         $this->output->shouldReceive('error')->once()->with('src/combined.css/invalid.scss', null, '#SASS/COMPASS ERROR.*(1).*Invalid CSS#s');
-        $this->output->shouldReceive('compiled'); // src/combined.css is still created
+        $this->output->shouldReceive('compiled')->once()->with('build/combined.css', '');
 
         $this->build($root = "{$this->fixtures}/build/error-sass");
 
@@ -139,7 +145,7 @@ class BuildTest extends TestCase
         $this->output->shouldReceive('created')->once()->with('build/');
         $this->output->shouldReceive('error')->once()->with('src/invalid.coffee', null, '#COFFEESCRIPT ERROR.*unexpected \(#s');
         $this->output->shouldReceive('error')->once()->with('src/combined.js/invalid.coffee', null, '#COFFEESCRIPT ERROR.*unexpected \(#s');
-        $this->output->shouldReceive('compiled'); // src/combined.js is still created
+        $this->output->shouldReceive('compiled')->once()->with('build/combined.js', '');
 
         $this->build($root = "{$this->fixtures}/build/error-coffeescript");
 
@@ -151,14 +157,15 @@ class BuildTest extends TestCase
      Compass
     --------------------------------------*/
 
-    // public function testUsesRelativePathsForCompassUrlHelpers()
-    // {
-    //     $this->output->shouldReceive('created')->once()->with('build/');
+    public function testUsesRelativePathsForCompassUrlHelpers()
+    {
+        $this->output->shouldReceive('created')->once()->with('build/');
+        $this->output->shouldReceive('compiled')->once()->with('build/subdir/urls.css', '');
 
-    //     $this->build($root = "{$this->fixtures}/build/compass-urls");
+        $this->build($root = "{$this->fixtures}/build/compass-urls");
 
-    //     $this->assertFileEquals("$root/expected/subdir/urls.css", "$root/build/subdir/urls.css");
-    // }
+        $this->assertFileEquals("$root/expected/subdir/urls.css", "$root/build/subdir/urls.css");
+    }
 
     public function testSupportsTheCompassInlineImageHelper()
     {
@@ -170,17 +177,17 @@ class BuildTest extends TestCase
         $this->assertFileEquals("$root/expected/inline.css", "$root/build/inline.css");
     }
 
-    // public function testSupportsCompassSprites()
-    // {
-    //     $this->output->shouldReceive('created')->once()->with('build/');
+    public function testSupportsCompassSprites()
+    {
+        $this->output->shouldReceive('created')->once()->with('build/');
+        $this->output->shouldReceive('compiled')->once()->with('build/sprite.css', '');
+        $this->output->shouldReceive('generated')->once()->with("/^build\/_generated\/icons-[^']+\.png$/", '');
 
-    //     $this->build($root = "{$this->fixtures}/build/compass-sprites");
+        $this->build($root = "{$this->fixtures}/build/compass-sprites");
 
-    //     $this->assertFileEquals("$root/expected/sprite.css", "$root/build/sprite.css");
-
-    //     preg_match("/background-image: url\('_generated\/(icons-[^']+\.png)'\);/)", file_get_contents("$root/build/sprite.css"), $matches);
-    //     $this->assertFileExists("$root/build/_generated/" . $matches[1]);
-    // }
+        $this->assertFileEquals("$root/expected/sprite.css", "$root/build/sprite.css");
+        $this->assertFileEquals("$root/expected/_generated/icons-s71af1c7425.png", "$root/build/_generated/icons-s71af1c7425.png");
+    }
 
     /*--------------------------------------
      Combine directories
@@ -209,7 +216,7 @@ class BuildTest extends TestCase
     public function testDoesNotCombineTheContentOfOtherDirectories()
     {
         $this->output->shouldReceive('created')->once()->with('build/');
-        $this->output->shouldReceive('copied');
+        $this->output->shouldReceive('copied')->once()->with('build/combine.other/sample.txt', '');
 
         $this->build($root = "{$this->fixtures}/build/combine-other");
 
@@ -217,190 +224,141 @@ class BuildTest extends TestCase
         $this->assertFileExists("$root/build/combine.other/sample.txt");
     }
 
-    // public function testDoesNotCombineTheContentOfNonCssFilesInACssDirectory()
-    // {
-    //     $this->output->shouldReceive('created')->once()->with('build/');
+    public function testDoesNotCombineTheContentOfNonCssFilesInACssDirectory()
+    {
+        $this->output->shouldReceive('created')->once()->with('build/');
+        $this->output->shouldReceive('warning')->once()->with('src/combine.css/ignore.js', '', 'Skipping file (must end with .css/.scss/.css.yaml)');
+        $this->output->shouldReceive('warning')->once()->with('src/combine.css/ignore.txt', '', 'Skipping file (must end with .css/.scss/.css.yaml)');
+        $this->output->shouldReceive('compiled')->once()->with('build/combine.css', '');
 
-    //     $this->build($root = "{$this->fixtures}/build/combine-invalid");
+        $this->build($root = "{$this->fixtures}/build/combine-invalid-css");
 
-    //     $this->assertFileEquals("$root/expected/combine.css", "$root/build/combine.css");
-    // }
+        $this->assertFileEquals("$root/expected/combine.css", "$root/build/combine.css");
+    }
+
+    public function testDoesNotCombineTheContentOfNonJsFilesInAJsDirectory()
+    {
+        $this->output->shouldReceive('created')->once()->with('build/');
+        $this->output->shouldReceive('warning')->once()->with('src/combine.js/ignore.css', '', 'Skipping file (must end with .js/.coffee/.js.yaml)');
+        $this->output->shouldReceive('warning')->once()->with('src/combine.js/ignore.txt', '', 'Skipping file (must end with .js/.coffee/.js.yaml)');
+        $this->output->shouldReceive('compiled')->once()->with('build/combine.js', '');
+
+        $this->build($root = "{$this->fixtures}/build/combine-invalid-js");
+
+        $this->assertFileEquals("$root/expected/combine.js", "$root/build/combine.js");
+    }
 
     /*--------------------------------------
      YAML imports
     --------------------------------------*/
 
-    // it 'should import JavaScript/CoffeeScript files listed in a .js.yaml file', build
-    //   root: "#{fixtures}/build/yaml-js"
-    //   files: [
-    //     'src/_1.js'
-    //     'src/_2.coffee'
-    //     'src/import.js.yaml'
-    //   ]
-    //   tests: ->
-    //     expect("#{fixtures}/build/yaml-js/build/import.js").to.have.content """
-    //       f1();
+    public function testImportsJavascriptFilesFromYaml()
+    {
+        $this->output->shouldReceive('created')->once()->with('build/');
+        $this->output->shouldReceive('compiled')->once()->with('build/import.js', '(2 files)');
 
-    //       (function() {
-    //         f2();
+        $this->build($root = "{$this->fixtures}/build/yaml-js");
 
-    //       }).call(this);\n
-    //     """
+        $this->assertFileNotExists("$root/build/import.js.yaml");
+        $this->assertFileEquals("$root/expected/import.js", "$root/build/import.js");
+    }
 
+    public function testImportsCssFilesFromYaml()
+    {
+        $this->output->shouldReceive('created')->once()->with('build/');
+        $this->output->shouldReceive('compiled')->once()->with('build/import.css', '(2 files)');
 
-    // it 'should import CSS/Sass files listed in a .css.yaml file', build
-    //   root: "#{fixtures}/build/yaml-css"
-    //   files: [
-    //     'src/_1.css'
-    //     'src/_2.scss'
-    //     'src/import.css.yaml'
-    //   ]
-    //   tests: ->
-    //     expect("#{fixtures}/build/yaml-css/build/import.css").to.have.content """
-    //       .css {
-    //         color: red;
-    //       }
+        $this->build($root = "{$this->fixtures}/build/yaml-css");
 
-    //       .scss, .also-scss {
-    //         color: green;
-    //       }\n
-    //     """
+        $this->assertFileNotExists("$root/build/import.css.yaml");
+        $this->assertFileEquals("$root/expected/import.css", "$root/build/import.css");
+    }
 
+    public function testDoesNotParseOtherYamlFiles()
+    {
+        $this->output->shouldReceive('created')->once()->with('build/');
+        $this->output->shouldReceive('copied')->once()->with('build/import.txt.yaml', '');
 
-    // it 'should not attempt to import files from other .yaml files', build
-    //   root: "#{fixtures}/build/yaml-other"
-    //   files: [
-    //     'src/import.txt.yaml'
-    //   ]
-    //   tests: ->
-    //     expect("#{fixtures}/build/yaml-other/build/import.txt").not.to.be.a.path()
-    //     expect("#{fixtures}/build/yaml-other/build/import.txt.yaml").to.be.have.content """
-    //       - SHOULD NOT BE IMPORTED\n
-    //     """
+        $this->build($root = "{$this->fixtures}/build/yaml-other");
 
+        $this->assertFileNotExists("$root/build/import.txt");
+        $this->assertFileEquals("$root/src/import.txt.yaml", "$root/build/import.txt.yaml");
+    }
 
-    // it 'should allow imports outside the source directory in YAML files', build
-    //   root: "#{fixtures}/build/yaml-error"
-    //   files: [
-    //     'outside.js'
-    //     'src/_1.js'
-    //     'src/_2.js'
-    //     'src/import.js.yaml'
-    //   ]
-    //   tests: ->
-    //     expect("#{fixtures}/build/yaml-error/build/import.js").to.have.content """
-    //       f1();\n
-    //       f2();\n
-    //       f3();\n
-    //     """
+    public function testAllowsImportsOutsideTheSourceDirectoryInYamlFiles()
+    {
+        $this->output->shouldReceive('created')->once()->with('build/');
+        $this->output->shouldReceive('compiled')->once()->with('build/import.js', '(3 files)');
 
+        $this->build($root = "{$this->fixtures}/build/yaml-outside");
 
-    // it 'should import YAML files nested inside other YAML files', build
-    //   root: "#{fixtures}/build/yaml-nested"
-    //   files: [
-    //     'src/_script.js'
-    //     'src/_nested.js.yaml'
-    //     'src/import.js.yaml'
-    //   ]
-    //   tests: ->
-    //     expect("#{fixtures}/build/yaml-nested/build/import.js").to.have.content """
-    //       console.log('JavaScript');\n
-    //     """
+        $this->assertFileEquals("$root/expected/import.js", "$root/build/import.js");
+    }
 
+    public function testImportsYamlFilesNestedInsideOtherYamlFiles()
+    {
+        $this->output->shouldReceive('created')->once()->with('build/');
+        $this->output->shouldReceive('compiled')->once()->with('build/import.js', '');
 
-    // it 'should import files listed in a YAML file inside a combined directory', build
-    //   root: "#{fixtures}/build/combine-yaml"
-    //   files: [
-    //     'src/combine.js/1.js'
-    //     'src/combine.js/2-3.js.yaml'
-    //     'src/combine.js/4.js'
-    //     'src/_2.js'
-    //     'src/_3.js'
-    //   ]
-    //   tests: ->
-    //     expect("#{fixtures}/build/combine-yaml/build/combine.js").to.have.content """
-    //       f1();\n
-    //       f2();\n
-    //       f3();\n
-    //       f4();\n
-    //     """
+        $this->build($root = "{$this->fixtures}/build/yaml-nested");
 
+        $this->assertFileEquals("$root/expected/import.js", "$root/build/import.js");
+    }
 
-    // it 'should combine files in a directory listed in a YAML file', build
-    //   root: "#{fixtures}/build/yaml-combine"
-    //   files: [
-    //     'src/_1.js'
-    //     'src/_23.js/2.js'
-    //     'src/_23.js/3.js'
-    //     'src/_4.js'
-    //     'src/import.js.yaml'
-    //   ]
-    //   tests: ->
-    //     expect("#{fixtures}/build/yaml-combine/build/import.js").to.have.content """
-    //       f1();\n
-    //       f2();\n
-    //       f3();\n
-    //       f4();\n
-    //     """
+    public function testCombinesFilesInADirectoryListedInAYamlFile()
+    {
+        $this->output->shouldReceive('created')->once()->with('build/');
+        $this->output->shouldReceive('compiled')->once()->with('build/import.js', '(4 files)');
 
+        $this->build($root = "{$this->fixtures}/build/yaml-combine");
 
-    // it 'should show an error if a file cannot be found', build
-    //   root: "#{fixtures}/build/yaml-missing"
-    //   files: [
-    //     'src/import-error.js.yaml'
-    //   ]
-    //   errors: 1
+        $this->assertFileEquals("$root/expected/import.js", "$root/build/import.js");
+    }
 
+    public function testShowsAnErrorIfAnImportedFileCannotBeFound()
+    {
+        $this->output->shouldReceive('created')->once()->with('build/');
+        $this->output->shouldReceive('warning')->once()->with('src/import-error.js.yaml', '', "'src/missing.js' doesn't exist");
+        $this->output->shouldReceive('compiled')->once()->with('build/import-error.js', '');
+
+        $this->build($root = "{$this->fixtures}/build/yaml-missing");
+
+        $this->assertFileEquals("$root/expected/import-error.js", "$root/build/import-error.js");
+    }
 
     /*--------------------------------------
      Autoprefixer
     --------------------------------------*/
 
-    // it 'should add cross-browser prefixes to .css files when Autoprefixer is enabled', build
-    //   root: "#{fixtures}/build/autoprefixer-css"
-    //   config:
-    //     autoprefixer: true
-    //   files: [
-    //     'src/autoprefixer.css'
-    //   ]
-    //   tests: ->
-    //     expect("#{fixtures}/build/autoprefixer-css/build/autoprefixer.css").to.have.content """
-    //       .css {
-    //         -webkit-transition: -webkit-transform 1s;
-    //                 transition: transform 1s;
-    //       }\n\n
-    //     """
+    public function testAddsCrossBrowserPrefixesToCssFilesWithAutoprefixer()
+    {
+        $this->output->shouldReceive('created')->once()->with('build/');
+        $this->output->shouldReceive('copied')->once()->with('build/autoprefixer.css', '');
 
+        $this->build($root = "{$this->fixtures}/build/autoprefixer-css", ['autoprefixer' => true]);
 
-    // it 'should add cross-browser prefixes to .scss files when Autoprefixer is enabled', build
-    //   root: "#{fixtures}/build/autoprefixer-scss"
-    //   config:
-    //     autoprefixer: true
-    //   files: [
-    //     'src/autoprefixer.scss'
-    //   ]
-    //   tests: ->
-    //     expect("#{fixtures}/build/autoprefixer-scss/build/autoprefixer.css").to.have.content """
-    //       .scss, .also-scss {
-    //         -webkit-transition: -webkit-transform 1s;
-    //                 transition: transform 1s;
-    //       }\n
-    //     """
+        $this->assertFileEquals("$root/expected/autoprefixer.css", "$root/build/autoprefixer.css");
+    }
 
+    public function testAddsCrossBrowserPrefixesToScssFilesWithAutoprefixer()
+    {
+        $this->output->shouldReceive('created')->once()->with('build/');
+        $this->output->shouldReceive('compiled')->once()->with('build/autoprefixer.css', '');
 
-    // it 'should NOT add cross-browser prefixes to non-CSS files', build
-    //   root: "#{fixtures}/build/autoprefixer-other"
-    //   config:
-    //     autoprefixer: true
-    //   files: [
-    //     'src/autoprefixer.txt'
-    //   ]
-    //   tests: ->
-    //     expect("#{fixtures}/build/autoprefixer-other/build/autoprefixer.txt").to.have.content """
-    //       .not-css {
-    //         transition: transform 1s;
-    //       }\n
-    //     """
+        $this->build($root = "{$this->fixtures}/build/autoprefixer-scss", ['autoprefixer' => true]);
+
+        $this->assertFileEquals("$root/expected/autoprefixer.css", "$root/build/autoprefixer.css");
+    }
+
+    public function testDoesNotAddCrossBrowserPrefixesToNonCssFiles()
+    {
+        $this->output->shouldReceive('created')->once()->with('build/');
+        $this->output->shouldReceive('copied')->once()->with('build/autoprefixer.txt', '');
+
+        $this->build($root = "{$this->fixtures}/build/autoprefixer-other", ['autoprefixer' => true]);
+
+        $this->assertFileEquals("$root/src/autoprefixer.txt", "$root/build/autoprefixer.txt");
+    }
 
     /*--------------------------------------
      Bower
@@ -421,10 +379,10 @@ class BuildTest extends TestCase
     public function testShowsAWarningAndDoesNotCreateASymlinkIfBowerDirectoryDoesNotExist()
     {
         $this->output->shouldReceive('created')->once()->with('build/');
+        $this->output->shouldReceive('warning')->once()->with('bower_components/', '', "Bower directory doesn't exist");
 
         $this->build($root = "{$this->fixtures}/build/bower-missing", ['bower' => 'bower_components/']);
 
-        // warnings: 1
         $this->assertFileNotExists("$root/build/_bower");
     }
 
@@ -440,94 +398,60 @@ class BuildTest extends TestCase
     /*--------------------------------------
      URL rewriting
     --------------------------------------*/
-    // For full tests see UrlRewriterTest.php - this just checks they are applied correctly
+    // For full tests see javascript/test/UrlRewriter.coffee - this just checks they are applied correctly
 
-    // it 'should rewrite relative URLs in directory-combined CSS files', build
-    //   root: "#{fixtures}/build/rewrite-combined"
-    //   config:
-    //     bower: 'bower_components/'
-    //   files: [
-    //     'bower_components/sample.gif'
-    //     'src/combine.css/styles.css'
-    //     'src/sample.gif'
-    //   ]
-    //   tests: ->
-    //     expect("#{fixtures}/build/rewrite-combined/build/combine.css").to.have.content """
-    //       .relative {
-    //         background: url(sample.gif);
-    //       }
-    //       .bower {
-    //         background: url(_bower/sample.gif);
-    //       }\n
-    //     """
+    public function testRewritesRelativeUrlsInDirectoryCombinedCssFiles()
+    {
+        $this->output->shouldReceive('created')->once()->with('build/');
+        $this->output->shouldReceive('compiled')->once()->with('build/combine.css', '');
+        $this->output->shouldReceive('copied')->once()->with('build/sample.gif', '');
 
+        $this->build($root = "{$this->fixtures}/build/rewrite-combined", ['bower' => 'bower_components/']);
 
-    // it 'should rewrite relative URLs to Bower files', build
-    //   root: "#{fixtures}/build/rewrite-bower"
-    //   config:
-    //     bower: 'bower_components/'
-    //   files: [
-    //     'bower_components/sample.gif'
-    //     'bower_components/target.css'
-    //     'src/subdir/bower.css.yaml'
-    //   ]
-    //   tests: ->
-    //     expect("#{fixtures}/build/rewrite-bower/build/subdir/bower.css").to.have.content """
-    //       body {
-    //         background: url(../_bower/sample.gif);
-    //       }\n
-    //     """
+        $this->assertFileEquals("$root/expected/combine.css", "$root/build/combine.css");
+    }
 
+    public function testRewritesRelativeUrlsInBowerFilesUsingTheSymlink()
+    {
+        $this->output->shouldReceive('created')->once()->with('build/');
+        $this->output->shouldReceive('compiled')->once()->with('build/subdir/bower.css', '');
 
-    // it 'should rewrite relative URLs to outside files', build
-    //   root: "#{fixtures}/build/rewrite-outside"
-    //   files: [
-    //     'sample.gif'
-    //     'target.css'
-    //     'src/outside.css.yaml'
-    //   ]
-    //   tests: ->
-    //     expect("#{fixtures}/build/rewrite-outside/build/outside.css").to.have.content """
-    //       body {
-    //         background: url(../sample.gif);
-    //       }\n
-    //     """
+        $this->build($root = "{$this->fixtures}/build/rewrite-bower", ['bower' => 'bower_components/']);
 
+        $this->assertFileEquals("$root/expected/subdir/bower.css", "$root/build/subdir/bower.css");
+    }
 
-    // it 'should rewrite relative URLs in YAML-imported CSS files', build
-    //   root: "#{fixtures}/build/rewrite-yaml"
-    //   config:
-    //     bower: 'bower_components/'
-    //   files: [
-    //     'bower_components/sample.gif'
-    //     'src/_import/styles.css'
-    //     'src/import.css.yaml'
-    //     'src/sample.gif'
-    //   ]
-    //   tests: ->
-    //     expect("#{fixtures}/build/rewrite-yaml/build/import.css").to.have.content """
-    //       .relative {
-    //         background: url(sample.gif);
-    //       }
-    //       .bower {
-    //         background: url(_bower/sample.gif);
-    //       }\n
-    //     """
+    public function testRewritesRelativeUrlsInToOutsideFiles()
+    {
+        $this->output->shouldReceive('created')->once()->with('build/');
+        $this->output->shouldReceive('compiled')->once()->with('build/outside.css', '');
 
+        $this->build($root = "{$this->fixtures}/build/rewrite-outside");
 
-    // it 'should warn about invalid relative URLs in CSS, but leave them unchanged', build
-    //   root: "#{fixtures}/build/rewrite-invalid"
-    //   files: [
-    //     'src/invalid-url.css'
-    //   ]
-    //   warnings: 1
-    //   tests: ->
-    //     expect("#{fixtures}/build/rewrite-invalid/build/invalid-url.css").to.have.content """
-    //       body {
-    //         background: url(invalid.gif);
-    //       }\n
-    //     """
+        $this->assertFileEquals("$root/expected/outside.css", "$root/build/outside.css");
+    }
 
+    public function testRewritesRelativeUrlsYamlImportedCssFiles()
+    {
+        $this->output->shouldReceive('created')->once()->with('build/');
+        $this->output->shouldReceive('compiled')->once()->with('build/import.css', '');
+        $this->output->shouldReceive('copied')->once()->with('build/sample.gif', '');
+
+        $this->build($root = "{$this->fixtures}/build/rewrite-yaml", ['bower' => 'bower_components/']);
+
+        $this->assertFileEquals("$root/expected/import.css", "$root/build/import.css");
+    }
+
+    public function testWarnsAboutInvalidRelativeUrlsInCssButDoesNotChangeThem()
+    {
+        $this->output->shouldReceive('created')->once()->with('build/');
+        $this->output->shouldReceive('warning')->once()->with('src/invalid-url.css', null, "/Invalid file path: 'invalid.gif'/");
+        $this->output->shouldReceive('copied')->once()->with('build/invalid-url.css', '');
+
+        $this->build($root = "{$this->fixtures}/build/rewrite-invalid");
+
+        $this->assertFileEquals("$root/expected/invalid-url.css", "$root/build/invalid-url.css");
+    }
 
     /*--------------------------------------
      Source maps
@@ -536,7 +460,7 @@ class BuildTest extends TestCase
     public function testDoesNotCreateMapFileIfSourceMapsAreDisabled()
     {
         $this->output->shouldReceive('created')->once()->with('build/');
-        $this->output->shouldReceive('compiled');
+        $this->output->shouldReceive('compiled')->once()->with('build/coffeescript.js', '');
 
         $this->build($root = "{$this->fixtures}/build/sourcemap-disabled", ['sourcemaps' => false]);
 
@@ -547,7 +471,7 @@ class BuildTest extends TestCase
     public function testCreatesSourceMapsForCoffeescript()
     {
         $this->output->shouldReceive('created')->once()->with('build/');
-        $this->output->shouldReceive('compiled');
+        $this->output->shouldReceive('compiled')->once()->with('build/coffeescript.js', '');
 
         $this->build($root = "{$this->fixtures}/build/sourcemap-coffeescript", ['sourcemaps' => true]);
 
@@ -555,49 +479,21 @@ class BuildTest extends TestCase
         $this->assertFileEquals("$root/expected/coffeescript.js.map", "$root/build/coffeescript.js.map");
     }
 
-    // it 'should create sourcemaps for CSS with Autoprefixer', build
-    //   root: "#{fixtures}/build/sourcemap-css-autoprefixer"
-    //   config:
-    //     sourcemaps: true
-    //     autoprefixer: true
-    //   files: [
-    //     'src/styles.css'
-    //   ]
-    //   tests: ->
-    //     expect("#{fixtures}/build/sourcemap-css-autoprefixer/build/styles.css").to.have.content """
-    //       /* This is just to make the line numbers change a bit */
-    //       .another {
-    //         -webkit-transition: -webkit-transform 1s;
-    //                 transition: transform 1s;
-    //       }
+    public function testCreatesSourceMapsForAutoprefixedCss()
+    {
+        $this->output->shouldReceive('created')->once()->with('build/');
+        $this->output->shouldReceive('copied')->once()->with('build/styles.css', '');
 
-    //       .css {
-    //         -webkit-transition: -webkit-transform 1s;
-    //                 transition: transform 1s;
-    //       }
+        $this->build($root = "{$this->fixtures}/build/sourcemap-css-autoprefixer", ['sourcemaps' => true, 'autoprefixer' => true]);
 
-    //       /*# sourceMappingURL=styles.css.map */\n
-    //     """
-    //     expect("#{fixtures}/build/sourcemap-css-autoprefixer/build/styles.css.map").to.have.content """
-    //       {
-    //         "version": 3,
-    //         "sources": [
-    //           "styles.css"
-    //         ],
-    //         "names": [],
-    //         "mappings": "AAAA,yDAAwD;AACxD;EACE,0CAAyB;UAAzB,0BAAyB;EAC1B;;AAED;EACE,0CAAyB;UAAzB,0BAAyB;EAC1B",
-    //         "file": "styles.css",
-    //         "sourceRoot": "../src",
-    //         "sourcesContent": [
-    //           "/* This is just to make the line numbers change a bit */\\n.another {\\n  transition: transform 1s;\\n}\\n\\n.css {\\n  transition: transform 1s;\\n}\\n"
-    //         ]
-    //       }
-    //     """
+        $this->assertFileEquals("$root/expected/styles.css", "$root/build/styles.css");
+        $this->assertFileEquals("$root/expected/styles.css.map", "$root/build/styles.css.map");
+    }
 
     public function testCreatesSourceMapsForScssFiles()
     {
         $this->output->shouldReceive('created')->once()->with('build/');
-        $this->output->shouldReceive('compiled');
+        $this->output->shouldReceive('compiled')->once()->with('build/sass.css', '');
 
         $this->build($root = "{$this->fixtures}/build/sourcemap-sass", ['sourcemaps' => true]);
 
@@ -605,181 +501,66 @@ class BuildTest extends TestCase
         $this->assertFileEquals("$root/expected/sass.css.map", "$root/build/sass.css.map");
     }
 
-    // public function testCreatesSourceMapsForScssFilesWithSprites()
-    // {
-    //     $this->output->shouldReceive('created')->once()->with('build/');
+    public function testCreatesSourceMapsForScssFilesWithSprites()
+    {
+        $this->output->shouldReceive('created')->once()->with('build/');
+        $this->output->shouldReceive('generated')->once()->with('#build/_generated/icons-.*\.png#', '');
+        $this->output->shouldReceive('compiled')->once()->with('build/sprite.css', '');
 
-    //     $this->build($root = "{$this->fixtures}/build/sourcemap-compass-sprites", ['sourcemaps' => true]);
+        $this->build($root = "{$this->fixtures}/build/sourcemap-compass-sprites", ['sourcemaps' => true]);
 
-    //     $this->assertFileEquals("$root/expected/sprite.css", "$root/build/sprite.css");
-    //     $this->assertFileEquals("$root/expected/sprite.css.map", "$root/build/sprite.css.map");
-    // }
+        $this->assertFileEquals("$root/expected/sprite.css", "$root/build/sprite.css");
+        $this->assertFileEquals("$root/expected/sprite.css.map", "$root/build/sprite.css.map");
+    }
 
-    // it 'should create sourcemaps for combined JavaScript directories', build
-    //   root: "#{fixtures}/build/sourcemap-combine-js"
-    //   config:
-    //     sourcemaps: true
-    //   files: [
-    //     'src/combine.js/1.js'
-    //     'src/combine.js/2-subdir/2.coffee'
-    //     'src/combine.js/_ignored.coffee'
-    //   ]
-    //   tests: ->
-    //     expect("#{fixtures}/build/sourcemap-combine-js/build/combine.js").to.have.content """
-    //       // This is just to move it down a line
-    //       console.log('JavaScript');
+    public function testCreatesSourceMapsForCombinedJavascriptDirectories()
+    {
+        $this->output->shouldReceive('created')->once()->with('build/');
+        $this->output->shouldReceive('compiled')->once()->with('build/combine.js', '(2 files)');
 
-    //       (function() {
-    //         console.log('CoffeeScript');
+        $this->build($root = "{$this->fixtures}/build/sourcemap-combine-js", ['sourcemaps' => true]);
 
-    //       }).call(this);
+        $this->assertFileEquals("$root/expected/combine.js", "$root/build/combine.js");
+        $this->assertFileEquals("$root/expected/combine.js.map", "$root/build/combine.js.map");
+    }
 
-    //       //# sourceMappingURL=combine.js.map\n
-    //     """
-    //     expect("#{fixtures}/build/sourcemap-combine-js/build/combine.js.map").to.have.content """
-    //       {
-    //         "version": 3,
-    //         "sources": [
-    //           "combine.js/1.js",
-    //           "combine.js/2-subdir/2.coffee"
-    //         ],
-    //         "names": [],
-    //         "mappings": "AAAA;AACA;AACA;ACAA;AAAA,EAAA,OAAO,CAAC,GAAR,CAAY,cAAZ,CAAA,CAAA;AAAA",
-    //         "file": "combine.js",
-    //         "sourceRoot": "../src",
-    //         "sourcesContent": [
-    //           "// This is just to move it down a line\\nconsole.log('JavaScript');\\n",
-    //           "# This is just to move it down a couple\\n# of lines\\nconsole.log 'CoffeeScript'\\n"
-    //         ]
-    //       }
-    //     """
+    public function testCreatesSourceMapsForCombinedCssDirectories()
+    {
+        $this->output->shouldReceive('created')->once()->with('build/');
+        $this->output->shouldReceive('compiled')->once()->with('build/combine.css', '(2 files)');
 
+        $this->build($root = "{$this->fixtures}/build/sourcemap-combine-css", ['sourcemaps' => true]);
 
-    // it 'should create sourcemaps for combined CSS directories', build
-    //   root: "#{fixtures}/build/sourcemap-combine-css"
-    //   config:
-    //     sourcemaps: true
-    //   files: [
-    //     'src/combine.css/_vars.scss'
-    //     'src/combine.css/1.css'
-    //     'src/combine.css/2-subdir/2.scss'
-    //   ]
-    //   tests: ->
-    //     expect("#{fixtures}/build/sourcemap-combine-css/build/combine.css").to.have.content """
-    //       .css {
-    //         color: red;
-    //       }
+        $this->assertFileEquals("$root/expected/combine.css", "$root/build/combine.css");
+        $this->assertFileEquals("$root/expected/combine.css.map", "$root/build/combine.css.map");
+    }
 
-    //       .scss, .also-scss {
-    //         font-weight: bold;
-    //       }
+    public function testCreatesSourceMapsForYamlImports()
+    {
+        $this->output->shouldReceive('created')->once()->with('build/');
+        $this->output->shouldReceive('compiled')->once()->with('build/import.js', '(4 files)');
 
-    //       /*# sourceMappingURL=combine.css.map */\n
-    //     """
-    //     expect("#{fixtures}/build/sourcemap-combine-css/build/combine.css.map").to.have.content """
-    //       {
-    //         "version": 3,
-    //         "sources": [
-    //           "combine.css/1.css",
-    //           "combine.css/2-subdir/2.scss"
-    //         ],
-    //         "names": [],
-    //         "mappings": "AAAA;EACE,YAAW;EACZ;;ACDD;EACE,mBAAiB;EAAlB",
-    //         "file": "combine.css",
-    //         "sourceRoot": "../src",
-    //         "sourcesContent": [
-    //           ".css {\\n  color: red;\\n}\\n",
-    //           "// This comment is just to change the line numbers\\n.scss {\\n  font-weight: bold;\\n}\\n\\n.also-scss {\\n  @extend .scss;\\n}\\n"
-    //         ]
-    //       }
-    //     """
+        $this->build($root = "{$this->fixtures}/build/sourcemap-yaml-combine", ['sourcemaps' => true]);
 
+        $this->assertFileEquals("$root/expected/import.js", "$root/build/import.js");
+        $this->assertFileEquals("$root/expected/import.js.map", "$root/build/import.js.map");
+    }
 
-    // it 'should create sourcemaps for YAML imports', build
-    //   root: "#{fixtures}/build/sourcemap-yaml-combine"
-    //   config:
-    //     sourcemaps: true
-    //   files: [
-    //     'src/_1.js'
-    //     'src/_23.js/2.js'
-    //     'src/_23.js/3.js'
-    //     'src/_4.js'
-    //     'src/import.js.yaml'
-    //   ]
-    //   tests: ->
-    //     expect("#{fixtures}/build/sourcemap-yaml-combine/build/import.js").to.have.content """
-    //       console.log('File 1');
+    public function testCreatesSourceMapsForEmptyCssFiles()
+    {
+        $this->output->shouldReceive('created')->once()->with('build/');
+        $this->output->shouldReceive('compiled')->once()->with('build/dir.css', '');
 
-    //       // This is just to move it down a line
-    //       console.log('File 2');
+        $this->build($root = "{$this->fixtures}/build/sourcemap-combine-empty", ['sourcemaps' => true]);
 
-    //       // This is just to move it down 2 lines
-    //       // This is just to move it down 2 lines
-    //       console.log('File 3');
-
-    //       // This is just to move it down 3 lines
-    //       // This is just to move it down 3 lines
-    //       // This is just to move it down 3 lines
-    //       console.log('File 4');
-
-    //       //# sourceMappingURL=import.js.map\n
-    //     """
-    //     expect("#{fixtures}/build/sourcemap-yaml-combine/build/import.js.map").to.have.content """
-    //       {
-    //         "version": 3,
-    //         "sources": [
-    //           "_1.js",
-    //           "_23.js/2.js",
-    //           "_23.js/3.js",
-    //           "_4.js"
-    //         ],
-    //         "names": [],
-    //         "mappings": "AAAA;AACA;ACDA;AACA;AACA;ACFA;AACA;AACA;AACA;ACHA;AACA;AACA;AACA;AACA",
-    //         "file": "import.js",
-    //         "sourceRoot": "../src",
-    //         "sourcesContent": [
-    //           "console.log('File 1');\\n",
-    //           "// This is just to move it down a line\\nconsole.log('File 2');\\n",
-    //           "// This is just to move it down 2 lines\\n// This is just to move it down 2 lines\\nconsole.log('File 3');\\n",
-    //           "// This is just to move it down 3 lines\\n// This is just to move it down 3 lines\\n// This is just to move it down 3 lines\\nconsole.log('File 4');\\n"
-    //         ]
-    //       }
-    //     """
-
-
-    // it 'should support sourcemaps for empty CSS files', build
-    //   # This is because concat-with-sourcemaps crashes on empty CSS files -
-    //   # probably an incompatibility with PostCSS since JS files are fine
-    //   root: "#{fixtures}/build/sourcemap-combine-empty"
-    //   config:
-    //     sourcemaps: true
-    //   files: [
-    //     'src/dir.css/empty.css'
-    //   ]
-    //   tests: ->
-    //     expect("#{fixtures}/build/sourcemap-combine-empty/build/dir.css").to.have.content """
-    //       \n\n/*# sourceMappingURL=dir.css.map */\n
-    //     """
-    //     expect("#{fixtures}/build/sourcemap-combine-empty/build/dir.css.map").to.have.content """
-    //       {
-    //         "version": 3,
-    //         "sources": [
-    //           "dir.css/empty.css"
-    //         ],
-    //         "names": [],
-    //         "mappings": "AAAA;AACA",
-    //         "file": "dir.css",
-    //         "sourceRoot": "../src",
-    //         "sourcesContent": [
-    //           ""
-    //         ]
-    //       }
-    //     """
+        $this->assertFileEquals("$root/expected/dir.css", "$root/build/dir.css");
+        $this->assertFileEquals("$root/expected/dir.css.map", "$root/build/dir.css.map");
+    }
 
     public function testCreatesSourceMapForEmptyScssFile()
     {
         $this->output->shouldReceive('created')->once()->with('build/');
-        $this->output->shouldReceive('compiled');
+        $this->output->shouldReceive('compiled')->once()->with('build/empty.css', '');
 
         $this->build($root = "{$this->fixtures}/build/sourcemap-empty-sass", ['sourcemaps' => true]);
 
@@ -794,7 +575,7 @@ class BuildTest extends TestCase
     public function testPutsCacheFilesInHiddenDirectoryAndCreatesGitignoreFile()
     {
         $this->output->shouldReceive('created')->once()->with('build/');
-        $this->output->shouldReceive('compiled');
+        $this->output->shouldReceive('compiled')->once()->with('build/styles.css', '');
 
         $this->build($root = "{$this->fixtures}/build/cache");
 
@@ -806,7 +587,7 @@ class BuildTest extends TestCase
     public function testCreatesAFileWarningUsersNotToEditFilesInTheBuildDirectory()
     {
         $this->output->shouldReceive('created')->once()->with('build/');
-        $this->output->shouldReceive('generated');
+        $this->output->shouldReceive('generated')->once()->with('build/_DO_NOT_EDIT.txt', '');
 
         $this->build($root = "{$this->fixtures}/build/warning-file", ['warningfile' => true]);
 

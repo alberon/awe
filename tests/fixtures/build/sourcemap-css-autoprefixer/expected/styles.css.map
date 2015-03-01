@@ -1,13 +1,13 @@
 {
-  "version": 3,
-  "sources": [
-    "styles.css"
-  ],
-  "names": [],
-  "mappings": "AAAA,yDAAwD;AACxD;EACE,0CAAyB;UAAzB,0BAAyB;EAC1B;;AAED;EACE,0CAAyB;UAAzB,0BAAyB;EAC1B",
-  "file": "styles.css",
-  "sourceRoot": "../src",
-  "sourcesContent": [
-    "/* This is just to make the line numbers change a bit */\n.another {\n  transition: transform 1s;\n}\n\n.css {\n  transition: transform 1s;\n}\n"
-  ]
+    "file": "styles.css",
+    "mappings": "AAAA,yDAAwD;AACxD;EACE,kCAAyB;EAAzB,0BAAyB;EAC1B;;AAED;EACE,kCAAyB;EAAzB,0BAAyB;EAC1B",
+    "names": [],
+    "sourceRoot": "../src",
+    "sources": [
+        "styles.css"
+    ],
+    "sourcesContent": [
+        "/* This is just to make the line numbers change a bit */\n.another {\n  transition: transform 1s;\n}\n\n.css {\n  transition: transform 1s;\n}\n"
+    ],
+    "version": 3
 }

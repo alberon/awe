@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "30a19ee8915e080f421a0c1ffa751eb1",
+    "hash": "5f09a7197dfeed640bb6dc6b95110e40",
     "packages": [
         {
             "name": "danielstjules/stringy",
@@ -360,6 +360,42 @@
             ],
             "description": "The Illuminate Support package.",
             "time": "2015-02-11 11:08:03"
+        },
+        {
+            "name": "koala-framework/sourcemaps",
+            "version": "v0.2.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/koala-framework/sourcemaps.git",
+                "reference": "4fed293372f516b5cc86ca090f7930e1ea113a7b"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/koala-framework/sourcemaps/zipball/4fed293372f516b5cc86ca090f7930e1ea113a7b",
+                "reference": "4fed293372f516b5cc86ca090f7930e1ea113a7b",
+                "shasum": ""
+            },
+            "require-dev": {
+                "phpunit/phpunit": "3.7.*"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "0.1-dev"
+                }
+            },
+            "autoload": {
+                "psr-0": {
+                    "Kwf_SourceMaps_": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-2-Clause"
+            ],
+            "description": "Sourcemaps Utities",
+            "homepage": "http://www.koala-framework.org/",
+            "time": "2015-02-23 16:45:16"
         },
         {
             "name": "league/flysystem",

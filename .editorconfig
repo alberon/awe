@@ -9,7 +9,3 @@ indent_size = 4
 indent_style = space
 insert_final_newline = true
 trim_trailing_whitespace = true
-
-# Don't force new line at the end of the .map files (in expected/ directories)
-[*.map]
-insert_final_newline = false

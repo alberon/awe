@@ -13,7 +13,7 @@ destDir      = process.argv[5]
 destFile     = process.argv[6]
 bowerSrc     = process.argv[7]
 bowerDest    = process.argv[8]
-autoprefixer = process.argv[9] == 1
+autoprefixer = process.argv[9] == '1'
 
 stdin  = process.stdin  # 0
 stdout = process.stdout # 1

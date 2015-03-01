@@ -2,6 +2,8 @@
 namespace Alberon\Awe;
 
 use Exception;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
+use Kwf_SourceMaps_SourceMap as SourceMap;
 
 class AssetGroup
 {
@@ -10,6 +12,7 @@ class AssetGroup
     protected $app;
     protected $file;
     protected $output;
+    protected $yamlMap;
 
     protected $autoprefixer;
     protected $bower;
@@ -23,18 +26,21 @@ class AssetGroup
     protected $srcPath;
     protected $warningFile;
 
-    public function __construct($rootPath, $config, App $app, Filesystem $file, BuildOutput $output)
+    protected $cssExtensions = ['.css', '.scss', '.css.yaml'];
+    protected $jsExtensions  = ['.js', '.coffee', '.js.yaml'];
+
+    public function __construct($rootPath, $config, App $app, Filesystem $file, BuildOutput $output, YamlMap $yamlMap)
     {
         // Dependencies
-        $this->app    = $app;
-        $this->file   = $file;
-        $this->output = $output;
+        $this->app       = $app;
+        $this->file      = $file;
+        $this->output    = $output;
+        $this->yamlMap   = $yamlMap;
 
-        // Data
-        $this->rootPath = rtrim($rootPath, '/\\');
-
+        // Settings
+        $this->rootPath              = rtrim($rootPath, '/\\');
         $this->autoprefixer          = $config['autoprefixer'];
-        $this->bower                 = $config['bower'];
+        $this->bower                 = rtrim($config['bower'], '/\\');
         $this->sourcemaps            = $config['sourcemaps'];
         $this->prettyPrintSourcemaps = isset($config['prettyPrintSourcemaps']) ? (bool) $config['prettyPrintSourcemaps'] : false;
 
@@ -90,8 +96,8 @@ class AssetGroup
 
         // Create a symlink to the bower_components directory
         if ($this->bower && !$this->file->exists($this->bowerSrc)) {
-            // TODO: Display a warning
-            // throw new Exception("Bower directory '{$this->bowerSrc}' doesn't exist");
+            $path = str_finish($this->bower, DIRECTORY_SEPARATOR);
+            $this->output->warning($path, '', "Bower directory doesn't exist");
             $this->bower     = false;
             $this->bowerLink = null;
             $this->bowerSrc  = null;
@@ -148,40 +154,30 @@ class AssetGroup
 
     protected function parseSourceMap($sourcemap)
     {
-        return json_decode($sourcemap, true);
-
-        // if typeof sourcemap is 'string'
-        //   sourcemap = JSON.parse(sourcemap)
-
-        // # Ignore files with no mappings work around "Invalid mapping" and
-        // # "Unsupported previous source map format" errors
-        // if !sourcemap || !sourcemap.mappings
-        //   return null
-
-        // return sourcemap
+        return json_decode($sourcemap);
     }
 
     protected function inlineSourceMapContent(&$data)
     {
-        $data['sourcemap']['sourcesContent'] = array_map(function($file)
+        $data['sourcemap']->sourcesContent = array_map(function($file)
         {
             $content = $this->file->get($this->srcPath . DIRECTORY_SEPARATOR . $file);
             $content = str_replace("\r\n", "\n", $content); // Firefox doesn't like Windows line endings
             return $content;
-        }, $data['sourcemap']['sources']);
+        }, $data['sourcemap']->sources);
     }
 
     protected function rewriteSourceMapFilenames(&$data)
     {
-        foreach ($data['sourcemap']['sources'] as $i => $source)
+        foreach ($data['sourcemap']->sources as $i => &$source)
         {
-            $source = $this->resolvePath($this->srcPath, $source);
+            $sourcePath = $this->resolvePath($this->srcPath, $source);
 
             // Compass sometimes adds its own internal files to the sourcemap which
             // results in ugly ../../../ paths - rewrite them to something readable.
             // Note: This has to be done *after* inlineSourceMapContent() is called.
-            if (starts_with($source, $this->bundlePath))
-                $data['sourcemap']['sources'][$i] = '_awe/ruby_bundle' . substr($source, strlen($this->bundlePath));
+            if (starts_with($sourcePath, $this->bundlePath))
+                $source = '_awe/ruby_bundle' . substr($source, strlen($this->bundlePath));
         }
     }
 
@@ -190,29 +186,45 @@ class AssetGroup
         if (!$data || $data['content'] === null)
             return;
 
-        if ($this->sourcemaps && !empty($data['sourcemap'])) {
-            $data['sourcemap']['sourceRoot'] = $this->relPath(dirname($data['dest']), $this->srcPath);
-            $this->inlineSourceMapContent($data);
-            $this->rewriteSourceMapFilenames($data);
-            $this->addSourceMapComment($data);
+        // Write source map
+        if ($this->sourcemaps && !empty($data['sourcemap']))
+            $this->writeSourcemap($data);
 
-            $pp = $this->prettyPrintSourcemaps ? JSON_PRETTY_PRINT : 0;
-            $json = json_encode($data['sourcemap'], JSON_UNESCAPED_SLASHES | $pp);
-            $this->file->put($data['dest'] . '.map', $json);
-        }
-
-        // await
-        //   if @sourcemaps && data.sourcemap
-        //     sourcemap = JSON.stringify(data.sourcemap, null, '  ')
-        //     fs.writeFile("#{data.dest}.map", sourcemap, errTo(cb, defer()))
-
+        // Write file
         $this->file->put($data['dest'], $data['content']);
 
+        // Output message on screen
         if ($action = $data['action']) {
             $path = $this->relPath($this->rootPath, $data['dest']);
             $notes = ($data['count'] > 1 ? "({$data['count']} files)" : '');
             $this->output->$action($path, $notes);
         }
+    }
+
+    protected function writeSourcemap(&$data)
+    {
+        // Put all source content inline, in case the source is outside the document root
+        $this->inlineSourceMapContent($data);
+
+        // Set source root path so all filenames are relative to the source directory
+        $data['sourcemap']->sourceRoot = $this->relPath(dirname($data['dest']), $this->srcPath);
+
+        // Rewrite filenames
+        $this->rewriteSourceMapFilenames($data);
+
+        // Add source mapping comment to the file
+        $this->addSourceMapComment($data);
+
+        // Put the array in alphabetical order to facilitate unit testing
+        $sourcemap = (array) $data['sourcemap'];
+        ksort($sourcemap);
+
+        // Convert to JSON
+        $pp = $this->prettyPrintSourcemaps ? JSON_PRETTY_PRINT : 0;
+        $json = json_encode($sourcemap, JSON_UNESCAPED_SLASHES | $pp);
+
+        // Save file
+        $this->file->put($data['dest'] . '.map', $json);
     }
 
     protected function buildFileOrDirectory($src, $dest)
@@ -229,11 +241,20 @@ class AssetGroup
     {
         $file = strtolower($src);
 
-        if (ends_with($file, ['.css', '.js'])) {
-            $data = $this->compileDirectory($src, $dest);
+        if (ends_with($file, '.css')) {
+
+            $data = $this->compileDirectory($src, $dest, $this->cssExtensions);
             $this->write($data);
+
+        } elseif (ends_with($file, '.js')) {
+
+            $data = $this->compileDirectory($src, $dest, $this->jsExtensions);
+            $this->write($data);
+
         } else {
+
             $this->buildRegularDirectory($src, $dest);
+
         }
     }
 
@@ -408,8 +429,8 @@ class AssetGroup
 
         // Make the sources relative to the source directory - we'll change
         // them to be relative to the final destination file later
-        if (isset($data['sourcemap']['sources'])) {
-            foreach ($data['sourcemap']['sources'] as &$source) {
+        if (isset($data['sourcemap']->sources)) {
+            foreach ($data['sourcemap']->sources as &$source) {
                 $source = realpath(dirname($outputFile) . DIRECTORY_SEPARATOR . $source);
                 $source = $this->relPath($this->srcPath, $source);
             }
@@ -473,15 +494,21 @@ class AssetGroup
             $dest = substr($dest, 0, -5) . '.css';
             return $this->compileSass($src, $dest);
 
-        }
+        } elseif (ends_with($file, '.css.yaml')) {
 
-        // Import files listed in a YAML file
-        // else if src[-9..].toLowerCase() == '.css.yaml' || src[-8..].toLowerCase() == '.js.yaml'
-        //   @_compileYamlImports(src, dest.replace(/\.yaml$/i, ''), cb)
+            // Import files listed in a CSS YAML file
+            $dest = substr($dest, 0, -5);
+            return $this->compileYamlImports($src, $dest, $this->cssExtensions);
 
-        elseif (ends_with($file, '.css')) {
+        } elseif (ends_with($file, '.js.yaml')) {
 
-            // Copy CSS and replace URLs
+            // Import files listed in a JS YAML file
+            $dest = substr($dest, 0, -5);
+            return $this->compileYamlImports($src, $dest, $this->jsExtensions);
+
+        } elseif (ends_with($file, '.css')) {
+
+            // Copy CSS, replace relative URLs and run Autoprefixer
             $data = $this->getFile($src, $dest);
             return $this->rewriteCss($data, $src, $dest);
 
@@ -501,8 +528,8 @@ class AssetGroup
 
         // PostCSS expects input sourcemap paths to be relative to the new source file
         $srcDir = dirname($src);
-        if (isset($data['sourcemap']['sources'])) {
-            foreach ($data['sourcemap']['sources'] as &$source) {
+        if (isset($data['sourcemap']->sources)) {
+            foreach ($data['sourcemap']->sources as &$source) {
                 $source = $this->relPath($srcDir, $this->srcPath . DIRECTORY_SEPARATOR . $source);
             }
         }
@@ -540,11 +567,9 @@ class AssetGroup
         $compiler->close();
 
         if ($error) {
-            var_dump($data, $error);exit;
-            $message = "<error>CSS ERROR</error>\n{$error}";
             $path = $this->relPath($this->rootPath, $src);
-            $this->output->error($path, null, $message);
-            return;
+            $this->output->warning($path, null, $error);
+            return $data;
         }
 
         $data['content']   = $content;
@@ -555,60 +580,75 @@ class AssetGroup
         return $data;
     }
 
-    protected function compileMultipleFiles($files, $dest)
+    protected function compileMultipleFiles($files, $dest, $allowedExtensions)
     {
-        $content = '';
-        $count   = 0;
+        $map = SourceMap::createEmptyMap('');
+        $map->setFile(basename($dest));
+        $count = 0;
 
         foreach ($files as $file) {
-            $data = $this->compileFileOrDirectory($file, $dest);
+            $data = $this->compileFileOrDirectory($file, $dest, $allowedExtensions);
 
             // Skip files with compile errors
             if (!$data)
                 continue;
 
-            // TODO: Any need for this?
-            // $data['src'] = $file;
+            if ($data['sourcemap']) {
+                // Fix for error "line count in mapping doesn't match file"
+                $lineCountInSourcemap = substr_count($data['sourcemap']->mappings, ';');
+                $lineCountInContent   = substr_count($data['content'], "\n");
+                $data['sourcemap']->mappings .= str_repeat(';', $lineCountInContent - $lineCountInSourcemap);
 
-            // TODO: Skip files of a different type (and warn the user)
-            // TODO: Concat with sourcemap
+                $fileMap = new SourceMap($data['sourcemap'], $data['content']);
+            } else {
+                // Have to trim new lines from the end of the input files
+                // because otherwise the source map generator either complains
+                // that the number of lines in the map doesn't match the number
+                // of lines in the input file, or it generates an invalid
+                // mapping by missing out a semi-colon
+                $data['content'] = rtrim($data['content'], "\r\n");
 
-            $content .= $data['content'] . "\n";
-            $count   += $data['count'];
+                $path = $this->relPath($this->srcPath, $file);
+                $fileMap = SourceMap::createEmptyMap($data['content']);
+                foreach (explode("\n", $data['content']) as $i => $line) {
+                    $fileMap->addMapping($i + 1, 0, $i + 1, 0, $path);
+                }
+            }
+
+            $map->concat($fileMap);
+            $count += $data['count'];
         }
 
-        // sourcemap = @_parseSourceMap(concat.sourceMap)
+        $sourcemap = $map->getMapContentsData(false);
+        unset($sourcemap->{'_x_org_koala-framework_last'});
 
-        // # Convert absolute paths to relative
-        // if sourcemap
-        //   for source, k in sourcemap.sources
-        //     # It may already be relative (I'm not sure under what circumstances but
-        //     # it happens in the unit tests), in which case we can either try to work
-        //     # out whether it's absolute or not, or we can convert it to always be
-        //     # absolute first - I've chosen the latter. Node.js 0.11 will add
-        //     # path.isAbsolute() which will make the former easier in the future.
-        //     source = path.resolve(@srcPath, source)
-        //     # And now we can convert it from absolute to relative
-        //     sourcemap.sources[k] = path.relative(@srcPath, source)
+        $content = $map->getFileContents();
 
         return [
             'content'   => $content,
-            'sourcemap' => null, // TODO
+            'sourcemap' => $sourcemap,
             'count'     => $count,
             'action'    => 'compiled',
             'dest'      => $dest,
         ];
     }
 
-    public function compileFileOrDirectory($src, $dest)
+    public function compileFileOrDirectory($src, $dest, $allowedExtensions)
     {
-        if (is_dir($src))
-            return $this->compileDirectory($src, $dest);
-        else
+        $file = strtolower($src);
+
+        if (is_dir($src)) {
+            return $this->compileDirectory($src, $dest, $allowedExtensions);
+        } elseif (ends_with($src, $allowedExtensions)) {
             return $this->compileFile($src, $dest);
+        } else {
+            $path = $this->relPath($this->rootPath, $src);
+            $this->output->warning($path, null, 'Skipping file (must end with ' . implode('/', $allowedExtensions) . ')');
+            return;
+        }
     }
 
-    protected function compileDirectory($src, $dest)
+    protected function compileDirectory($src, $dest, $allowedExtensions)
     {
         $files = [];
 
@@ -617,24 +657,25 @@ class AssetGroup
                 $files[] = $src . DIRECTORY_SEPARATOR . $file;
         }
 
-        return $this->compileMultipleFiles($files, $dest);
+        return $this->compileMultipleFiles($files, $dest, $allowedExtensions);
     }
 
+    protected function compileYamlImports($yamlFile, $dest, $allowedExtensions)
+    {
+        $files = $this->yamlMap->load($yamlFile, $this->bowerSrc);
 
-    //   _compileYamlImports: (yamlFile, dest, cb) =>
-    //     await yamlMap(yamlFile, @bowerSrc, errTo(cb, defer files))
+        // Make sure all files actually exist
+        foreach ($files as $i => $file) {
+            if (!$this->file->exists($file)) {
+                $yamlPath = $this->relPath($this->rootPath, $yamlFile);
+                $filePath = $this->relPath($this->rootPath, $file);
+                $this->output->warning($yamlPath, '', "'$filePath' doesn't exist");
+                unset($files[$i]);
+            }
+        }
 
-    //     await @_compileMultipleFiles(files, dest, defer(err, data))
-
-    //     if !err
-    //       cb(null, data)
-    //     else if err.code == 'ENOENT'
-    //       file = path.relative(@srcPath, yamlFile)
-    //       output.error(file, '(YAML import map)', 'File not found: ' + err.path)
-    //       cb()
-    //     else
-    //       cb(err)
-
+        return $this->compileMultipleFiles($files, $dest, $allowedExtensions);
+    }
 
     /**
      * Find the relative file system path between two file system paths
@@ -728,7 +769,7 @@ class AssetGroup
             throw new LogicException('Path is outside of the defined root, path: [' . $path . '], resolved: [' . $normalized . ']');
         }
 
-        return trim($normalized, $separator);
+        return rtrim($normalized, $separator);
     }
 
     protected function resolvePath($dir, $file)
