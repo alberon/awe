@@ -9,7 +9,7 @@ class BuildTest extends TestCase
     {
         parent::setUp();
 
-        $this->output = m::mock('Alberon\Awe\BuildOutput');
+        $this->output = m::mock('Alberon\Awe\BuildOutput')->makePartial();
     }
 
     protected function build($root, $config = [])

@@ -7,4 +7,4 @@ cd "$(dirname "$0")"
 clear
 
 # Run the tests
-vendor/bin/phpunit "$@"
+exec vendor/bin/phpunit "$@"

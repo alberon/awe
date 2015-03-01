@@ -107,10 +107,11 @@ class AssetGroup
             ]);
 
             $this->write([
-                'content' => $content,
-                'count'   => 1,
-                'action'  => 'generated',
-                'dest'    => $this->warningFile,
+                'content'   => $content,
+                'sourcemap' => null,
+                'count'     => 1,
+                'action'    => 'generated',
+                'dest'      => $this->warningFile,
             ]);
         }
 
@@ -274,32 +275,34 @@ class AssetGroup
         }
     }
 
-    protected function getFile($src, $dest)
+    protected function getFile($src, $dest, $action = 'copied')
     {
         return [
-            'content' => $this->file->get($src),
-            'count'   => 1,
-            'action'  => 'copied',
-            'dest'    => $dest,
+            'content'   => $this->file->get($src),
+            'sourcemap' => null,
+            'count'     => 1,
+            'action'    => $action,
+            'dest'      => $dest,
         ];
     }
 
     protected function compileCoffeeScript($src, $dest)
     {
-        $script       = dirname(__DIR__) . '/node/compile-coffeescript.coffee';
+        $script       = dirname(__DIR__) . '/javascript/compile-coffeescript.coffee';
         $relativeSrc  = $this->relPath($this->srcPath, $src);
         $destFilename = basename($dest);
 
         $exe  = dirname(__DIR__) . '/node_modules/.bin/coffee';
         $args = [$script, $relativeSrc, $destFilename];
 
-        $compiler = $this->app->make('Alberon\Awe\ProcOpen3', [$exe, $args]);
+        $compiler = $this->app->make('Alberon\Awe\ProcOpen', [$exe, $args]);
         $compiler->redirectStandardInFromFile($src, 'r');
+        $compiler->addPipe(3, 'w');
         $compiler->execute();
 
         $content   = stream_get_contents($compiler->getStandardOut());
         $error     = stream_get_contents($compiler->getStandardError());
-        $sourcemap = stream_get_contents($compiler->getFD3());
+        $sourcemap = stream_get_contents($compiler->getPipe(3));
 
         $compiler->close();
 
@@ -312,17 +315,12 @@ class AssetGroup
 
         return [
             'content'   => $content,
+            'sourcemap' => $this->parseSourceMap($sourcemap),
             'count'     => 1,
             'action'    => 'compiled',
-            'sourcemap' => $this->parseSourceMap($sourcemap),
             'dest'      => $dest,
         ];
     }
-
-    //   _getCss: (src, dest, cb) =>
-    //     await @_getFile(src, dest, errTo(cb, defer data))
-    //     @_rewriteCss(data, src, dest)
-    //     cb(null, data)
 
     protected function compileSass($src, $dest)
     {
@@ -334,7 +332,6 @@ class AssetGroup
         // generate a config file instead. We could use `sass --compass` instead for
         // some of them, but that doesn't support all the options either.)
         $configFile = $this->tempfile();
-        $sourcemap = $this->sourcemaps ? 'true' : 'false';
 
         $compassConfig = "
             project_path = '{$this->rootPath}'
@@ -367,7 +364,7 @@ class AssetGroup
 
             # Disable line number comments - use sourcemaps instead
             line_comments = false
-            sourcemap = {$sourcemap}
+            sourcemap = true
         ";
 
         $this->file->put($configFile, $compassConfig);
@@ -404,26 +401,24 @@ class AssetGroup
         // Get the content from the CSS file
         $pathFromRoot = substr($src, strlen($this->srcPath) + 1);
         $outputFile = $tmpDir . DIRECTORY_SEPARATOR . substr($pathFromRoot, 0, -5) . '.css';
-        $data = $this->getFile($outputFile, $dest);
+        $data = $this->getFile($outputFile, $dest, 'compiled');
 
         // Get the content from the source map
-        if ($this->sourcemaps) {
-            $data['sourcemap'] = $this->parseSourceMap(file_get_contents("$outputFile.map"));
+        $data['sourcemap'] = $this->parseSourceMap(file_get_contents("$outputFile.map"));
 
-            // Make the sources relative to the source directory - we'll change
-            // them to be relative to the final destination file later
+        // Make the sources relative to the source directory - we'll change
+        // them to be relative to the final destination file later
+        if (isset($data['sourcemap']['sources'])) {
             foreach ($data['sourcemap']['sources'] as &$source) {
                 $source = realpath(dirname($outputFile) . DIRECTORY_SEPARATOR . $source);
                 $source = $this->relPath($this->srcPath, $source);
             }
-
-            $this->removeSourceMapComment($data);
         }
 
-        // Rewrite the URLs in the CSS
-        // @_rewriteCss(data, src, dest)
+        $this->removeSourceMapComment($data);
 
-        $data['action'] = 'compiled';
+        // Rewrite the URLs in the CSS
+        $data = $this->rewriteCss($data, $src, $dest);
 
         return $data;
     }
@@ -438,8 +433,7 @@ class AssetGroup
 
     protected function copyGeneratedFile($src, $dest)
     {
-        $data = $this->getFile($src, $dest);
-        $data['action'] = 'generated';
+        $data = $this->getFile($src, $dest, 'generated');
         $this->write($data);
     }
 
@@ -465,80 +459,101 @@ class AssetGroup
 
     protected function compileFile($src, $dest)
     {
-        // Compile CoffeeScript
-        if (strtolower(substr($src, -7)) === '.coffee') {
+        $file = strtolower($src);
+
+        if (ends_with($file, '.coffee')) {
+
+            // Compile CoffeeScript
             $dest = substr($dest, 0, -7) . '.js';
             return $this->compileCoffeeScript($src, $dest);
-        }
 
-        // Compile Sass
-        elseif (strtolower(substr($src, -5)) === '.scss') {
+        } elseif (ends_with($file, '.scss')) {
+
+            // Compile Sass
             $dest = substr($dest, 0, -5) . '.css';
             return $this->compileSass($src, $dest);
+
         }
 
-        // # Import files listed in a YAML file
+        // Import files listed in a YAML file
         // else if src[-9..].toLowerCase() == '.css.yaml' || src[-8..].toLowerCase() == '.js.yaml'
         //   @_compileYamlImports(src, dest.replace(/\.yaml$/i, ''), cb)
 
-        // # Copy CSS and replace URLs
-        // else if src[-4..].toLowerCase() == '.css'
-        //   @_getCss(src, dest, cb)
+        elseif (ends_with($file, '.css')) {
 
-        // Copy all other files unchanged
-        return $this->getFile($src, $dest);
+            // Copy CSS and replace URLs
+            $data = $this->getFile($src, $dest);
+            return $this->rewriteCss($data, $src, $dest);
+
+        } else {
+
+            // Copy all other files unchanged
+            return $this->getFile($src, $dest);
+
+        }
     }
 
+    protected function rewriteCss($data, $src, $dest)
+    {
+        $script       = dirname(__DIR__) . '/javascript/rewrite-css.coffee';
+        $relativeSrc  = $this->relPath($this->srcPath, $src);
+        $destFilename = basename($dest);
 
-    //   _rewriteCss: (data, srcFile, destFile) =>
-    //     urlRewriter = new UrlRewriter
-    //       root:      @rootPath
-    //       srcDir:    @srcPath
-    //       srcFile:   srcFile
-    //       destDir:   @destPath
-    //       destFile:  destFile
-    //       bowerSrc:  @bowerSrc
-    //       bowerDest: @bowerLink
+        // PostCSS expects input sourcemap paths to be relative to the new source file
+        $srcDir = dirname($src);
+        if (isset($data['sourcemap']['sources'])) {
+            foreach ($data['sourcemap']['sources'] as &$source) {
+                $source = $this->relPath($srcDir, $this->srcPath . DIRECTORY_SEPARATOR . $source);
+            }
+        }
 
-    //     rewriteUrl = (url) =>
-    //       if S(url).startsWith('/AWEDESTROOTPATH/')
-    //         return path.join(path.relative(path.dirname(srcFile), @srcPath), url[17..])
+        $exe  = dirname(__DIR__) . '/node_modules/.bin/coffee';
+        $args = [
+            $script,
+            $this->rootPath,
+            $this->srcPath,
+            $src,
+            $this->destPath,
+            $dest,
+            $this->bowerSrc,
+            $this->bowerLink,
+            $this->autoprefixer ? 1 : 0,
+        ];
 
-    //       try
-    //         urlRewriter.rewrite(url)
-    //       catch e
-    //         file = path.relative(@rootPath, srcFile)
-    //         output.warning(file, '(URL rewriter)', e.message)
-    //         return url
+        $compiler = $this->app->make('Alberon\Awe\ProcOpen', [$exe, $args]);
+        $compiler->addPipe(3, 'r');
+        $compiler->addPipe(4, 'w');
+        $compiler->execute();
 
-    //     # PostCSS expects input sourcemap paths to be relative to the new source file
-    //     if data.sourcemap
-    //       srcDir = path.dirname(srcFile)
-    //       for source, k in data.sourcemap.sources
-    //         data.sourcemap.sources[k] = path.relative(srcDir, path.resolve(@srcPath, source))
+        $stdin = $compiler->getStandardIn();
+        fwrite($stdin, $data['content']);
+        fclose($stdin);
 
-    //     try
-    //       result = rewriteCss(
-    //         data.content,
-    //         path.relative(@srcPath, srcFile),
-    //         destFile,
-    //         sourcemap: @sourcemaps,
-    //         prevSourcemap: data.sourcemap,
-    //         autoprefixer: @autoprefixer,
-    //         rewriteUrls: rewriteUrl
-    //       )
-    //     catch e
-    //       throw e unless e.source # Looks like a CSS error
-    //       file = path.relative(@rootPath, srcFile)
-    //       message = "Invalid CSS:\n#{e.reason} on line #{e.line} column #{e.column}"
-    //       output.warning(file, '(CSS)', message)
-    //       return
+        $mapin = $compiler->getPipe(3);
+        fwrite($mapin, json_encode($data['sourcemap'], JSON_UNESCAPED_SLASHES));
+        fclose($mapin);
 
-    //     data.content = result.css
+        $content   = stream_get_contents($compiler->getStandardOut());
+        $error     = stream_get_contents($compiler->getStandardError());
+        $sourcemap = stream_get_contents($compiler->getPipe(4));
 
-    //     if @sourcemaps
-    //       data.sourcemap = result.map.toJSON()
-    //       @_removeSourceMapComment(data)
+        $compiler->close();
+
+        if ($error) {
+            var_dump($data, $error);exit;
+            $message = "<error>CSS ERROR</error>\n{$error}";
+            $path = $this->relPath($this->rootPath, $src);
+            $this->output->error($path, null, $message);
+            return;
+        }
+
+        $data['content']   = $content;
+        $data['sourcemap'] = $this->parseSourceMap($sourcemap);
+
+        $this->removeSourceMapComment($data);
+
+        return $data;
+    }
 
     protected function compileMultipleFiles($files, $dest)
     {

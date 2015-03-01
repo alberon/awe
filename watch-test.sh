@@ -18,4 +18,4 @@ fi
 ./test.sh "$@" || true
 
 # Watch for further changes
-exec when-changed -r fixtures src templates tests -c "./test.sh $*"
+exec when-changed -r fixtures javascript src templates tests -c "./test.sh $*"
