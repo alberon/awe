@@ -4,8 +4,8 @@
 /man-build/
 
 # Output from test scripts and sample builds
-/tests/fixtures/build/*/.awe/
-/tests/fixtures/build/*/build/
+/fixtures/build/*/.awe/
+/fixtures/build/*/build/
 /sample/**/build/
 
 # Packages

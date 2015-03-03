@@ -6,7 +6,7 @@ abstract class TestCase extends PHPUnit_Framework_TestCase {
     {
         $this->app = new Alberon\Awe\App;
 
-        $this->fixtures = __DIR__ . '/fixtures';
+        $this->fixtures = dirname(__DIR__) . '/fixtures';
     }
 
     protected function tearDown()
