@@ -1,0 +1,6 @@
+.relative {
+  background: url(sample.gif);
+}
+.bower {
+  background: url(_bower/sample.gif);
+}

@@ -24,7 +24,7 @@ class ConfigTest extends TestCase
 
         $this->configNormaliser->shouldReceive('normalise')->with($data)->once()->andReturn('normalised');
 
-        $config = $this->config->load("{$this->fixtures}/config-test");
+        $config = $this->config->load($this->fixtures . '/' . __CLASS__ . '/' . __FUNCTION__);
 
         $this->assertSame('normalised', $config);
     }
