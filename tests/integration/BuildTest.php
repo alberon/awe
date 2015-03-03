@@ -48,7 +48,7 @@ class BuildTest extends TestCase
         $this->output->shouldReceive('copied')->once()->with('build/stylesheet.css', '');
         $this->output->shouldReceive('copied')->once()->with('build/unknown.file', '');
 
-        $this->build($root = "{$this->fixtures}/build/copy");
+        $this->build($root = "{$this->fixtures}/build/" . __FUNCTION__);
 
         $this->assertFileEquals("$root/src/javascript.js", "$root/build/javascript.js");
         $this->assertFileEquals("$root/src/stylesheet.css", "$root/build/stylesheet.css");
@@ -60,7 +60,7 @@ class BuildTest extends TestCase
         $this->output->shouldReceive('created')->once()->with('build/');
         $this->output->shouldReceive('copied')->once()->with('build/sample.gif', '');
 
-        $this->build($root = "{$this->fixtures}/build/copy-images");
+        $this->build($root = "{$this->fixtures}/build/" . __FUNCTION__);
 
         $this->assertFileEquals("$root/src/sample.gif", "$root/build/sample.gif");
     }
@@ -70,7 +70,7 @@ class BuildTest extends TestCase
         $this->output->shouldReceive('created')->once()->with('build/');
         $this->output->shouldReceive('compiled')->once()->with('build/coffeescript.js', '');
 
-        $this->build($root = "{$this->fixtures}/build/coffeescript");
+        $this->build($root = "{$this->fixtures}/build/" . __FUNCTION__);
 
         $this->assertFileNotExists("$root/build/coffeescript.coffee");
         $this->assertFileEquals("$root/expected/coffeescript.js", "$root/build/coffeescript.js");
@@ -81,7 +81,7 @@ class BuildTest extends TestCase
         $this->output->shouldReceive('created')->once()->with('build/');
         $this->output->shouldReceive('compiled')->once()->with('build/sass.css', '');
 
-        $this->build($root = "{$this->fixtures}/build/sass");
+        $this->build($root = "{$this->fixtures}/build/" . __FUNCTION__);
 
         $this->assertFileNotExists("$root/build/sass.scss");
         $this->assertFileEquals("$root/expected/sass.css", "$root/build/sass.css");
@@ -91,7 +91,7 @@ class BuildTest extends TestCase
     {
         $this->output->shouldReceive('created')->once()->with('build/');
 
-        $this->build($root = "{$this->fixtures}/build/underscores");
+        $this->build($root = "{$this->fixtures}/build/" . __FUNCTION__);
 
         $this->assertFileNotExists("$root/build/_ignored.coffee");
         $this->assertFileNotExists("$root/build/_ignored.js");
@@ -111,7 +111,7 @@ class BuildTest extends TestCase
     {
         $this->output->shouldReceive('error')->once()->with('src/', null, "Source directory doesn't exist");
 
-        $this->build($root = "{$this->fixtures}/build/error-src-missing");
+        $this->build($root = "{$this->fixtures}/build/" . __FUNCTION__);
 
         $this->assertFileNotExists("$root/build");
     }
@@ -122,7 +122,7 @@ class BuildTest extends TestCase
         $this->output->shouldReceive('warning')->once()->with('src/invalid.css', null, '/Unclosed block/');
         $this->output->shouldReceive('copied')->once()->with('build/invalid.css', '');
 
-        $this->build($root = "{$this->fixtures}/build/css-invalid");
+        $this->build($root = "{$this->fixtures}/build/" . __FUNCTION__);
 
         $this->assertFileEquals("$root/src/invalid.css", "$root/build/invalid.css");
     }
@@ -134,7 +134,7 @@ class BuildTest extends TestCase
         $this->output->shouldReceive('error')->once()->with('src/combined.css/invalid.scss', null, '#SASS/COMPASS ERROR.*(1).*Invalid CSS#s');
         $this->output->shouldReceive('compiled')->once()->with('build/combined.css', '');
 
-        $this->build($root = "{$this->fixtures}/build/error-sass");
+        $this->build($root = "{$this->fixtures}/build/" . __FUNCTION__);
 
         $this->assertFileNotExists("$root/build/invalid.css");
         $this->assertFileEquals("$root/expected/combined.css", "$root/build/combined.css");
@@ -147,7 +147,7 @@ class BuildTest extends TestCase
         $this->output->shouldReceive('error')->once()->with('src/combined.js/invalid.coffee', null, '#COFFEESCRIPT ERROR.*unexpected \(#s');
         $this->output->shouldReceive('compiled')->once()->with('build/combined.js', '');
 
-        $this->build($root = "{$this->fixtures}/build/error-coffeescript");
+        $this->build($root = "{$this->fixtures}/build/" . __FUNCTION__);
 
         $this->assertFileNotExists("$root/build/invalid.coffee");
         $this->assertFileEquals("$root/expected/combined.js", "$root/build/combined.js");
@@ -162,7 +162,7 @@ class BuildTest extends TestCase
         $this->output->shouldReceive('created')->once()->with('build/');
         $this->output->shouldReceive('compiled')->once()->with('build/subdir/urls.css', '');
 
-        $this->build($root = "{$this->fixtures}/build/compass-urls");
+        $this->build($root = "{$this->fixtures}/build/" . __FUNCTION__);
 
         $this->assertFileEquals("$root/expected/subdir/urls.css", "$root/build/subdir/urls.css");
     }
@@ -172,7 +172,7 @@ class BuildTest extends TestCase
         $this->output->shouldReceive('created')->once()->with('build/');
         $this->output->shouldReceive('compiled')->once()->with('build/inline.css', '');
 
-        $this->build($root = "{$this->fixtures}/build/compass-inline");
+        $this->build($root = "{$this->fixtures}/build/" . __FUNCTION__);
 
         $this->assertFileEquals("$root/expected/inline.css", "$root/build/inline.css");
     }
@@ -183,7 +183,7 @@ class BuildTest extends TestCase
         $this->output->shouldReceive('compiled')->once()->with('build/sprite.css', '');
         $this->output->shouldReceive('generated')->once()->with("/^build\/_generated\/icons-[^']+\.png$/", '');
 
-        $this->build($root = "{$this->fixtures}/build/compass-sprites");
+        $this->build($root = "{$this->fixtures}/build/" . __FUNCTION__);
 
         $this->assertFileEquals("$root/expected/sprite.css", "$root/build/sprite.css");
         $this->assertFileEquals("$root/expected/_generated/icons-s71af1c7425.png", "$root/build/_generated/icons-s71af1c7425.png");
@@ -198,7 +198,7 @@ class BuildTest extends TestCase
         $this->output->shouldReceive('created')->once()->with('build/');
         $this->output->shouldReceive('compiled')->once()->with('build/combine.js', '(2 files)');
 
-        $this->build($root = "{$this->fixtures}/build/combine-js");
+        $this->build($root = "{$this->fixtures}/build/" . __FUNCTION__);
 
         $this->assertFileEquals("$root/expected/combine.js", "$root/build/combine.js");
     }
@@ -208,7 +208,7 @@ class BuildTest extends TestCase
         $this->output->shouldReceive('created')->once()->with('build/');
         $this->output->shouldReceive('compiled')->once()->with('build/combine.css', '(2 files)');
 
-        $this->build($root = "{$this->fixtures}/build/combine-css");
+        $this->build($root = "{$this->fixtures}/build/" . __FUNCTION__);
 
         $this->assertFileEquals("$root/expected/combine.css", "$root/build/combine.css");
     }
@@ -218,7 +218,7 @@ class BuildTest extends TestCase
         $this->output->shouldReceive('created')->once()->with('build/');
         $this->output->shouldReceive('copied')->once()->with('build/combine.other/sample.txt', '');
 
-        $this->build($root = "{$this->fixtures}/build/combine-other");
+        $this->build($root = "{$this->fixtures}/build/" . __FUNCTION__);
 
         $this->assertTrue(is_dir("$root/build/combine.other"), "Expected '$root/build/combine.other' to be a directory");
         $this->assertFileExists("$root/build/combine.other/sample.txt");
@@ -231,7 +231,7 @@ class BuildTest extends TestCase
         $this->output->shouldReceive('warning')->once()->with('src/combine.css/ignore.txt', '', 'Skipping file (must end with .css/.scss/.css.yaml)');
         $this->output->shouldReceive('compiled')->once()->with('build/combine.css', '');
 
-        $this->build($root = "{$this->fixtures}/build/combine-invalid-css");
+        $this->build($root = "{$this->fixtures}/build/" . __FUNCTION__);
 
         $this->assertFileEquals("$root/expected/combine.css", "$root/build/combine.css");
     }
@@ -243,7 +243,7 @@ class BuildTest extends TestCase
         $this->output->shouldReceive('warning')->once()->with('src/combine.js/ignore.txt', '', 'Skipping file (must end with .js/.coffee/.js.yaml)');
         $this->output->shouldReceive('compiled')->once()->with('build/combine.js', '');
 
-        $this->build($root = "{$this->fixtures}/build/combine-invalid-js");
+        $this->build($root = "{$this->fixtures}/build/" . __FUNCTION__);
 
         $this->assertFileEquals("$root/expected/combine.js", "$root/build/combine.js");
     }
@@ -257,7 +257,7 @@ class BuildTest extends TestCase
         $this->output->shouldReceive('created')->once()->with('build/');
         $this->output->shouldReceive('compiled')->once()->with('build/import.js', '(2 files)');
 
-        $this->build($root = "{$this->fixtures}/build/yaml-js");
+        $this->build($root = "{$this->fixtures}/build/" . __FUNCTION__);
 
         $this->assertFileNotExists("$root/build/import.js.yaml");
         $this->assertFileEquals("$root/expected/import.js", "$root/build/import.js");
@@ -268,7 +268,7 @@ class BuildTest extends TestCase
         $this->output->shouldReceive('created')->once()->with('build/');
         $this->output->shouldReceive('compiled')->once()->with('build/import.css', '(2 files)');
 
-        $this->build($root = "{$this->fixtures}/build/yaml-css");
+        $this->build($root = "{$this->fixtures}/build/" . __FUNCTION__);
 
         $this->assertFileNotExists("$root/build/import.css.yaml");
         $this->assertFileEquals("$root/expected/import.css", "$root/build/import.css");
@@ -279,7 +279,7 @@ class BuildTest extends TestCase
         $this->output->shouldReceive('created')->once()->with('build/');
         $this->output->shouldReceive('copied')->once()->with('build/import.txt.yaml', '');
 
-        $this->build($root = "{$this->fixtures}/build/yaml-other");
+        $this->build($root = "{$this->fixtures}/build/" . __FUNCTION__);
 
         $this->assertFileNotExists("$root/build/import.txt");
         $this->assertFileEquals("$root/src/import.txt.yaml", "$root/build/import.txt.yaml");
@@ -290,7 +290,7 @@ class BuildTest extends TestCase
         $this->output->shouldReceive('created')->once()->with('build/');
         $this->output->shouldReceive('compiled')->once()->with('build/import.js', '(3 files)');
 
-        $this->build($root = "{$this->fixtures}/build/yaml-outside");
+        $this->build($root = "{$this->fixtures}/build/" . __FUNCTION__);
 
         $this->assertFileEquals("$root/expected/import.js", "$root/build/import.js");
     }
@@ -300,9 +300,19 @@ class BuildTest extends TestCase
         $this->output->shouldReceive('created')->once()->with('build/');
         $this->output->shouldReceive('compiled')->once()->with('build/import.js', '');
 
-        $this->build($root = "{$this->fixtures}/build/yaml-nested");
+        $this->build($root = "{$this->fixtures}/build/" . __FUNCTION__);
 
         $this->assertFileEquals("$root/expected/import.js", "$root/build/import.js");
+    }
+
+    public function testImportsYamlFilesInsideCompiledDirectory()
+    {
+        $this->output->shouldReceive('created')->once()->with('build/');
+        $this->output->shouldReceive('compiled')->once()->with('build/combine.js', '(4 files)');
+
+        $this->build($root = "{$this->fixtures}/build/" . __FUNCTION__);
+
+        $this->assertFileEquals("$root/expected/combine.js", "$root/build/combine.js");
     }
 
     public function testCombinesFilesInADirectoryListedInAYamlFile()
@@ -310,7 +320,7 @@ class BuildTest extends TestCase
         $this->output->shouldReceive('created')->once()->with('build/');
         $this->output->shouldReceive('compiled')->once()->with('build/import.js', '(4 files)');
 
-        $this->build($root = "{$this->fixtures}/build/yaml-combine");
+        $this->build($root = "{$this->fixtures}/build/" . __FUNCTION__);
 
         $this->assertFileEquals("$root/expected/import.js", "$root/build/import.js");
     }
@@ -321,7 +331,7 @@ class BuildTest extends TestCase
         $this->output->shouldReceive('warning')->once()->with('src/import-error.js.yaml', '', "'src/missing.js' doesn't exist");
         $this->output->shouldReceive('compiled')->once()->with('build/import-error.js', '');
 
-        $this->build($root = "{$this->fixtures}/build/yaml-missing");
+        $this->build($root = "{$this->fixtures}/build/" . __FUNCTION__);
 
         $this->assertFileEquals("$root/expected/import-error.js", "$root/build/import-error.js");
     }
@@ -335,7 +345,7 @@ class BuildTest extends TestCase
         $this->output->shouldReceive('created')->once()->with('build/');
         $this->output->shouldReceive('copied')->once()->with('build/autoprefixer.css', '');
 
-        $this->build($root = "{$this->fixtures}/build/autoprefixer-css", ['autoprefixer' => true]);
+        $this->build($root = "{$this->fixtures}/build/" . __FUNCTION__, ['autoprefixer' => true]);
 
         $this->assertFileEquals("$root/expected/autoprefixer.css", "$root/build/autoprefixer.css");
     }
@@ -345,7 +355,7 @@ class BuildTest extends TestCase
         $this->output->shouldReceive('created')->once()->with('build/');
         $this->output->shouldReceive('compiled')->once()->with('build/autoprefixer.css', '');
 
-        $this->build($root = "{$this->fixtures}/build/autoprefixer-scss", ['autoprefixer' => true]);
+        $this->build($root = "{$this->fixtures}/build/" . __FUNCTION__, ['autoprefixer' => true]);
 
         $this->assertFileEquals("$root/expected/autoprefixer.css", "$root/build/autoprefixer.css");
     }
@@ -355,7 +365,7 @@ class BuildTest extends TestCase
         $this->output->shouldReceive('created')->once()->with('build/');
         $this->output->shouldReceive('copied')->once()->with('build/autoprefixer.txt', '');
 
-        $this->build($root = "{$this->fixtures}/build/autoprefixer-other", ['autoprefixer' => true]);
+        $this->build($root = "{$this->fixtures}/build/" . __FUNCTION__, ['autoprefixer' => true]);
 
         $this->assertFileEquals("$root/src/autoprefixer.txt", "$root/build/autoprefixer.txt");
     }
@@ -368,7 +378,7 @@ class BuildTest extends TestCase
     {
         $this->output->shouldReceive('created')->once()->with('build/');
 
-        $this->build($root = "{$this->fixtures}/build/bower-symlink", ['bower' => 'bower_components/']);
+        $this->build($root = "{$this->fixtures}/build/" . __FUNCTION__, ['bower' => 'bower_components/']);
 
         $this->assertFileExists("$root/build/_bower");
         $this->assertTrue(is_link("$root/build/_bower"), "Expected '$root/build/_bower' to be a symlink");
@@ -381,7 +391,7 @@ class BuildTest extends TestCase
         $this->output->shouldReceive('created')->once()->with('build/');
         $this->output->shouldReceive('warning')->once()->with('bower_components/', '', "Bower directory doesn't exist");
 
-        $this->build($root = "{$this->fixtures}/build/bower-missing", ['bower' => 'bower_components/']);
+        $this->build($root = "{$this->fixtures}/build/" . __FUNCTION__, ['bower' => 'bower_components/']);
 
         $this->assertFileNotExists("$root/build/_bower");
     }
@@ -390,7 +400,7 @@ class BuildTest extends TestCase
     {
         $this->output->shouldReceive('created')->once()->with('build/');
 
-        $this->build($root = "{$this->fixtures}/build/bower-disabled", ['bower' => false]);
+        $this->build($root = "{$this->fixtures}/build/" . __FUNCTION__, ['bower' => false]);
 
         $this->assertFileNotExists("$root/build/_bower");
     }
@@ -406,7 +416,7 @@ class BuildTest extends TestCase
         $this->output->shouldReceive('compiled')->once()->with('build/combine.css', '');
         $this->output->shouldReceive('copied')->once()->with('build/sample.gif', '');
 
-        $this->build($root = "{$this->fixtures}/build/rewrite-combined", ['bower' => 'bower_components/']);
+        $this->build($root = "{$this->fixtures}/build/" . __FUNCTION__, ['bower' => 'bower_components/']);
 
         $this->assertFileEquals("$root/expected/combine.css", "$root/build/combine.css");
     }
@@ -416,7 +426,7 @@ class BuildTest extends TestCase
         $this->output->shouldReceive('created')->once()->with('build/');
         $this->output->shouldReceive('compiled')->once()->with('build/subdir/bower.css', '');
 
-        $this->build($root = "{$this->fixtures}/build/rewrite-bower", ['bower' => 'bower_components/']);
+        $this->build($root = "{$this->fixtures}/build/" . __FUNCTION__, ['bower' => 'bower_components/']);
 
         $this->assertFileEquals("$root/expected/subdir/bower.css", "$root/build/subdir/bower.css");
     }
@@ -426,7 +436,7 @@ class BuildTest extends TestCase
         $this->output->shouldReceive('created')->once()->with('build/');
         $this->output->shouldReceive('compiled')->once()->with('build/outside.css', '');
 
-        $this->build($root = "{$this->fixtures}/build/rewrite-outside");
+        $this->build($root = "{$this->fixtures}/build/" . __FUNCTION__);
 
         $this->assertFileEquals("$root/expected/outside.css", "$root/build/outside.css");
     }
@@ -437,7 +447,7 @@ class BuildTest extends TestCase
         $this->output->shouldReceive('compiled')->once()->with('build/import.css', '');
         $this->output->shouldReceive('copied')->once()->with('build/sample.gif', '');
 
-        $this->build($root = "{$this->fixtures}/build/rewrite-yaml", ['bower' => 'bower_components/']);
+        $this->build($root = "{$this->fixtures}/build/" . __FUNCTION__, ['bower' => 'bower_components/']);
 
         $this->assertFileEquals("$root/expected/import.css", "$root/build/import.css");
     }
@@ -448,7 +458,7 @@ class BuildTest extends TestCase
         $this->output->shouldReceive('warning')->once()->with('src/invalid-url.css', null, "/Invalid file path: 'invalid.gif'/");
         $this->output->shouldReceive('copied')->once()->with('build/invalid-url.css', '');
 
-        $this->build($root = "{$this->fixtures}/build/rewrite-invalid");
+        $this->build($root = "{$this->fixtures}/build/" . __FUNCTION__);
 
         $this->assertFileEquals("$root/expected/invalid-url.css", "$root/build/invalid-url.css");
     }
@@ -462,7 +472,7 @@ class BuildTest extends TestCase
         $this->output->shouldReceive('created')->once()->with('build/');
         $this->output->shouldReceive('compiled')->once()->with('build/coffeescript.js', '');
 
-        $this->build($root = "{$this->fixtures}/build/sourcemap-disabled", ['sourcemaps' => false]);
+        $this->build($root = "{$this->fixtures}/build/" . __FUNCTION__, ['sourcemaps' => false]);
 
         $this->assertFileExists("$root/build/coffeescript.js");
         $this->assertFileNotExists("$root/build/coffeescript.js.map");
@@ -473,7 +483,7 @@ class BuildTest extends TestCase
         $this->output->shouldReceive('created')->once()->with('build/');
         $this->output->shouldReceive('compiled')->once()->with('build/coffeescript.js', '');
 
-        $this->build($root = "{$this->fixtures}/build/sourcemap-coffeescript", ['sourcemaps' => true]);
+        $this->build($root = "{$this->fixtures}/build/" . __FUNCTION__, ['sourcemaps' => true]);
 
         $this->assertFileEquals("$root/expected/coffeescript.js", "$root/build/coffeescript.js");
         $this->assertFileEquals("$root/expected/coffeescript.js.map", "$root/build/coffeescript.js.map");
@@ -484,7 +494,7 @@ class BuildTest extends TestCase
         $this->output->shouldReceive('created')->once()->with('build/');
         $this->output->shouldReceive('copied')->once()->with('build/styles.css', '');
 
-        $this->build($root = "{$this->fixtures}/build/sourcemap-css-autoprefixer", ['sourcemaps' => true, 'autoprefixer' => true]);
+        $this->build($root = "{$this->fixtures}/build/" . __FUNCTION__, ['sourcemaps' => true, 'autoprefixer' => true]);
 
         $this->assertFileEquals("$root/expected/styles.css", "$root/build/styles.css");
         $this->assertFileEquals("$root/expected/styles.css.map", "$root/build/styles.css.map");
@@ -495,7 +505,7 @@ class BuildTest extends TestCase
         $this->output->shouldReceive('created')->once()->with('build/');
         $this->output->shouldReceive('compiled')->once()->with('build/sass.css', '');
 
-        $this->build($root = "{$this->fixtures}/build/sourcemap-sass", ['sourcemaps' => true]);
+        $this->build($root = "{$this->fixtures}/build/" . __FUNCTION__, ['sourcemaps' => true]);
 
         $this->assertFileEquals("$root/expected/sass.css", "$root/build/sass.css");
         $this->assertFileEquals("$root/expected/sass.css.map", "$root/build/sass.css.map");
@@ -507,7 +517,7 @@ class BuildTest extends TestCase
         $this->output->shouldReceive('generated')->once()->with('#build/_generated/icons-.*\.png#', '');
         $this->output->shouldReceive('compiled')->once()->with('build/sprite.css', '');
 
-        $this->build($root = "{$this->fixtures}/build/sourcemap-compass-sprites", ['sourcemaps' => true]);
+        $this->build($root = "{$this->fixtures}/build/" . __FUNCTION__, ['sourcemaps' => true]);
 
         $this->assertFileEquals("$root/expected/sprite.css", "$root/build/sprite.css");
         $this->assertFileEquals("$root/expected/sprite.css.map", "$root/build/sprite.css.map");
@@ -518,7 +528,7 @@ class BuildTest extends TestCase
         $this->output->shouldReceive('created')->once()->with('build/');
         $this->output->shouldReceive('compiled')->once()->with('build/combine.js', '(2 files)');
 
-        $this->build($root = "{$this->fixtures}/build/sourcemap-combine-js", ['sourcemaps' => true]);
+        $this->build($root = "{$this->fixtures}/build/" . __FUNCTION__, ['sourcemaps' => true]);
 
         $this->assertFileEquals("$root/expected/combine.js", "$root/build/combine.js");
         $this->assertFileEquals("$root/expected/combine.js.map", "$root/build/combine.js.map");
@@ -529,7 +539,7 @@ class BuildTest extends TestCase
         $this->output->shouldReceive('created')->once()->with('build/');
         $this->output->shouldReceive('compiled')->once()->with('build/combine.css', '(2 files)');
 
-        $this->build($root = "{$this->fixtures}/build/sourcemap-combine-css", ['sourcemaps' => true]);
+        $this->build($root = "{$this->fixtures}/build/" . __FUNCTION__, ['sourcemaps' => true]);
 
         $this->assertFileEquals("$root/expected/combine.css", "$root/build/combine.css");
         $this->assertFileEquals("$root/expected/combine.css.map", "$root/build/combine.css.map");
@@ -540,7 +550,7 @@ class BuildTest extends TestCase
         $this->output->shouldReceive('created')->once()->with('build/');
         $this->output->shouldReceive('compiled')->once()->with('build/import.js', '(4 files)');
 
-        $this->build($root = "{$this->fixtures}/build/sourcemap-yaml-combine", ['sourcemaps' => true]);
+        $this->build($root = "{$this->fixtures}/build/" . __FUNCTION__, ['sourcemaps' => true]);
 
         $this->assertFileEquals("$root/expected/import.js", "$root/build/import.js");
         $this->assertFileEquals("$root/expected/import.js.map", "$root/build/import.js.map");
@@ -551,7 +561,7 @@ class BuildTest extends TestCase
         $this->output->shouldReceive('created')->once()->with('build/');
         $this->output->shouldReceive('compiled')->once()->with('build/dir.css', '');
 
-        $this->build($root = "{$this->fixtures}/build/sourcemap-combine-empty", ['sourcemaps' => true]);
+        $this->build($root = "{$this->fixtures}/build/" . __FUNCTION__, ['sourcemaps' => true]);
 
         $this->assertFileEquals("$root/expected/dir.css", "$root/build/dir.css");
         $this->assertFileEquals("$root/expected/dir.css.map", "$root/build/dir.css.map");
@@ -562,7 +572,7 @@ class BuildTest extends TestCase
         $this->output->shouldReceive('created')->once()->with('build/');
         $this->output->shouldReceive('compiled')->once()->with('build/empty.css', '');
 
-        $this->build($root = "{$this->fixtures}/build/sourcemap-empty-sass", ['sourcemaps' => true]);
+        $this->build($root = "{$this->fixtures}/build/" . __FUNCTION__, ['sourcemaps' => true]);
 
         $this->assertFileEquals("$root/expected/empty.css", "$root/build/empty.css");
         $this->assertFileEquals("$root/expected/empty.css.map", "$root/build/empty.css.map");
@@ -577,7 +587,7 @@ class BuildTest extends TestCase
         $this->output->shouldReceive('created')->once()->with('build/');
         $this->output->shouldReceive('compiled')->once()->with('build/styles.css', '');
 
-        $this->build($root = "{$this->fixtures}/build/cache");
+        $this->build($root = "{$this->fixtures}/build/" . __FUNCTION__);
 
         $this->assertFileExists("$root/.awe");
         $this->assertFileExists("$root/.awe/sass-cache");
@@ -589,7 +599,7 @@ class BuildTest extends TestCase
         $this->output->shouldReceive('created')->once()->with('build/');
         $this->output->shouldReceive('generated')->once()->with('build/_DO_NOT_EDIT.txt', '');
 
-        $this->build($root = "{$this->fixtures}/build/warning-file", ['warningfile' => true]);
+        $this->build($root = "{$this->fixtures}/build/" . __FUNCTION__, ['warningfile' => true]);
 
         $this->assertFileEquals("$root/expected/_DO_NOT_EDIT.txt", "$root/build/_DO_NOT_EDIT.txt");
     }
