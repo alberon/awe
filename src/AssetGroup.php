@@ -177,7 +177,7 @@ class AssetGroup
             // results in ugly ../../../ paths - rewrite them to something readable.
             // Note: This has to be done *after* inlineSourceMapContent() is called.
             if (starts_with($sourcePath, $this->bundlePath))
-                $source = '_awe/ruby_bundle' . substr($source, strlen($this->bundlePath));
+                $source = '_awe/ruby_bundle' . substr($sourcePath, strlen($this->bundlePath));
         }
     }
 
