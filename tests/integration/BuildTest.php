@@ -581,7 +581,7 @@ class BuildTest extends TestCase
 
         $this->assertFileExists("$root/.awe");
         $this->assertFileExists("$root/.awe/sass-cache");
-        $this->assertFileEquals("$root/expected/.gitignore", "$root/.awe/.gitignore");
+        $this->assertFileEquals("$root/expected/gitignore", "$root/.awe/.gitignore");
     }
 
     public function testCreatesAFileWarningUsersNotToEditFilesInTheBuildDirectory()
