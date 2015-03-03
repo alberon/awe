@@ -567,7 +567,7 @@ class BuildTest extends TestCase
         $this->assertFileEquals("$root/expected/dir.css.map", "$root/build/dir.css.map");
     }
 
-    public function testCreatesSourceMapForEmptyScssFile()
+    public function testCreatesSourceMapsForEmptyScssFiles()
     {
         $this->output->shouldReceive('created')->once()->with('build/');
         $this->output->shouldReceive('compiled')->once()->with('build/empty.css', '');
