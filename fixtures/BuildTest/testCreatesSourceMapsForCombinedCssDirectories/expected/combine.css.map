@@ -1,6 +1,6 @@
 {
     "file": "combine.css",
-    "mappings": "AAAA;EACE,YAAW;EACZ;ACDD;EACE,mBAAiB;EAAlB;",
+    "mappings": "AAAA;IACI,YAAW;EACd;ACDD;EACI,mBAAiB;EAApB;",
     "names": [],
     "sourceRoot": "../src",
     "sources": [
@@ -8,8 +8,8 @@
         "combine.css/2-subdir/2.scss"
     ],
     "sourcesContent": [
-        ".css {\n  color: red;\n}\n",
-        "// This comment is just to change the line numbers\n.scss {\n  font-weight: bold;\n}\n\n.also-scss {\n  @extend .scss;\n}\n"
+        ".css {\n    color: red;\n}\n",
+        "// This comment is just to change the line numbers\n.scss {\n    font-weight: bold;\n}\n\n.also-scss {\n    @extend .scss;\n}\n"
     ],
     "version": 3
 }

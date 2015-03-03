@@ -460,7 +460,7 @@ class BuildTest extends TestCase
 
         $this->build($root = $this->fixtures . '/' . __CLASS__ . '/' . __FUNCTION__);
 
-        $this->assertFileEquals("$root/expected/invalid-url.css", "$root/build/invalid-url.css");
+        $this->assertFileEquals("$root/src/invalid-url.css", "$root/build/invalid-url.css");
     }
 
     /*--------------------------------------

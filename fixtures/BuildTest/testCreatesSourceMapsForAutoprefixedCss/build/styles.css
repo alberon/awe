@@ -1,12 +1,12 @@
 /* This is just to make the line numbers change a bit */
 .another {
-  transition: -webkit-transform 1s;
-  transition: transform 1s;
+    transition: -webkit-transform 1s;
+    transition: transform 1s;
 }
 
 .css {
-  transition: -webkit-transform 1s;
-  transition: transform 1s;
+    transition: -webkit-transform 1s;
+    transition: transform 1s;
 }
 
 /*# sourceMappingURL=styles.css.map */

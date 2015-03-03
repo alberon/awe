@@ -1,8 +1,8 @@
 /* This is just to make the line numbers change a bit */
 .another {
-  transition: transform 1s;
+    transition: transform 1s;
 }
 
 .css {
-  transition: transform 1s;
+    transition: transform 1s;
 }
