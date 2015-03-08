@@ -1,11 +1,11 @@
 <?php
-namespace Alberon\Awe;
+namespace Alberon\Awe\Commands;
 
-class BuildCommand extends BaseCommand
+class Build extends BaseCommand
 {
     public function run()
     {
-        // # Load config data
+        // Load config data
         // await config.load(errTo(cb, defer()))
 
         // # Create AssetGroup objects

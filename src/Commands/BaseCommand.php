@@ -1,5 +1,9 @@
 <?php
-namespace Alberon\Awe;
+namespace Alberon\Awe\Commands;
+
+use Alberon\Awe\App;
+use Alberon\Awe\StdOut;
+use Alberon\Awe\StdErr;
 
 abstract class BaseCommand
 {

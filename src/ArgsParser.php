@@ -13,11 +13,11 @@ namespace Alberon\Awe;
 class ArgsParser
 {
     protected $commands = [
-        'build'   => 'Alberon\Awe\BuildCommand',
-        'help'    => 'Alberon\Awe\HelpCommand',
-        'init'    => 'Alberon\Awe\InitCommand',
-        'watch'   => 'Alberon\Awe\WatchCommand',
-        'version' => 'Alberon\Awe\VersionCommand',
+        'build'   => 'Alberon\Awe\Commands\Build',
+        'help'    => 'Alberon\Awe\Commands\Help',
+        'init'    => 'Alberon\Awe\Commands\Init',
+        'watch'   => 'Alberon\Awe\Commands\Watch',
+        'version' => 'Alberon\Awe\Commands\Version',
     ];
 
     protected $synonyms = [

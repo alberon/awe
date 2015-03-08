@@ -1,7 +1,9 @@
 <?php
-namespace Alberon\Awe;
+namespace Alberon\Awe\Commands;
 
-class HelpCommand extends BaseCommand
+use Alberon\Awe\InvalidParameterException;
+
+class Help extends BaseCommand
 {
     public function run()
     {
