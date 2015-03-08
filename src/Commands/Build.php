@@ -6,17 +6,20 @@ class Build extends BaseCommand
     public function run()
     {
         // Load config data
-        // await config.load(errTo(cb, defer()))
+        $this->app->make('Alberon\Awe\Config')->load(getcwd());
 
-        // # Create AssetGroup objects
-        // groups = assets.groups()
+        // Create AssetGroup objects
+        $groups = $this->app->make('Alberon\Awe\Assets')->groups();
 
-        // # Build assets
-        // output.building()
-        // build = (group, cb) -> group.build(cb)
-        // await async.each(groups, build, errTo(cb, defer()))
+        // Build assets
+        $output = $this->app->make('Alberon\Awe\BuildOutput');
 
-        // # Finished
-        // output.finished()
+        $output->building();
+        foreach ($groups as $group) {
+            $group->build();
+        }
+
+        // Finished
+        $output->finished();
     }
 }

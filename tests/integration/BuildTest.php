@@ -9,22 +9,24 @@ class BuildTest extends TestCase
     {
         parent::setUp();
 
-        // Make this a partial so it outputs to the screen if one is missed, to
-        // make it easier to debug (vs. a generic BadMethodCall exception)
-        $this->output = m::mock('Alberon\Awe\BuildOutput')->makePartial();
+        $this->output = m::mock('Alberon\Awe\BuildOutput');
+
+        // Make it a partial so it outputs to the screen if one is missed,
+        // instead of a BadMethodCall exception which doesn't show the parameters
+        // $this->output = m::mock($this->app->make('Alberon\Awe\BuildOutput'));
     }
 
     protected function build($root, $config = [])
     {
         // Default config settings
         $config = array_merge([
-            'src'                   => 'src/',
-            'dest'                  => 'build/',
-            'bower'                 => false,
-            'autoprefixer'          => false,
-            'sourcemaps'            => false,
-            'prettyPrintSourcemaps' => true,
-            'warningfile'           => false,
+            'src'          => 'src/',
+            'dest'         => 'build/',
+            'bower'        => false,
+            'autoprefixer' => false,
+            'sourcemaps'   => false,
+            'prettyprint'  => true,
+            'warningfile'  => false,
         ], $config);
 
         // Clear the cache and build directories
@@ -377,6 +379,7 @@ class BuildTest extends TestCase
     public function testCreatesASymlinkToBowerDirectory()
     {
         $this->output->shouldReceive('created')->once()->with('build/');
+        $this->output->shouldReceive('symlink')->once()->with('build/_bower', '../bower_components');
 
         $this->build($root = $this->fixtures . '/' . __CLASS__ . '/' . __FUNCTION__, ['bower' => 'bower_components/']);
 
@@ -413,6 +416,7 @@ class BuildTest extends TestCase
     public function testRewritesRelativeUrlsInDirectoryCombinedCssFiles()
     {
         $this->output->shouldReceive('created')->once()->with('build/');
+        $this->output->shouldReceive('symlink')->once()->with('build/_bower', '../bower_components');
         $this->output->shouldReceive('compiled')->once()->with('build/combine.css', '');
         $this->output->shouldReceive('copied')->once()->with('build/sample.gif', '');
 
@@ -424,6 +428,7 @@ class BuildTest extends TestCase
     public function testRewritesRelativeUrlsInBowerFilesUsingTheSymlink()
     {
         $this->output->shouldReceive('created')->once()->with('build/');
+        $this->output->shouldReceive('symlink')->once()->with('build/_bower', '../bower_components');
         $this->output->shouldReceive('compiled')->once()->with('build/subdir/bower.css', '');
 
         $this->build($root = $this->fixtures . '/' . __CLASS__ . '/' . __FUNCTION__, ['bower' => 'bower_components/']);
@@ -444,6 +449,7 @@ class BuildTest extends TestCase
     public function testRewritesRelativeUrlsYamlImportedCssFiles()
     {
         $this->output->shouldReceive('created')->once()->with('build/');
+        $this->output->shouldReceive('symlink')->once()->with('build/_bower', '../bower_components');
         $this->output->shouldReceive('compiled')->once()->with('build/import.css', '');
         $this->output->shouldReceive('copied')->once()->with('build/sample.gif', '');
 
@@ -599,7 +605,7 @@ class BuildTest extends TestCase
         $this->output->shouldReceive('created')->once()->with('build/');
         $this->output->shouldReceive('generated')->once()->with('build/_DO_NOT_EDIT.txt', '');
 
-        $this->build($root = $this->fixtures . '/' . __CLASS__ . '/' . __FUNCTION__, ['warningfile' => true]);
+        $this->build($root = $this->fixtures . '/' . __CLASS__ . '/' . __FUNCTION__, ['warningfile' => '_DO_NOT_EDIT.txt']);
 
         $this->assertFileEquals("$root/expected/_DO_NOT_EDIT.txt", "$root/build/_DO_NOT_EDIT.txt");
     }

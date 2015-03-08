@@ -11,6 +11,7 @@ class App extends Container
     {
         $this->registerInstance();
         $this->registerBindings();
+        $this->registerSingletons();
     }
 
     protected function registerInstance()
@@ -18,6 +19,12 @@ class App extends Container
         static::setInstance($this);
 
         $this->instance(App::class, $this);
+    }
+
+    protected function registerSingletons()
+    {
+        $this->singleton('Alberon\Awe\BuildOutput');
+        $this->singleton('Alberon\Awe\Config');
     }
 
     protected function registerBindings()
@@ -28,9 +35,10 @@ class App extends Container
             // Maybe there's a Symfony method to do that already?
             $formatter = new OutputFormatter(true);
 
-            // Register shorthand styles
+            // Register custom styles
             $formatter->setStyle('b', new OutputFormatterStyle(null, null, ['bold']));
             $formatter->setStyle('u', new OutputFormatterStyle(null, null, ['underscore']));
+            $formatter->setStyle('grey', new OutputFormatterStyle('black', null, ['bold']));
 
             return $formatter;
         });

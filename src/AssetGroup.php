@@ -19,9 +19,9 @@ class AssetGroup
     protected $bowerSrc;
     protected $bundlePath;
     protected $destPath;
-    protected $prettyPrintSourcemaps;
+    protected $prettyPrint;
     protected $rootPath;
-    protected $sourcemaps;
+    protected $sourceMaps;
     protected $srcPath;
     protected $warningFile;
 
@@ -38,26 +38,26 @@ class AssetGroup
         $this->yamlMap = $yamlMap;
 
         // Settings
-        $this->rootPath              = rtrim($rootPath, '/\\');
-        $this->autoprefixer          = $config['autoprefixer'];
-        $this->bower                 = rtrim($config['bower'], '/\\');
-        $this->sourcemaps            = $config['sourcemaps'];
-        $this->prettyPrintSourcemaps = isset($config['prettyPrintSourcemaps']) ? (bool) $config['prettyPrintSourcemaps'] : false;
+        $this->rootPath     = rtrim($rootPath, '/\\');
+        $this->autoprefixer = $config['autoprefixer'];
+        $this->bower        = rtrim($config['bower'], '/\\');
+        $this->prettyPrint  = $config['prettyprint'];
+        $this->sourceMaps   = $config['sourcemaps'];
 
         // Normalise paths
         $this->srcPath  = $this->rootPath . DIRECTORY_SEPARATOR . rtrim($config['src'], '/\\');
         $this->destPath = $this->rootPath . DIRECTORY_SEPARATOR . rtrim($config['dest'], '/\\');
-
-        if ($config['warningfile'])
-            $this->warningFile = $this->destPath . '/_DO_NOT_EDIT.txt';
-        else
-            $this->warningFile = false;
 
         // Generated paths
         if ($this->bower) {
             $this->bowerLink = $this->destPath . DIRECTORY_SEPARATOR . '_bower';
             $this->bowerSrc  = $this->rootPath . DIRECTORY_SEPARATOR . $this->bower;
         }
+
+        if ($config['warningfile'])
+            $this->warningFile = $this->destPath . DIRECTORY_SEPARATOR . $config['warningfile'];
+        else
+            $this->warningFile = false;
 
         // Script paths
         $this->bundlePath = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'ruby_bundle';
@@ -132,6 +132,9 @@ class AssetGroup
     {
         $target = $this->relPath(dirname($link), $target);
         symlink($target, $link);
+
+        $path = $this->relPath($this->rootPath, $link);
+        $this->output->symlink($path, $target);
     }
 
     protected function addSourceMapComment(&$data)
@@ -190,7 +193,7 @@ class AssetGroup
             return;
 
         // Write source map
-        if ($this->sourcemaps && !empty($data['sourcemap']))
+        if ($this->sourceMaps && !empty($data['sourcemap']))
             $this->writeSourcemap($data);
 
         // Write file
@@ -223,7 +226,7 @@ class AssetGroup
         ksort($sourcemap);
 
         // Convert to JSON
-        $pp = $this->prettyPrintSourcemaps ? JSON_PRETTY_PRINT : 0;
+        $pp = $this->prettyPrint ? JSON_PRETTY_PRINT : 0;
         $json = json_encode($sourcemap, JSON_UNESCAPED_SLASHES | $pp);
 
         // Save file
@@ -408,7 +411,7 @@ class AssetGroup
 
         if ($code > 0) {
             $error = preg_replace('/\n?\s*Use --trace for backtrace./', '', $content);
-            $message = "<error>SASS/COMPASS ERROR</error> <grey>({$code})</grey>\n{$error}";
+            $message = "<fg=red;options=bold>SASS/COMPASS ERROR</fg=red;options=bold> <grey>({$code})</grey>\n{$error}";
             $path = $this->relPath($this->rootPath, $src);
             $this->output->error($path, null, $message);
             return;

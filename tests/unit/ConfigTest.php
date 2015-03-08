@@ -7,13 +7,13 @@ class ConfigTest extends TestCase
     {
         parent::setUp();
 
-        $this->configNormaliser = m::mock('Alberon\Awe\ConfigNormaliser');
-        $this->config           = $this->app->make('Alberon\Awe\Config', ['normaliser' => $this->configNormaliser]);
+        $this->normaliser = m::mock('Alberon\Awe\ConfigNormaliser');
+        $this->config     = $this->app->make('Alberon\Awe\Config', ['normaliser' => $this->normaliser]);
     }
 
     public function testLoadMethodReadsYamlFileAndCallsNormalise()
     {
-        $data = [
+        $rawConfig = [
             'ASSETS' => [
                 'test' => [
                     'src' =>  'assets/src/',
@@ -22,7 +22,7 @@ class ConfigTest extends TestCase
             ],
         ];
 
-        $this->configNormaliser->shouldReceive('normalise')->with($data)->once()->andReturn('normalised');
+        $this->normaliser->shouldReceive('normalise')->with($rawConfig)->once()->andReturn('normalised');
 
         $config = $this->config->load($this->fixtures . '/' . __CLASS__ . '/' . __FUNCTION__);
 

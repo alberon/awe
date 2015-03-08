@@ -1,13 +1,15 @@
 <?php
 namespace Alberon\Awe;
 
-use Illuminate\Filesystem\Filesystem;
 use Symfony\Component\Yaml\Parser as Yaml;
 
 class Config
 {
     protected $filesystem;
     protected $normaliser;
+
+    protected $data;
+    protected $rootPath;
 
     public function __construct(Filesystem $filesystem, ConfigNormaliser $normaliser, Yaml $yaml)
     {
@@ -27,7 +29,17 @@ class Config
 
         $data = $this->yaml->parse($yaml);
 
-        return $this->normaliser->normalise($data);
+        return $this->data = $this->normaliser->normalise($data);
+    }
+
+    public function get($key = null, $default = null)
+    {
+        return data_get($this->data, $key, $default);
+    }
+
+    public function rootPath()
+    {
+        return $this->rootPath;
     }
 
     protected function findConfigFile($path)
@@ -35,8 +47,10 @@ class Config
         while ($path !== '/') {
             $file = "$path/awe.yaml";
 
-            if ($this->filesystem->isFile($file))
+            if ($this->filesystem->isFile($file)) {
+                $this->rootPath = $path;
                 return $file;
+            }
 
             $path = dirname($path);
         }
