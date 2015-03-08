@@ -5,8 +5,8 @@ cd "$(dirname "$0")"
 # Make sure 'when-changed' is installed
 source bash/require-when-changed.bash
 
-# Run initial test - ignore failures
-./test-javascript.sh "$@" || true
+# Run initial command in a subshell (to allow 'cd') and ignore failures
+(eval "$@") || true
 
 # Watch for further changes
-exec when-changed -r javascript -c "./test-javascript.sh $*"
+exec when-changed -r fixtures javascript src templates tests -c "$*"
