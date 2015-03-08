@@ -47,4 +47,15 @@ class Filesystem extends BaseFilesystem
 
         return true;
     }
+
+    /**
+     * Determine if the given path is a symlink.
+     *
+     * @param  string  $link
+     * @return bool
+     */
+    public function isLink($link)
+    {
+        return is_link($link);
+    }
 }

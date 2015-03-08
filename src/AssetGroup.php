@@ -7,11 +7,10 @@ use Kwf_SourceMaps_SourceMap as SourceMap;
 
 class AssetGroup
 {
-    // tmp.setGracefulCleanup()
-
     protected $app;
     protected $file;
     protected $output;
+    protected $temp;
     protected $yamlMap;
 
     protected $autoprefixer;
@@ -29,13 +28,14 @@ class AssetGroup
     protected $cssExtensions = ['.css', '.scss', '.css.yaml'];
     protected $jsExtensions  = ['.js', '.coffee', '.js.yaml'];
 
-    public function __construct($rootPath, $config, App $app, Filesystem $file, BuildOutput $output, YamlMap $yamlMap)
+    public function __construct($rootPath, $config, App $app, Filesystem $file, Temp $temp, BuildOutput $output, YamlMap $yamlMap)
     {
         // Dependencies
-        $this->app       = $app;
-        $this->file      = $file;
-        $this->output    = $output;
-        $this->yamlMap   = $yamlMap;
+        $this->app     = $app;
+        $this->file    = $file;
+        $this->output  = $output;
+        $this->temp    = $temp;
+        $this->yamlMap = $yamlMap;
 
         // Settings
         $this->rootPath              = rtrim($rootPath, '/\\');
@@ -123,6 +123,9 @@ class AssetGroup
 
         // Compile the directory
         $this->buildRegularDirectory($this->srcPath, $this->destPath);
+
+        // Clean up temp files
+        $this->temp->cleanAll();
     }
 
     protected function createSymlink($target, $link)
@@ -346,13 +349,13 @@ class AssetGroup
     protected function compileSass($src, $dest)
     {
         // Create a temp directory for the output
-        $tmpDir = $this->tempdir();
+        $tmpDir = $this->temp->dir();
 
         // Create a config file for Compass
         // (Compass doesn't let us specify all options using the CLI, so we have to
         // generate a config file instead. We could use `sass --compass` instead for
         // some of them, but that doesn't support all the options either.)
-        $configFile = $this->tempfile();
+        $configFile = $this->temp->file();
 
         $compassConfig = "
             project_path = '{$this->rootPath}'
@@ -717,28 +720,6 @@ class AssetGroup
     protected function relDirPath($frompath, $topath)
     {
         return str_finish($this->relPath($frompath, $topath), DIRECTORY_SEPARATOR);
-    }
-
-    /**
-     * Create a temporary directory
-     *
-     * Based on http://php.net/manual/en/function.tempnam.php#61436
-     */
-    protected function tempdir($mode=0700)
-    {
-        $dir = rtrim(sys_get_temp_dir(), '/\\');
-
-        do
-        {
-            $path = $dir . DIRECTORY_SEPARATOR . 'awe-' . str_pad(mt_rand(0, 9999999999), 10, 0, STR_PAD_RIGHT);
-        } while (!@mkdir($path, $mode));
-
-        return $path;
-    }
-
-    protected function tempfile()
-    {
-        return tempnam(sys_get_temp_dir(), 'awe-');
     }
 
     /**
