@@ -4,7 +4,7 @@
 
 .. Note: This intro is also used in ../README.md and a short version for the description on GitHub.
 
-Awe (Alberon Web Engine) simplifies the building and maintenance of websites / web apps, by handling the compilation of **assets** -- it makes it easy to compile CoffeeScript & Sass files, autoprefix CSS files and combine source files together, with full source map support for easier debugging.
+Awe simplifies the building and maintenance of websites / web apps, by handling the compilation of **assets** -- it makes it easy to compile CoffeeScript & Sass files, autoprefix CSS files and combine source files together, with full source map support for easier debugging.
 
 In the future it will also handle **deployment** to remote live/staging servers, and related functionality such as **configuration management**.
 

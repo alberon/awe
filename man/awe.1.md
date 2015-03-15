@@ -1,4 +1,4 @@
-# awe(1) -- Alberon Web Engine
+# awe(1)
 
 ## SYNOPSIS
 
