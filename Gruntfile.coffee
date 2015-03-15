@@ -115,7 +115,7 @@ module.exports = (grunt) ->
       # Build man-build/
       man:
         files: 'man/*.[1-8].md'
-        tasks: ['clear', 'man']
+        tasks: ['clear', 'build-man']
 
       # Run modified test suite
       test:
