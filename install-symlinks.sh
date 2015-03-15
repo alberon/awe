@@ -49,7 +49,7 @@ uninstall() {
     fi
 
     # Make sure it's pointing to the right file, so we don't remove the wrong thing
-    local ./link_real="$(readlink -f "$link")"
+    local link_real="$(readlink -f "$link")"
     local target_real="$(readlink -f "$target")"
 
     if [ "$link_real" != "$target_real" ]; then
