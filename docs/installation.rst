@@ -15,6 +15,20 @@
     If you are using Jericho (Alberon's shared development server), Awe is already installed and you can skip to :doc:`config`.
 
 
+================================================================================
+ Quick start
+================================================================================
+
+If you already know what you're doing, this is a shorthand version of the instructions below for Debian Wheezy::
+
+    $ echo 'deb     http://ftp.uk.debian.org/debian/ wheezy-backports main contrib non-free' | sudo tee -a /etc/apt/sources.list >/dev/null
+    $ sudo apt-get update
+    $ sudo apt-get install curl nodejs nodejs-legacy ruby ruby-dev
+    $ curl https://www.npmjs.org/install.sh | sudo sh
+    $ sudo gem install bundler
+    $ sudo npm install -g awe bower
+
+
 .. _requirements:
 
 ================================================================================
@@ -94,7 +108,7 @@ Installing Ruby on Debian
 
 You may also install `Bower <http://bower.io/>`_ for managing third-party assets::
 
-    sudo npm install -g bower
+    $ sudo npm install -g bower
 
 To check it's installed, run::
 
@@ -124,14 +138,14 @@ To install a specific version, use the ``awe@<version>`` syntax of npm, for exam
 
     $ sudo npm install -g awe@1.0.0
 
-To see a list of all available versions, see the :doc:`changelog`.
+To see a list of all available versions, see the `list of releases <https://github.com/alberon/awe/releases>`_ or the `list of commits <https://github.com/alberon/awe/commits>`_.
 
 
 ================================================================================
  Upgrading
 ================================================================================
 
-Because Awe is installed globally, you only need to upgrade it once per machine, not separately for each project. Every effort will be made to ensure backwards compatibility, though you should check the :doc:`changelog` to see what has changed.
+Because Awe is installed globally, you only need to upgrade it once per machine, not separately for each project. Every effort will be made to ensure backwards compatibility, though you should check :doc:`upgrading` to see if anything important has changed.
 
 
 ----------------------------------------

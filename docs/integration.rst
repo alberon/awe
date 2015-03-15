@@ -1,5 +1,5 @@
 ################################################################################
- Integration with other software
+ Using with CMSs and frameworks
 ################################################################################
 
 ================================================================================
@@ -30,6 +30,8 @@ With the following configuration:
         default:
             src:          www/wp-content/themes/mytheme/src/
             dest:         www/wp-content/themes/mytheme/build/
+            bower:        bower_components/
+            autoprefixer: true
 
 ``style.css`` should only contain the `file header <http://codex.wordpress.org/File_Header>`_ that WordPress requires -- for example:
 
@@ -73,6 +75,8 @@ With the following configuration:
         default:
             src:          resources/assets/
             dest:         public/assets/
+            bower:        bower_components/
+            autoprefixer: true
 
 
 ================================================================================
@@ -100,3 +104,5 @@ With the following configuration:
         default:
             src:          app/assets/
             dest:         public/assets/
+            bower:        bower_components/
+            autoprefixer: true

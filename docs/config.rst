@@ -1,5 +1,5 @@
 ################################################################################
- Configuration
+ Project configuration files
 ################################################################################
 
 .. only:: html
@@ -9,10 +9,12 @@
 
 
 ================================================================================
- Creating awe.yaml
+ awe.yaml
 ================================================================================
 
-Each project requires a single config file, ``awe.yaml``, in the root directory. A config file can be created in the current directory by running ``awe init``:
+Each project requires a single config file, ``awe.yaml``, in the root directory.
+
+A new config file can be created in the current directory by running ``awe init``:
 
 .. code-block:: bash
 

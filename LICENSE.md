@@ -1,8 +1,6 @@
-################################################################################
- License
-################################################################################
+# License
 
-`The MIT License (MIT) <http://choosealicense.com/licenses/mit/>`_
+[The MIT License (MIT)](http://choosealicense.com/licenses/mit/)
 
 **Copyright © 2014 Dave James Miller**
 

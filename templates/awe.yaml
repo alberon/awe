@@ -5,5 +5,5 @@ ASSETS:
     default:
         src:          www/wp-content/themes/mytheme/src/
         dest:         www/wp-content/themes/mytheme/build/
-        bower:        false
+        bower:        false #bower_components/
         autoprefixer: true

@@ -20,11 +20,10 @@
     config
     assets
     integration
-    reference
     cache
-    changelog
+    upgrading
+    reference
     design
     contributing
-    license
     » GitHub <https://github.com/alberon/awe>
     » npm <https://www.npmjs.org/package/awe>
