@@ -77,7 +77,7 @@ module.exports = (grunt) ->
             {
               config:  'confirmed'
               type:    'confirm'
-              message: 'Did you remember to update the documentation?'
+              message: 'Did you remember to update the documentation (if appropriate)?'
             }
           ]
           then: (answers) ->
