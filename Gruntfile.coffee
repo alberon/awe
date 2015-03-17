@@ -1,33 +1,18 @@
-chalk = require('chalk')
-fs    = require('fs')
+chalk  = require('chalk')
+fs     = require('fs')
+semver = require('semver')
 
 module.exports = (grunt) ->
 
+  pkg = grunt.file.readJSON('package.json')
+
   grunt.initConfig
 
-    pkg: grunt.file.readJSON('package.json')
+    pkg: pkg
 
-    # Shell commands
-    shell:
-
-      # Update Ruby gems
-      'update-gems':
-        command: 'bundle install --path=ruby_bundle --binstubs=ruby_bundle/bin --no-deployment --without=production && bundle update'
-
-      # Build documentation
-      docs:
-        command: 'sphinx-build -b html docs docs-html'
-
-      pdfdocs:
-        command: 'sphinx-build -b latex docs docs-pdf && make -C docs-pdf all-pdf'
-
-      # Publish (from local to GitHub and npm)
-      publish:
-        command: 'scripts/publish.sh'
-
-      # Deploy (from npm to )
-      deploy:
-        command: 'echo "Updating Awe on Jericho..."; ssh -p 52222 root@jericho.alberon.co.uk "npm --color=always update -g awe"'
+    # Change this for testing the publish task
+    # (Also change "name" in package.json to "awe-test-package")
+    repo: 'git@github.com:alberon/awe.git'
 
     # Delete files
     clean:
@@ -53,6 +38,20 @@ module.exports = (grunt) ->
         dest: 'lib-build/'
         ext: '.js'
 
+    # Generate man pages
+    markedman:
+      options:
+        manual: 'Awe Manual'
+        version: 'Awe <%= pkg.version %>'
+      man:
+        expand: true
+        nonull: true
+        cwd: 'man/'
+        src: '*.[1-8].md'
+        dest: 'man-build/'
+        ext: ''
+        extDot: 'last'
+
     # Run unit tests
     mochaTest:
       options:
@@ -68,19 +67,94 @@ module.exports = (grunt) ->
       #     reporter: 'dot'
       #   src: ['test/**/*.coffee', '!test/**/_*.coffee']
 
-    # Generate man pages
-    markedman:
-      options:
-        manual: 'Awe Manual'
-        version: 'Awe <%= pkg.version %>'
-      man:
-        expand: true
-        nonull: true
-        cwd: 'man/'
-        src: '*.[1-8].md'
-        dest: 'man-build/'
-        ext: ''
-        extDot: 'last'
+    # Interactive prompts
+    prompt:
+
+      # Confirm documentation has been updated
+      'publish-confirm':
+        options:
+          questions: [
+            {
+              config:  'confirmed'
+              type:    'confirm'
+              message: 'Did you remember to update the documentation?'
+            }
+          ]
+          then: (answers) ->
+            if ! answers.confirmed
+              grunt.log.writeln()
+              grunt.fail.fatal('Hmm... Better go do that then.', 0)
+
+      # Ask which version number to use
+      'publish-version':
+        options:
+          questions: [
+            {
+              config:  'version'
+              type:    'list'
+              message: 'Bump version from <%= pkg.version %> to:',
+              choices: [
+                {
+                  value: (v = semver.inc(pkg.version, 'patch')),
+                  name:  chalk.yellow(v) + '   Backwards-compatible bug fixes'
+                },
+                {
+                  value: (v = semver.inc(pkg.version, 'minor')),
+                  name:  chalk.yellow(v) + '   Add functionality in a backwards-compatible manner'
+                },
+                {
+                  value: (v = semver.inc(pkg.version, 'major')),
+                  name:  chalk.yellow(v) + '   Incompatible API changes'
+                },
+                {
+                  value: 'custom',
+                  name:  chalk.yellow('Custom') + '  Specify version...'
+                }
+              ]
+            }
+            {
+              config:  'version',
+              type:    'input',
+              message: 'What specific version would you like?',
+              when: (answers) -> answers.version == 'custom'
+              validate: (value) ->
+                if semver.valid(value)
+                  true
+                else
+                  'Must be a valid semver, such as 1.2.3-rc1. See http://semver.org/ for more details.'
+            }
+          ]
+
+    # Shell commands
+    shell:
+
+      # Update Ruby gems
+      'update-gems':
+        command: 'bundle install --path=ruby_bundle --binstubs=ruby_bundle/bin --no-deployment --without=production && bundle update'
+
+      # Build documentation
+      docs:
+        command: 'sphinx-build -b html docs docs-html'
+
+      pdfdocs:
+        command: 'sphinx-build -b latex docs docs-pdf && make -C docs-pdf all-pdf'
+
+      # Publish (from local to GitHub and npm)
+      'publish-check':
+        command: 'scripts/publish-check.sh "<%= repo %>"'
+
+      'publish-version':
+        command: 'npm version <%= version %>'
+
+      'publish-push':
+        command: 'git push "<%= repo %>" refs/heads/master refs/tags/v<%= version %>'
+
+      'publish-npm':
+        command: 'npm publish'
+
+      # Deploy (from npm to )
+      deploy:
+        command: 'echo "Updating Awe on Jericho..."; ssh -p 52222 root@jericho.alberon.co.uk "npm --color=always update -g awe"'
 
     # Test modified source files
     testMap:
@@ -131,17 +205,25 @@ module.exports = (grunt) ->
         tasks: ['clear', 'newer:mochaTest:all']
 
   # Register tasks
-  grunt.registerTask 'build', ['build-lib', 'build-man', 'build-docs-html']
+  grunt.registerTask 'build',           ['build-lib', 'build-man', 'build-docs-html']
   grunt.registerTask 'build-docs-html', ['clean:docs', 'shell:docs']
-  grunt.registerTask 'build-docs-pdf', ['clean:pdfdocs', 'shell:pdfdocs']
-  grunt.registerTask 'build-lib', ['clean:lib', 'coffee:lib']
-  grunt.registerTask 'build-man', ['clean:man', 'markedman:man']
-  grunt.registerTask 'deploy', ['shell:deploy']
-  grunt.registerTask 'publish', ['shell:publishcheck', 'shell:publish']
-  grunt.registerTask 'update-gems', ['shell:update-gems']
+  grunt.registerTask 'build-docs-pdf',  ['clean:pdfdocs', 'shell:pdfdocs']
+  grunt.registerTask 'build-lib',       ['clean:lib', 'coffee:lib']
+  grunt.registerTask 'build-man',       ['clean:man', 'markedman:man']
+  grunt.registerTask 'deploy',          ['shell:deploy']
+  grunt.registerTask 'update-gems',     ['shell:update-gems']
 
-  # Undocumented task to run before npm publishes the package
-  grunt.registerTask 'prepublish', ['build-lib', 'build-man', 'test']
+  grunt.registerTask 'publish', [
+    'shell:publish-check'    # Check everything is checked in and merged
+    'prompt:publish-confirm' # Check the documentation is up-to-date
+    'prompt:publish-version' # Ask the user for the version number to use
+    'build-lib'              # Build the files
+    'build-man'              # Build the manual pages
+    'test'                   # Run the unit tests
+    'shell:publish-version'  # Update package.json, commit and tag the version
+    'shell:publish-push'     # Upload the tag to GitHub
+    'shell:publish-npm'      # Upload the release to npm
+  ]
 
   # The test command is a bit more complex as it takes an optional filename
   grunt.registerTask 'test', (suite) ->

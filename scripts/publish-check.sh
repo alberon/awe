@@ -1,9 +1,10 @@
 #!/bin/bash
 set -o nounset -o pipefail -o errexit
 cd "$(dirname "$0")"
+cd ..
 
 # Settings
-remote="git@github.com:davejamesmiller/awe.git"
+repo="$1"
 
 # Ensure everything is checked in
 echo "Checking for local changes..."
@@ -11,6 +12,7 @@ echo "Checking for local changes..."
 if [ "$(git status --porcelain)" != "" ]; then
   echo
   echo "Local changes have not been committed:"
+  echo
   # Now do a regular status command to display status in a human-readable format
   git -c color.status=always status |
   # But tidy up the status output as follows:
@@ -64,7 +66,7 @@ fi
 # Determine the current commit id on the remote
 echo "Determining the remote version..."
 
-remote_commit="$(git ls-remote git@github.com:davejamesmiller/awe.git refs/heads/master | cut -f 1)"
+remote_commit="$(git ls-remote $repo refs/heads/master | cut -f 1)"
 if [ -z "$remote_commit" ]; then
   echo
   echo "Unable to determine the current remote commit ID"
@@ -79,9 +81,7 @@ if [ "$local_commit" != "$remote_commit" ]; then
   if ! git show "$remote_commit" >/dev/null 2>&1; then
     # The remote commit doesn't exist in the local history - need to download it
     # so we can display the log message
-    echo 'fetch'
-    git fetch $remote
-    echo 'done'
+    git fetch $repo
   fi
 
   log="$(git log --pretty=format:'%C(red)%h %C(yellow)%s %C(green)(%cr) %C(bold blue)<%an>%C(reset)' $local_commit..$remote_commit | sed 's/^/  /')"
@@ -94,29 +94,3 @@ if [ "$local_commit" != "$remote_commit" ]; then
     exit 1
   fi
 fi
-
-# Confirm documentation has been updated if needed (prompt the user)
-# source "includes/ask.sh"
-
-# if ! ask "Did you remember to update the documentation?" Y; then
-#   echo
-#   echo "  Hmm... Better go do that then."
-#   echo
-#   exit 1
-# fi
-
-# # Run unit tests
-# echo "Running unit tests..."
-# echo
-# grunt --color test 2>&1 | sed 's/^/  /' || exit
-# echo
-
-# Display current version number
-
-# Prompt for new version number (unless a version was given?)
-
-# Tag version with npm
-
-# Push code & tags to GitHub
-
-# Publish in npm (runs unit tests again)
