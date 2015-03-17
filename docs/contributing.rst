@@ -337,32 +337,6 @@ This will install the latest versions and update `Gemfile.lock`.
  Releasing a new version
 ================================================================================
 
-----------------------------------------
- Prepare
-----------------------------------------
-
-- Run ``git pull`` to ensure all changes are merged
-- Test with ``grunt test``
 - Check the documentation is up-to-date
 - Update :doc:`upgrading` (if necessary)
-
-
-----------------------------------------
- Release
-----------------------------------------
-
-- Run ``npm version X.Y.Z`` to update ``package.json``
-- Run ``git push && git push --tags`` to upload the code and tag to GitHub
-- Run ``npm publish`` to upload to npm
-
-
-----------------------------------------
- Finalise
-----------------------------------------
-
-- Run ``sudo npm update -g awe`` to upgrade Awe on your own machine(s)
-
-.. admonition:: Alberon Note
-    :class: note wy-alert-success
-
-    Remember to upgrade Awe on Jericho.
+- Run ``grunt deploy``
