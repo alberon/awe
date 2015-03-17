@@ -144,7 +144,7 @@ module.exports = (grunt) ->
         command: 'scripts/publish-check.sh "<%= repo %>"'
 
       'publish-show-log':
-        command: 'git log --pretty=format:"%C(red)%h %C(yellow)%s %C(green)(%cr) %C(bold blue)<%an>%C(reset)" refs/tags/v<%= pkg.version%>..'
+        command: 'echo "Commits since the last version:"; git log --reverse --pretty=format:"%C(red)%h %C(yellow)%s %C(green)(%cr) %C(bold blue)<%= "<%" %>an>%C(reset)" refs/tags/v<%= pkg.version%>..'
 
       'publish-version':
         command: 'npm version <%= version %>'
