@@ -81,7 +81,7 @@ if [ "$local_commit" != "$remote_commit" ]; then
   if ! git show "$remote_commit" >/dev/null 2>&1; then
     # The remote commit doesn't exist in the local history - need to download it
     # so we can display the log message
-    git fetch $repo
+    git fetch $repo master
   fi
 
   log="$(git log --pretty=format:'%C(red)%h %C(yellow)%s %C(green)(%cr) %C(bold blue)<%an>%C(reset)' $local_commit..$remote_commit | sed 's/^/  /')"
