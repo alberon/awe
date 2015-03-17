@@ -155,7 +155,7 @@ module.exports = (grunt) ->
       'publish-npm':
         command: 'npm publish'
 
-      # Deploy (from npm to )
+      # Deploy (from npm to Jericho)
       deploy:
         command: 'echo "Updating Awe on Jericho..."; ssh -p 52222 root@jericho.alberon.co.uk "npm --color=always update -g awe"'
 
