@@ -94,3 +94,6 @@ if [ "$local_commit" != "$remote_commit" ]; then
     exit 1
   fi
 fi
+
+# All OK
+echo "All OK."
