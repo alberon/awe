@@ -213,7 +213,7 @@ module.exports = (grunt) ->
   grunt.registerTask 'build-docs-pdf',  ['clean:pdfdocs', 'shell:pdfdocs']
   grunt.registerTask 'build-lib',       ['clean:lib', 'coffee:lib']
   grunt.registerTask 'build-man',       ['clean:man', 'markedman:man']
-  grunt.registerTask 'deploy',          ['shell:deploy']
+  grunt.registerTask 'deploy',          ['publish', 'shell:deploy']
   grunt.registerTask 'update-gems',     ['shell:update-gems']
 
   grunt.registerTask 'publish', [
@@ -251,7 +251,7 @@ module.exports = (grunt) ->
       #{chalk.bold('grunt build-lib')}         Build JavaScript files (lib/ → lib-build/)
       #{chalk.bold('grunt build-man')}         Build manual pages (man/ → man-build/)
       #{chalk.bold('grunt deploy')}            Upgrade Awe on Alberon servers (currently only Jericho)
-      #{chalk.bold('grunt publish')}           Release a new version of Awe (upload to GitHub & npm)
+      #{chalk.bold('grunt publish')}           Release a new version of Awe (upload to GitHub & npm), then deploy it
       #{chalk.bold('grunt test')}              Run all unit/integration tests
       #{chalk.bold('grunt test:<suite>')}      Run the specified test suite (e.g. 'grunt test:config')
       #{chalk.bold('grunt update-gems')}       Update Ruby gems to the latest allowed version (according to Gemfile)
