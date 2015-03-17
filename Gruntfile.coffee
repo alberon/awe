@@ -144,7 +144,12 @@ module.exports = (grunt) ->
         command: 'scripts/publish-check.sh "<%= repo %>"'
 
       'publish-show-log':
-        command: 'echo "Commits since the last version:"; git log --reverse --pretty=format:"%C(red)%h %C(yellow)%s %C(green)(%cr) %C(bold blue)<%= "<%" %>an>%C(reset)" refs/tags/v<%= pkg.version%>..'
+        command: '
+          echo "Commits since the last version:";
+          echo;
+          git log --reverse --pretty=format:"%C(red)%h %C(yellow)%s %C(green)(%cr) %C(bold blue)<%= "<%" %>an>%C(reset)" refs/tags/v<%= pkg.version%>..;
+          echo
+        '
 
       'publish-version':
         command: 'npm version <%= version %>'
@@ -157,7 +162,10 @@ module.exports = (grunt) ->
 
       # Deploy (from npm to Jericho)
       deploy:
-        command: 'echo "Updating Awe on Jericho..."; ssh -p 52222 root@jericho.alberon.co.uk "npm --color=always update -g awe"'
+        command: '
+          echo "Updating Awe on Jericho...";
+          ssh -p 52222 root@jericho.alberon.co.uk "npm --color=always update -g awe"
+        '
 
     # Test modified source files
     testMap:
