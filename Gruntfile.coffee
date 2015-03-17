@@ -143,6 +143,9 @@ module.exports = (grunt) ->
       'publish-check':
         command: 'scripts/publish-check.sh "<%= repo %>"'
 
+      'publish-show-log':
+        command: 'git log --pretty=format:"%C(red)%h %C(yellow)%s %C(green)(%cr) %C(bold blue)<%an>%C(reset)" refs/tags/v<%= pkg.version%>..'
+
       'publish-version':
         command: 'npm version <%= version %>'
 
@@ -216,6 +219,7 @@ module.exports = (grunt) ->
   grunt.registerTask 'publish', [
     'shell:publish-check'    # Check everything is checked in and merged
     'prompt:publish-confirm' # Check the documentation is up-to-date
+    'shell:publish-show-log' # Display list of changes
     'prompt:publish-version' # Ask the user for the version number to use
     'build-lib'              # Build the files
     'build-man'              # Build the manual pages
