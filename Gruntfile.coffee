@@ -21,7 +21,11 @@ module.exports = (grunt) ->
       pdfdocs:
         command: 'sphinx-build -b latex docs docs-pdf && make -C docs-pdf all-pdf'
 
-      # Deploy
+      # Publish (from local to GitHub and npm)
+      publish:
+        command: 'scripts/publish.sh'
+
+      # Deploy (from npm to )
       deploy:
         command: 'echo "Updating Awe on Jericho..."; ssh -p 52222 root@jericho.alberon.co.uk "npm --color=always update -g awe"'
 
@@ -133,6 +137,7 @@ module.exports = (grunt) ->
   grunt.registerTask 'build-lib', ['clean:lib', 'coffee:lib']
   grunt.registerTask 'build-man', ['clean:man', 'markedman:man']
   grunt.registerTask 'deploy', ['shell:deploy']
+  grunt.registerTask 'publish', ['shell:publishcheck', 'shell:publish']
   grunt.registerTask 'update-gems', ['shell:update-gems']
 
   # Undocumented task to run before npm publishes the package
@@ -160,6 +165,7 @@ module.exports = (grunt) ->
       #{chalk.bold('grunt build-lib')}         Build JavaScript files (lib/ → lib-build/)
       #{chalk.bold('grunt build-man')}         Build manual pages (man/ → man-build/)
       #{chalk.bold('grunt deploy')}            Upgrade Awe on Alberon servers (currently only Jericho)
+      #{chalk.bold('grunt publish')}           Release a new version of Awe (upload to GitHub & npm)
       #{chalk.bold('grunt test')}              Run all unit/integration tests
       #{chalk.bold('grunt test:<suite>')}      Run the specified test suite (e.g. 'grunt test:config')
       #{chalk.bold('grunt update-gems')}       Update Ruby gems to the latest allowed version (according to Gemfile)
@@ -191,5 +197,5 @@ module.exports = (grunt) ->
 
   # Lazy-load plugins & custom tasks
   require('jit-grunt')(grunt,
-    coffee:         'grunt-iced-coffee'
+    coffee: 'grunt-iced-coffee'
   )
