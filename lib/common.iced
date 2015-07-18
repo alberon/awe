@@ -6,6 +6,3 @@ path = require('path')
 # some way of determining whether we'll need it or not.
 require('coffee-script')
 require('source-map-support').install(handleUncaughtExceptions: false)
-
-# Configure Mustache
-require('mu2').root = path.resolve(__dirname, '../templates')
