@@ -1,2 +1,18 @@
-#!/usr/bin/env node
-require('../lib-build/awe');
+#!/bin/bash
+set -o nounset -o pipefail -o errexit
+
+exe="$(dirname "$0")/../lib-build/awe.js"
+
+if [ ! -f "$exe" ]; then
+  echo "Awe not built - run 'grunt build' or 'grunt build-lib'" >&2
+  exit 1
+fi
+
+case "$(uname)" in
+  CYGWIN*)
+    FORCE_COLOR=1 exec node "$(cygpath -w "$exe")" "$@"
+    ;;
+  *)
+    exec node $exe "$@"
+    ;;
+esac
