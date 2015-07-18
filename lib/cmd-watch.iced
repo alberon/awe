@@ -10,6 +10,8 @@ watch  = require('node-watch')
 
 exports.run = (command, errCb) ->
 
+  stdin = process.stdin
+
   # Load config data
   await config.load(errTo(errCb, defer()))
 
@@ -42,7 +44,10 @@ exports.run = (command, errCb) ->
       else if numRunning == 0
         output.finished()
         output.line()
-        output.watching()
+        if stdin.setRawMode
+          output.watchingWithInput()
+        else
+          output.watching()
 
     # Wait 250ms in case multiple files are saved at once
     buildDebounced = _.debounce(build, 250, maxWait: 1000)
@@ -71,9 +76,9 @@ exports.run = (command, errCb) ->
   await async.map(groups, watchGroup, errTo(errCb, defer watches))
 
   # Listen for keyboard input
-  stdin = process.stdin
+  if stdin.setRawMode
+    stdin.setRawMode(true)
 
-  stdin.setRawMode(true)
   stdin.setEncoding('utf8')
   stdin.resume()
 

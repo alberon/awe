@@ -5,9 +5,10 @@ S     = require('string')
 
 actions =
   # Information
-  watching:  chalk.bold.cyan('WATCHING... ') + chalk.bold.black('Press ') + chalk.white('b') + chalk.bold.black(' to build, ') + chalk.white('q') + chalk.bold.black(' to quit')
-  building:  chalk.bold.cyan('BUILDING...')
-  finished:  chalk.bold.cyan('FINISHED.')
+  watching:          chalk.bold.cyan('WATCHING... ') + chalk.bold.black('Press Ctrl+C to quit')
+  watchingWithInput: chalk.bold.cyan('WATCHING... ') + chalk.bold.black('Press ') + chalk.white('b') + chalk.bold.black(' to build, ') + chalk.white('q') + chalk.bold.black(' to quit')
+  building:          chalk.bold.cyan('BUILDING...')
+  finished:          chalk.bold.cyan('FINISHED.')
 
   # Source files
   modified:  chalk.bold.green.inverse('Modified')
