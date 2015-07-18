@@ -310,9 +310,13 @@ class AssetGroup
     # some of them, but that doesn't support all the options either.)
     await tmp.file(errTo(cb, defer configFilename, configFd))
 
-    # Fix paths on Windows - Compass expects '/' not '\' path separators
+    # Fix paths on Windows
     normalisePath = (file) ->
-      file.replace(/\\/g, '/') #'# <-- Sublime text has a syntax highlighting bug with /\\/
+      # Compass expects '/' not '\' path separators
+      file = file.replace(/\\/g, '/') #'# <-- Sublime text has a syntax highlighting bug with /\\/
+      # And it mustn't start with "C:/" else it creates a directory named "C:"
+      file = file.replace(/^([a-z]):/i, (_, letter) -> "/cygdrive/#{letter.toLowerCase()}")
+      file
 
     compassConfig = """
       project_path = '#{normalisePath @rootPath}'
@@ -354,7 +358,7 @@ class AssetGroup
 
     # Compile the file using Compass
     # Note: Runs 'ruby' rather than running 'compass' directly to support Cygwin
-    args = [compassPath, 'compile', '--trace', '--config', configFilename, src]
+    args = [compassPath, 'compile', '--trace', '--config', configFilename, normalisePath(src)]
 
     result = ''
     bundle = spawn('ruby', args)
