@@ -104,11 +104,18 @@ class AssetGroup
 
 
   _createSymlink: (target, link, cb) =>
-    target = path.relative(path.dirname(link), target)
-    await fs.symlink(target, link, errTo(cb, defer()))
-    file = path.relative(@rootPath, link + '/')
-    output.symlink(file, '-> ' + target)
-    cb()
+    rel_target = path.relative(path.dirname(link), target)
+    await fs.symlink(rel_target, link, defer err)
+
+    if err && err.code == 'EPERM' && process.platform == 'win32'
+      # Symlinks not supported - fall back to copy
+      @_copyDirectory('copied', target, link, cb)
+    else if err
+      cb(err)
+    else
+      file = path.relative(@rootPath, link + '/')
+      output.symlink(file, '-> ' + rel_target)
+      cb()
 
 
   _addSourceMapComment: (data) =>
@@ -299,21 +306,25 @@ class AssetGroup
     # some of them, but that doesn't support all the options either.)
     await tmp.file(errTo(cb, defer configFilename, configFd))
 
+    # Fix paths on Windows - Compass expects '/' not '\' path separators
+    normalisePath = (file) ->
+      file.replace(/\\/g, '/') #'# <-- Sublime text has a syntax highlighting bug with /\\/
+
     compassConfig = """
-      project_path = '#{@rootPath}'
-      cache_path   = '#{path.join(@cachePath, 'sass-cache')}'
+      project_path = '#{normalisePath @rootPath}'
+      cache_path   = '#{normalisePath path.join(@cachePath, 'sass-cache')}'
       output_style = :expanded
 
       # Input files
-      sass_path        =  '#{@srcPath}'
-      images_path      =  '#{@srcPath}/img'
-      fonts_path       =  '#{@srcPath}/fonts'
-      sprite_load_path << '#{@srcPath}/_sprites'
+      sass_path        =  '#{normalisePath @srcPath}'
+      images_path      =  '#{normalisePath @srcPath}/img'
+      fonts_path       =  '#{normalisePath @srcPath}/fonts'
+      sprite_load_path << '#{normalisePath @srcPath}/_sprites'
 
       # Output to a temp directory so we can catch any generated files too
-      css_path              = '#{tmpDir}'
-      generated_images_path = '#{tmpDir}/_generated'
-      javascripts_path      = '#{tmpDir}/_generated' # Rarely used but might as well
+      css_path              = '#{normalisePath tmpDir}'
+      generated_images_path = '#{normalisePath tmpDir}/_generated'
+      javascripts_path      = '#{normalisePath tmpDir}/_generated' # Rarely used but might as well
 
       # Output a placeholder for URLs - we will rewrite them into relative paths later
       # (Can't use 'relative_assets' because it generates paths like '../../../tmp/tmp-123/img')
@@ -338,16 +349,18 @@ class AssetGroup
     await fs.close(configFd, errTo(cb, defer()))
 
     # Compile the file using Compass
-    args = ['compile', '--trace', '--config', configFilename, src]
+    # Note: Runs 'ruby' rather than running 'compass' directly to support Cygwin
+    args = [compassPath, 'compile', '--trace', '--config', configFilename, src]
 
     result = ''
-    bundle = spawn(compassPath, args)
+    bundle = spawn('ruby', args)
     bundle.stdout.on 'data', (data) => result += data
     bundle.stderr.on 'data', (data) => result += data
     await bundle.on 'close', defer code
 
     if code != 0
       result = result.replace(/\n?\s*Use --trace for backtrace./, '')
+      result = result.replace(normalisePath(@rootPath) + '/', '')
       message = chalk.bold.red("SASS/COMPASS ERROR") + chalk.bold.black(" (#{code})") + "\n#{result}"
       file = path.relative(@rootPath, src)
       output.error(file, null, message)
@@ -355,7 +368,8 @@ class AssetGroup
 
     await
       # Copy any extra files that were generated
-      @_copyGeneratedDirectory(
+      @_copyDirectory(
+        'generated',
         path.join(tmpDir, '_generated'),
         path.join(@destPath, '_generated')
         errTo(cb, defer())
@@ -391,7 +405,7 @@ class AssetGroup
     cb(null, data)
 
 
-  _copyGeneratedFileOrDirectory: (src, dest, file, cb) =>
+  _copyFileOrDirectory: (action, src, dest, file, cb) =>
     return cb() if file[0...1] == '_'
 
     srcFile = path.join(src, file)
@@ -400,18 +414,18 @@ class AssetGroup
     await fs.stat(srcFile, errTo(cb, defer stat))
 
     if stat.isDirectory()
-      @_copyGeneratedDirectory(srcFile, destFile, cb)
+      @_copyDirectory(action, srcFile, destFile, cb)
     else
-      @_copyGeneratedFile(srcFile, destFile, cb)
+      @_copyFile(action, srcFile, destFile, cb)
 
 
-  _copyGeneratedFile: (src, dest, cb) =>
+  _copyFile: (action, src, dest, cb) =>
     await @_getBuffer(src, dest, errTo(cb, defer data))
-    data.action = 'generated'
+    data.action = action
     @_write(data, cb)
 
 
-  _copyGeneratedDirectory: (src, dest, cb) =>
+  _copyDirectory: (action, src, dest, cb) =>
 
     # Get a list of files
     await fs.readdir(src, defer(err, files))
@@ -426,7 +440,7 @@ class AssetGroup
     await mkdirp(dest, errTo(cb, defer()))
 
     # Copy the files
-    async.each(files, _.partial(@_copyGeneratedFileOrDirectory, src, dest), cb)
+    async.each(files, _.partial(@_copyFileOrDirectory, action, src, dest), cb)
 
 
   _compileFile: (src, dest, cb) =>
