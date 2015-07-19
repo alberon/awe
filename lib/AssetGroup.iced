@@ -46,6 +46,17 @@ class AssetGroup
       @warningFile = false
 
 
+  # Fix paths on Windows
+  _cygwinPath: (file) =>
+    file
+      # Compass expects '/' not '\' path separators
+      .replace(/\\/g, '/')
+      #'#<-- Sublime text has a syntax highlighting bug with /\\/
+
+      # And it mustn't start with "C:/" else it creates a directory named "C:"
+      .replace(/^([a-z]):/i, (_, letter) -> "/cygdrive/#{letter.toLowerCase()}")
+
+
   build: (cb) =>
     await
       # Check if the source directory exists
@@ -310,29 +321,21 @@ class AssetGroup
     # some of them, but that doesn't support all the options either.)
     await tmp.file(errTo(cb, defer configFilename, configFd))
 
-    # Fix paths on Windows
-    normalisePath = (file) ->
-      # Compass expects '/' not '\' path separators
-      file = file.replace(/\\/g, '/') #'# <-- Sublime text has a syntax highlighting bug with /\\/
-      # And it mustn't start with "C:/" else it creates a directory named "C:"
-      file = file.replace(/^([a-z]):/i, (_, letter) -> "/cygdrive/#{letter.toLowerCase()}")
-      file
-
     compassConfig = """
-      project_path = '#{normalisePath @rootPath}'
-      cache_path   = '#{normalisePath path.join(@cachePath, 'sass-cache')}'
+      project_path = '#{@_cygwinPath(@rootPath)}'
+      cache_path   = '#{@_cygwinPath(path.join(@cachePath, 'sass-cache'))}'
       output_style = :expanded
 
       # Input files
-      sass_path        =  '#{normalisePath @srcPath}'
-      images_path      =  '#{normalisePath @srcPath}/img'
-      fonts_path       =  '#{normalisePath @srcPath}/fonts'
-      sprite_load_path << '#{normalisePath @srcPath}/_sprites'
+      sass_path        =  '#{@_cygwinPath(@srcPath)}'
+      images_path      =  '#{@_cygwinPath(@srcPath)}/img'
+      fonts_path       =  '#{@_cygwinPath(@srcPath)}/fonts'
+      sprite_load_path << '#{@_cygwinPath(@srcPath)}/_sprites'
 
       # Output to a temp directory so we can catch any generated files too
-      css_path              = '#{normalisePath tmpDir}'
-      generated_images_path = '#{normalisePath tmpDir}/_generated'
-      javascripts_path      = '#{normalisePath tmpDir}/_generated' # Rarely used but might as well
+      css_path              = '#{@_cygwinPath(tmpDir)}'
+      generated_images_path = '#{@_cygwinPath(tmpDir)}/_generated'
+      javascripts_path      = '#{@_cygwinPath(tmpDir)}/_generated' # Rarely used but might as well
 
       # Output a placeholder for URLs - we will rewrite them into relative paths later
       # (Can't use 'relative_assets' because it generates paths like '../../../tmp/tmp-123/img')
@@ -358,7 +361,7 @@ class AssetGroup
 
     # Compile the file using Compass
     # Note: Runs 'ruby' rather than running 'compass' directly to support Cygwin
-    args = [compassPath, 'compile', '--trace', '--config', configFilename, normalisePath(src)]
+    args = [compassPath, 'compile', '--trace', '--config', configFilename, @_cygwinPath(src)]
 
     result = ''
     bundle = spawn('ruby', args)
@@ -368,7 +371,7 @@ class AssetGroup
 
     if code != 0
       result = result.replace(/\n?\s*Use --trace for backtrace./, '')
-      result = result.replace(normalisePath(@rootPath) + '/', '')
+      result = result.replace(@_cygwinPath(@rootPath) + '/', '')
       message = chalk.bold.red("SASS/COMPASS ERROR") + chalk.bold.black(" (#{code})") + "\n#{result}"
       file = path.relative(@rootPath, src)
       output.error(file, null, message)
