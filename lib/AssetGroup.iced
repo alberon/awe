@@ -104,11 +104,18 @@ class AssetGroup
 
 
   _createSymlink: (target, link, cb) =>
-    target = path.relative(path.dirname(link), target)
-    await fs.symlink(target, link, errTo(cb, defer()))
-    file = path.relative(@rootPath, link + '/')
-    output.symlink(file, '-> ' + target)
-    cb()
+    rel_target = path.relative(path.dirname(link), target)
+    await fs.symlink(rel_target, link, defer err)
+
+    if err && (err.code == 'EPERM' || err.code == 'UNKNOWN')
+      # Symlinks not supported - fall back to copy
+      @_copyDirectory('copied', target, link, cb)
+    else if err
+      cb(err)
+    else
+      file = path.relative(@rootPath, link + '/')
+      output.symlink(file, '-> ' + rel_target)
+      cb()
 
 
   _addSourceMapComment: (data) =>
@@ -355,7 +362,8 @@ class AssetGroup
 
     await
       # Copy any extra files that were generated
-      @_copyGeneratedDirectory(
+      @_copyDirectory(
+        'generated',
         path.join(tmpDir, '_generated'),
         path.join(@destPath, '_generated')
         errTo(cb, defer())
@@ -391,7 +399,7 @@ class AssetGroup
     cb(null, data)
 
 
-  _copyGeneratedFileOrDirectory: (src, dest, file, cb) =>
+  _copyFileOrDirectory: (action, src, dest, file, cb) =>
     return cb() if file[0...1] == '_'
 
     srcFile = path.join(src, file)
@@ -400,18 +408,18 @@ class AssetGroup
     await fs.stat(srcFile, errTo(cb, defer stat))
 
     if stat.isDirectory()
-      @_copyGeneratedDirectory(srcFile, destFile, cb)
+      @_copyDirectory(action, srcFile, destFile, cb)
     else
-      @_copyGeneratedFile(srcFile, destFile, cb)
+      @_copyFile(action, srcFile, destFile, cb)
 
 
-  _copyGeneratedFile: (src, dest, cb) =>
+  _copyFile: (action, src, dest, cb) =>
     await @_getBuffer(src, dest, errTo(cb, defer data))
-    data.action = 'generated'
+    data.action = action
     @_write(data, cb)
 
 
-  _copyGeneratedDirectory: (src, dest, cb) =>
+  _copyDirectory: (action, src, dest, cb) =>
 
     # Get a list of files
     await fs.readdir(src, defer(err, files))
@@ -426,7 +434,7 @@ class AssetGroup
     await mkdirp(dest, errTo(cb, defer()))
 
     # Copy the files
-    async.each(files, _.partial(@_copyGeneratedFileOrDirectory, src, dest), cb)
+    async.each(files, _.partial(@_copyFileOrDirectory, action, src, dest), cb)
 
 
   _compileFile: (src, dest, cb) =>
