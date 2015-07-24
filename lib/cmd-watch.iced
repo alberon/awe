@@ -1,18 +1,25 @@
-_      = require('lodash')
-async  = require('async')
-assets = require('./assets')
-config = require('./config')
-errTo  = require('errto')
-output = require('./output')
-path   = require('path')
-watch  = require('node-watch')
+_        = require('lodash')
+async    = require('async')
+assets   = require('./assets')
+chokidar = require('chokidar')
+config   = require('./config')
+errTo    = require('errto')
+fs       = require('fs')
+output   = require('./output')
+path     = require('path')
 
 
 exports.run = (command, errCb) ->
 
-  # Load config data
-  await config.load(errTo(errCb, defer()))
+  await
+    # Load config data
+    config.load(errTo(errCb, defer()))
 
+    # Determine if we're running Vagrant (best guess)
+    fs.stat('/vagrant', defer(vagrantErr, vagrantStat))
+
+  # Is this Vagrant? If so we have to use polling not inotify to detect changes
+  isVagrant = !vagrantErr && vagrantStat.isDirectory()
   # Create AssetGroup objects
   groups = assets.groups()
 
@@ -55,12 +62,19 @@ exports.run = (command, errCb) ->
         build()
 
     # Watch for changes
-    watch group.srcPath, (file) ->
+    changed = (file) ->
       output.modified(path.relative(config.rootPath, file))
       if running
         runAgain = true
       else
         buildDebounced()
+
+    chokidar.watch(group.srcPath, usePolling: isVagrant, ignoreInitial: true)
+      .on('add', changed)
+      .on('change', changed)
+      .on('unlink', changed)
+      .on('addDir', changed)
+      .on('unlinkDir', changed)
 
     # Start initial build
     build()
