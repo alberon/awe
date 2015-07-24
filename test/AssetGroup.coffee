@@ -83,7 +83,7 @@ build = ({root, files, config, warnings, errors, tests}) ->
 #================================================================================
 
 describe 'AssetGroup.build()', ->
-  @timeout 5000
+  @timeout 10000
 
   #----------------------------------------
   # Basic copy/compile functionality

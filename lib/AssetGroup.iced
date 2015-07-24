@@ -122,7 +122,7 @@ class AssetGroup
     rel_target = path.relative(path.dirname(link), target)
     await fs.symlink(rel_target, link, defer err)
 
-    if err && err.code == 'EPERM' && process.platform == 'win32'
+    if err && err.code == 'EPERM'
       # Symlinks not supported - fall back to copy
       @_copyDirectory('copied', target, link, cb)
     else if err
