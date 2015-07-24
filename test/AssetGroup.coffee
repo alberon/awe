@@ -672,7 +672,7 @@ describe 'AssetGroup.build()', ->
             "coffeescript.coffee"
           ],
           "names": [],
-          "mappings": "AAAA;AAAA,EAAA,OAAO,CAAC,GAAR,CAAY,gBAAZ,CAAA,CAAA;;AAAA,EACA,OAAO,CAAC,GAAR,CAAY,gBAAZ,CADA,CAAA;;AAAA,EAEA,OAAO,CAAC,GAAR,CAAY,gBAAZ,CAFA,CAAA;AAAA",
+          "mappings": "AAAA;EAAA,OAAO,CAAC,GAAR,CAAY,gBAAZ;;EACA,OAAO,CAAC,GAAR,CAAY,gBAAZ;;EACA,OAAO,CAAC,GAAR,CAAY,gBAAZ;AAFA",
           "sourcesContent": [
             "console.log 'CoffeeScript 1'\\nconsole.log 'CoffeeScript 2'\\nconsole.log 'CoffeeScript 3'\\n"
           ]
@@ -760,13 +760,13 @@ describe 'AssetGroup.build()', ->
       'src/sprite.scss'
     ]
     tests: ->
-      source = path.join(__dirname, '../ruby_bundle/ruby/1.9.1/gems/compass-core-1.0.1/stylesheets/compass/utilities/sprites/_base.scss')
+      source = path.join(__dirname, '../ruby_bundle/ruby/1.9.1/gems/compass-core-1.0.3/stylesheets/compass/utilities/sprites/_base.scss')
       expect("#{fixtures}/build-sourcemap-compass-sprites/build/sprite.css.map").to.have.content """
         {
           "version": 3,
           "sources": [
             "sprite.scss",
-            "_awe/ruby_bundle/ruby/1.9.1/gems/compass-core-1.0.1/stylesheets/compass/utilities/sprites/_base.scss"
+            "_awe/ruby_bundle/ruby/1.9.1/gems/compass-core-1.0.3/stylesheets/compass/utilities/sprites/_base.scss"
           ],
           "names": [],
           "mappings": "AAAA;EACE,2DAA2E;EAC3E,8BAA6B;EAC9B;;ACgFO;EAlEN,0BACiB;EDXlB",
@@ -809,7 +809,7 @@ describe 'AssetGroup.build()', ->
             "combine.js/2-subdir/2.coffee"
           ],
           "names": [],
-          "mappings": "AAAA;AACA;AACA;ACAA;AAAA,EAAA,OAAO,CAAC,GAAR,CAAY,cAAZ,CAAA,CAAA;AAAA",
+          "mappings": "AAAA;AACA;AACA;ACAA;EAAA,OAAO,CAAC,GAAR,CAAY,cAAZ;AAAA",
           "file": "combine.js",
           "sourceRoot": "../src",
           "sourcesContent": [
