@@ -672,7 +672,7 @@ describe 'AssetGroup.build()', ->
             "coffeescript.coffee"
           ],
           "names": [],
-          "mappings": "AAAA;AAAA,EAAA,OAAO,CAAC,GAAR,CAAY,gBAAZ,CAAA,CAAA;;AAAA,EACA,OAAO,CAAC,GAAR,CAAY,gBAAZ,CADA,CAAA;;AAAA,EAEA,OAAO,CAAC,GAAR,CAAY,gBAAZ,CAFA,CAAA;AAAA",
+          "mappings": "AAAA;EAAA,OAAO,CAAC,GAAR,CAAY,gBAAZ;;EACA,OAAO,CAAC,GAAR,CAAY,gBAAZ;;EACA,OAAO,CAAC,GAAR,CAAY,gBAAZ;AAFA",
           "sourcesContent": [
             "console.log 'CoffeeScript 1'\\nconsole.log 'CoffeeScript 2'\\nconsole.log 'CoffeeScript 3'\\n"
           ]
@@ -809,7 +809,7 @@ describe 'AssetGroup.build()', ->
             "combine.js/2-subdir/2.coffee"
           ],
           "names": [],
-          "mappings": "AAAA;AACA;AACA;ACAA;AAAA,EAAA,OAAO,CAAC,GAAR,CAAY,cAAZ,CAAA,CAAA;AAAA",
+          "mappings": "AAAA;AACA;AACA;ACAA;EAAA,OAAO,CAAC,GAAR,CAAY,cAAZ;AAAA",
           "file": "combine.js",
           "sourceRoot": "../src",
           "sourcesContent": [
