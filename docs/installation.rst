@@ -21,10 +21,8 @@
 
 If you already know what you're doing, this is a shorthand version of the instructions below for Debian Wheezy::
 
-    $ echo 'deb     http://ftp.uk.debian.org/debian/ wheezy-backports main contrib non-free' | sudo tee -a /etc/apt/sources.list >/dev/null
-    $ sudo apt-get update
-    $ sudo apt-get install curl nodejs nodejs-legacy ruby ruby-dev
-    $ curl https://www.npmjs.org/install.sh | sudo sh
+    $ curl -sL https://deb.nodesource.com/setup_0.12 | sudo bash -
+    $ sudo apt-get install -y nodejs
     $ sudo gem install bundler
     $ sudo npm install -g awe bower
 
