@@ -34,7 +34,7 @@
     "chalk": "^1.0.0",
     "chokidar": "^1.0.5",
     "coffee-script": "~1.9.3",
-    "concat-with-sourcemaps": "^0.1.5",
+    "concat-with-sourcemaps": "~1.0.2",
     "errto": "^0.2.1",
     "findup": "^0.1.5",
     "glob": "^4.0.0",
@@ -42,12 +42,15 @@
     "js-yaml": "^3.0.2",
     "lodash": "^2.4.1",
     "mkdirp": "^0.5.0",
-    "mu2": "^0.5.20",
+    "mustache": "^2.1.2",
     "postcss": "^2.2.5",
     "rimraf": "^2.2.8",
     "source-map-support": "^0.2.7",
     "string": "^1.8.1",
-    "tmp": "0.0.24"
+    "tmp": "0.0.24",
+    "graceful-fs": "~4.1.2",
+    "trace": "~1.2.0",
+    "clarify": "~1.0.5"
   },
   "devDependencies": {
     "chai": "^1.9.1",

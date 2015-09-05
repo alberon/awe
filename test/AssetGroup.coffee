@@ -459,8 +459,8 @@ describe 'AssetGroup.build()', ->
     tests: ->
       expect("#{fixtures}/build-autoprefixer-css/build/autoprefixer.css").to.have.content """
         .css {
-          transition: -webkit-transform 1s;
-          transition: transform 1s;
+          -webkit-transition: -webkit-transform 1s;
+                  transition: transform 1s;
         }\n\n
       """
 
@@ -475,8 +475,8 @@ describe 'AssetGroup.build()', ->
     tests: ->
       expect("#{fixtures}/build-autoprefixer-scss/build/autoprefixer.css").to.have.content """
         .scss, .also-scss {
-          transition: -webkit-transform 1s;
-          transition: transform 1s;
+          -webkit-transition: -webkit-transform 1s;
+                  transition: transform 1s;
         }\n
       """
 
@@ -692,13 +692,13 @@ describe 'AssetGroup.build()', ->
       expect("#{fixtures}/build-sourcemap-css-autoprefixer/build/styles.css").to.have.content """
         /* This is just to make the line numbers change a bit */
         .another {
-          transition: -webkit-transform 1s;
-          transition: transform 1s;
+          -webkit-transition: -webkit-transform 1s;
+                  transition: transform 1s;
         }
 
         .css {
-          transition: -webkit-transform 1s;
-          transition: transform 1s;
+          -webkit-transition: -webkit-transform 1s;
+                  transition: transform 1s;
         }
 
         /*# sourceMappingURL=styles.css.map */\n
@@ -710,7 +710,7 @@ describe 'AssetGroup.build()', ->
             "styles.css"
           ],
           "names": [],
-          "mappings": "AAAA,yDAAwD;AACxD;EACE,kCAAyB;EAAzB,0BAAyB;EAC1B;;AAED;EACE,kCAAyB;EAAzB,0BAAyB;EAC1B",
+          "mappings": "AAAA,yDAAwD;AACxD;EACE,0CAAyB;UAAzB,0BAAyB;EAC1B;;AAED;EACE,0CAAyB;UAAzB,0BAAyB;EAC1B",
           "file": "styles.css",
           "sourceRoot": "../src",
           "sourcesContent": [

@@ -8,7 +8,7 @@ Concat       = require('concat-with-sourcemaps')
 errTo        = require('errto')
 fs           = require('fs')
 mkdirp       = require('mkdirp')
-mu           = require('mu2')
+mustache     = require('mustache')
 output       = require('./output')
 path         = require('path')
 rewriteCss   = require('./rewriteCss')
@@ -82,6 +82,10 @@ class AssetGroup
     else
       output.created(file)
 
+    # Read template file
+    templateFile = path.resolve(__dirname, '../templates/asset-warning.mustache')
+    await fs.readFile(templateFile, 'utf8', errTo(cb, defer template))
+
     await
       # Create a symlink to the bower_components directory
       if @bower
@@ -89,9 +93,9 @@ class AssetGroup
 
       # Create a file warning people not to edit the compiled files
       if @warningFile
-        stream = mu.compileAndRender 'asset-warning.mustache',
+        content = mustache.render template,
           source: path.relative(@destPath, @srcPath)
-        @_write(dest: path.join(@warningFile), stream: stream, action: 'generated', defer())
+        @_write(dest: path.join(@warningFile), content: content, action: 'generated', defer())
 
       # Create cache directory
       cacheDir.prepare(@rootPath, errTo(cb, defer @cachePath))
@@ -107,7 +111,7 @@ class AssetGroup
     rel_target = path.relative(path.dirname(link), target)
     await fs.symlink(rel_target, link, defer err)
 
-    if err && (err.code == 'EPERM' || err.code == 'UNKNOWN')
+    if err && (err.code in ['EPERM', 'EPROTO', 'UNKNOWN'])
       # Symlinks not supported - fall back to copy
       @_copyDirectory('copied', target, link, cb)
     else if err

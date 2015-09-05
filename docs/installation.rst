@@ -51,7 +51,7 @@ Awe is developed and tested on Linux. It should run on Mac OS X too, but it hasn
  Node.js & npm
 ----------------------------------------
 
-`Node.js <https://nodejs.org/>`_ and `npm <https://www.npmjs.org/>`_ must be installed. Awe is tested on Node.js 0.10, and may not work on older versions.
+`Node.js <https://nodejs.org/>`_ v0.12+ and `npm <https://www.npmjs.org/>`_ must be installed. Awe is tested on Node.js 0.10, and may not work on older versions.
 
 To check they're installed, run::
 
@@ -62,20 +62,12 @@ To check they're installed, run::
 Installing Node.js on Debian
 ............................
 
-On Debian Wheezy, Node.js is only available in `Backports <http://backports.debian.org/>`_, but you will need to add that as a source::
+::
 
-    $ sudo vim /etc/apt/sources.list
+    $ curl -sL https://deb.nodesource.com/setup_0.12 | sudo bash -
+    $ sudo apt-get install -y nodejs
 
-Add this line::
-
-    deb     http://ftp.uk.debian.org/debian/ wheezy-backports main contrib non-free
-
-Then run the following to install it::
-
-    $ sudo apt-get update
-    $ sudo apt-get install curl nodejs nodejs-legacy
-    $ curl https://www.npmjs.org/install.sh | sudo sh
-
+See `NodeSource <https://github.com/nodesource/distributions>`_ for more details or other versions.
 
 ----------------------------------------
  Ruby & Bundler

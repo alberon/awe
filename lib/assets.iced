@@ -1,6 +1,5 @@
 AssetGroup = require('./AssetGroup')
 config     = require('./config')
-fs         = require('fs')
 
 
 exports.groups = ->
