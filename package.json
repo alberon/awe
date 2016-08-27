@@ -1,6 +1,6 @@
 {
   "name": "awe",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "Simplifies the building and maintenance of websites / web apps, by handling the compilation & minification of assets, and deployment to remote servers",
   "license": "MIT",
   "homepage": "http://awe.alberon.co.uk/",
