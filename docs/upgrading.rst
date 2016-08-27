@@ -30,3 +30,9 @@ New config file format -- see :doc:`config`.
 ================================================================================
 
 Now requires Node v0.12+. See :doc:`installation` for details of how to upgrade.
+
+================================================================================
+ v1.3.0 :date:`(27 Aug 2016)`
+================================================================================
+
+Now requires Node v4.0+. See :doc:`installation` for details of how to upgrade.
