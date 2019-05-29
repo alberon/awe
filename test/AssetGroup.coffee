@@ -760,13 +760,14 @@ describe 'AssetGroup.build()', ->
       'src/sprite.scss'
     ]
     tests: ->
-      source = path.join(__dirname, '../ruby_bundle/ruby/1.9.1/gems/compass-core-1.0.1/stylesheets/compass/utilities/sprites/_base.scss')
+      # XXX Brittle test - The Ruby version may change
+      source = path.join(__dirname, '../ruby_bundle/ruby/2.5.0/gems/compass-core-1.0.1/stylesheets/compass/utilities/sprites/_base.scss')
       expect("#{fixtures}/build-sourcemap-compass-sprites/build/sprite.css.map").to.have.content """
         {
           "version": 3,
           "sources": [
             "sprite.scss",
-            "_awe/ruby_bundle/ruby/1.9.1/gems/compass-core-1.0.1/stylesheets/compass/utilities/sprites/_base.scss"
+            "_awe/ruby_bundle/ruby/2.5.0/gems/compass-core-1.0.1/stylesheets/compass/utilities/sprites/_base.scss"
           ],
           "names": [],
           "mappings": "AAAA;EACE,2DAA2E;EAC3E,8BAA6B;EAC9B;;ACgFO;EAlEN,0BACiB;EDXlB",
